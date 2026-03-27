@@ -4,6 +4,7 @@ Generic multi-journal LaTeX formatter.
 """
 
 import os
+import sys
 import uuid
 import json
 from flask import Flask, render_template, request, jsonify, send_file
@@ -13,11 +14,19 @@ from formatter import (extract_from_docx, parse_author_info,
                        generate_latex, build_zip,
                        generate_latex_from_form, build_zip_form)
 
-app = Flask(__name__)
+
+def resource_path(relative_path):
+    """PyInstaller ile paketlendiğinde doğru dosya yolunu döndürür."""
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), relative_path)
+
+
+app = Flask(__name__, template_folder=resource_path('templates'))
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32 MB
 
-PROFILES_DIR = os.path.join(os.path.dirname(__file__), 'profiles')
-DEFAULT_LOGO  = os.path.join(os.path.dirname(__file__), 'JGTTR.png')
+PROFILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'profiles')
+DEFAULT_LOGO  = resource_path('JGTTR.png')
 
 # In-memory store for generated ZIPs (keyed by session UUID)
 _zip_store: dict[str, bytes] = {}
