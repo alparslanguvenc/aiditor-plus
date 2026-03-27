@@ -196,9 +196,23 @@ def delete_profile(name):
 
 
 if __name__ == '__main__':
-    import webbrowser, threading
+    import webbrowser, threading, signal, subprocess, time
+
+    # Portu kullanan eski süreci temizle
+    try:
+        result = subprocess.run(
+            ['lsof', '-ti', ':5051'],
+            capture_output=True, text=True
+        )
+        for pid in result.stdout.strip().split('\n'):
+            if pid:
+                os.kill(int(pid), signal.SIGKILL)
+        time.sleep(0.5)
+    except Exception:
+        pass
+
     def open_browser():
-        import time; time.sleep(1.2)
+        time.sleep(1.2)
         webbrowser.open('http://127.0.0.1:5051')
     threading.Thread(target=open_browser, daemon=True).start()
     app.run(host='127.0.0.1', port=5051, debug=False)
