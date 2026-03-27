@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-ditor Plus</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+:root { --brown:#833C0B; --brown-d:#5a2807; --brown-light:#f9f0eb; --blue:#0070C0; }
+body { background:#f0f2f5; font-family:'Segoe UI',sans-serif; }
+.navbar { background:var(--brown) !important; }
+.navbar-brand { color:#fff !important; font-weight:700; letter-spacing:.3px; }
+
+/* Cards */
+.card { border:none; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:1rem; }
+
+/* Section headers */
+.sec-hdr {
+  background:var(--brown); color:#fff;
+  border-radius:12px 12px 0 0;
+  font-weight:600; cursor:pointer; user-select:none;
+  display:flex; align-items:center; padding:11px 16px; gap:8px;
+  transition: border-radius .15s;
+}
+.sec-hdr:hover { background:var(--brown-d); }
+.sec-hdr.collapsed { border-radius:12px !important; }
+.sec-hdr .chevron { margin-left:auto; transition:transform .2s; }
+.sec-hdr.collapsed .chevron { transform:rotate(-90deg); }
+
+.step-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.22); border-radius:50%;
+  width:24px; height:24px; font-size:.8rem; font-weight:700; flex-shrink:0;
+}
+
+/* Author rows */
+.author-row {
+  background:#fff; border:1px solid #e5ddd7; border-radius:10px;
+  padding:12px 14px; margin-bottom:10px;
+}
+.author-num { font-size:.8rem; font-weight:700; color:#888; }
+
+/* Section blocks */
+.sec-block { background:#fff; border:1px solid #e5ddd7; border-radius:10px; margin-bottom:10px; overflow:hidden; }
+.sec-block-hdr {
+  background:#f7f0ec; border-bottom:1px solid #e5ddd7;
+  padding:7px 10px; display:flex; align-items:center; gap:7px;
+}
+.sec-block-body { padding:10px 12px; }
+
+/* Figure/Table blocks */
+.ft-block { background:#fff; border:1px solid #d5dfe8; border-radius:10px; margin-bottom:10px; overflow:hidden; }
+.ft-hdr { background:#eef2f8; border-bottom:1px solid #d5dfe8; padding:7px 10px; display:flex; align-items:center; gap:7px; }
+
+/* Figure drop zone */
+.fig-drop {
+  border:2px dashed #bbb; border-radius:8px;
+  padding:18px; text-align:center; cursor:pointer;
+  background:#fafafa; transition:all .2s; min-height:80px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.fig-drop:hover,.fig-drop.over { background:#eef2f8; border-color:var(--blue); }
+.fig-preview { max-width:100%; max-height:140px; border-radius:6px; margin-top:8px; }
+
+/* Buttons */
+.btn-jgttr { background:var(--brown); color:#fff; border:none; font-weight:600; border-radius:8px; }
+.btn-jgttr:hover { background:var(--brown-d); color:#fff; }
+.add-btn {
+  border:2px dashed #ccc; background:#fff; border-radius:8px; color:#999;
+  width:100%; padding:7px; font-size:.88rem; transition:all .2s; cursor:pointer;
+}
+.add-btn:hover { border-color:var(--brown); color:var(--brown); }
+
+.btn-icon { padding:2px 7px; font-size:.78rem; border-radius:6px; line-height:1.6; }
+.drag-handle { color:#ccc; cursor:grab; }
+.drag-handle:hover { color:#888; }
+
+.lbl { font-size:.8rem; font-weight:600; color:#555; margin-bottom:2px; }
+.form-control, .form-select { font-size:.875rem; }
+.form-control-sm, .form-select-sm { font-size:.82rem; }
+textarea { resize:vertical; }
+#result-panel { display:none; }
+.spinner-border { width:1.1rem; height:1.1rem; }
+
+/* Journal settings panel */
+#journal-settings-panel { border:2px solid #2c3e50; background:#fff; }
+#journal-settings-panel .js-hdr {
+  background:#2c3e50; color:#fff; border-radius:10px 10px 0 0;
+  padding:10px 16px; font-weight:700; display:flex; align-items:center; gap:8px;
+  cursor:pointer; user-select:none;
+}
+#journal-settings-panel .js-hdr:hover { background:#1a252f; }
+#journal-settings-panel .js-hdr .chevron { margin-left:auto; transition:transform .2s; }
+#journal-settings-panel .js-hdr.collapsed .chevron { transform:rotate(-90deg); }
+.js-body { padding:14px 16px; }
+
+/* Logo drop */
+.logo-drop {
+  border:2px dashed #bbb; border-radius:8px;
+  padding:10px 14px; text-align:center; cursor:pointer;
+  background:#fafafa; transition:all .2s; font-size:.82rem; color:#999;
+}
+.logo-drop:hover { background:#eef2f8; border-color:#2c3e50; }
+
+/* Subsection level color */
+.lvl-1 { color:var(--brown); }
+.lvl-2 { color:#1a56db; }
+.lvl-3 { color:#1a7f3c; }
+</style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar navbar-dark">
+  <div class="container">
+    <span class="navbar-brand mb-0">📄 AI-ditor Plus</span>
+    <span class="text-white-50" style="font-size:.8rem">Evrensel Akademik Dergi LaTeX Şablonu</span>
+  </div>
+</nav>
+
+<!-- ── Bilgilendirme Şeridi ── -->
+<div style="background:linear-gradient(90deg,#c0392b,#e74c3c);color:#fff;padding:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.25)">
+  <div class="container" style="max-width:960px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <span style="font-size:.88rem;line-height:1.5;flex:1;min-width:200px">
+      💡 Bu yazılım <strong>Alparslan Güvenç</strong> tarafından kar amacı gütmeksizin geliştirilmiştir.
+      Dergi editörlerine ve teknik ekibe kolaylık sağlaması dileğiyle…
+    </span>
+    <span style="display:inline-flex;align-items:center;gap:12px;flex-shrink:0">
+      <!-- LinkedIn -->
+      <a href="https://www.linkedin.com/in/alparslanguvenc/" target="_blank" rel="noopener"
+         title="LinkedIn" style="color:#fff;opacity:.9;display:inline-flex;align-items:center;transition:opacity .2s"
+         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.9">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.27c-.97 0-1.75-.79-1.75-1.76s.78-1.76 1.75-1.76 1.75.79 1.75 1.76-.78 1.76-1.75 1.76zm13.5 11.27h-3v-5.6c0-1.34-.03-3.07-1.87-3.07-1.87 0-2.16 1.46-2.16 2.97v5.7h-3v-10h2.88v1.36h.04c.4-.76 1.38-1.56 2.84-1.56 3.04 0 3.6 2 3.6 4.59v5.61z"/>
+        </svg>
+      </a>
+      <!-- X (Twitter) -->
+      <a href="https://x.com/AlparslanGvnc" target="_blank" rel="noopener"
+         title="X / Twitter" style="color:#fff;opacity:.9;display:inline-flex;align-items:center;transition:opacity .2s"
+         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.9">
+        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.629 5.905-5.629zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </a>
+      <!-- ORCID -->
+      <a href="https://orcid.org/0000-0002-6195-0654" target="_blank" rel="noopener"
+         title="ORCID" style="color:#fff;opacity:.9;display:inline-flex;align-items:center;transition:opacity .2s"
+         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.9">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm-1.374 4.584c.584 0 1.056.472 1.056 1.056s-.472 1.056-1.056 1.056-1.056-.472-1.056-1.056.472-1.056 1.056-1.056zM9.24 8.88h1.932v9.792H9.24V8.88zm3.528 0h3.024c2.928 0 4.344 2.064 4.344 4.896 0 2.784-1.368 4.896-4.344 4.896h-3.024V8.88zm1.932 1.68v6.432h1.02c1.548 0 2.46-1.116 2.46-3.216 0-2.076-.9-3.216-2.46-3.216h-1.02z"/>
+        </svg>
+      </a>
+    </span>
+  </div>
+</div>
+<div style="height:14px"></div>
+
+<div class="container pb-5" style="max-width:960px">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  DERGİ AYARLARI (Journal Settings)                         -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="card mb-3" id="journal-settings-panel">
+  <div class="js-hdr" onclick="toggleJS(this)">
+    <i class="bi bi-journal-text"></i> Dergi Ayarları / Journal Settings
+    <i class="bi bi-chevron-down chevron"></i>
+  </div>
+  <div class="js-body" id="js-body">
+
+    <!-- Profile row -->
+    <div class="row g-2 mb-3 align-items-end">
+      <div class="col-md-3">
+        <label class="lbl">Profil Adı</label>
+        <input id="js-profile-name" class="form-control form-control-sm" placeholder="örn: JGTTR">
+      </div>
+      <div class="col-md-4">
+        <label class="lbl">Kayıtlı Profiller</label>
+        <select id="js-profile-select" class="form-select form-select-sm">
+          <option value="">— Profil seçin —</option>
+        </select>
+      </div>
+      <div class="col-md-5 d-flex gap-2 flex-wrap">
+        <button class="btn btn-success btn-sm" onclick="saveProfile()"><i class="bi bi-floppy me-1"></i>Kaydet</button>
+        <button class="btn btn-primary btn-sm" onclick="loadSelectedProfile()"><i class="bi bi-folder2-open me-1"></i>Yükle</button>
+        <button class="btn btn-outline-danger btn-sm" onclick="deleteSelectedProfile()"><i class="bi bi-trash3 me-1"></i>Sil</button>
+      </div>
+    </div>
+
+    <hr class="my-2">
+
+    <!-- Journal identity -->
+    <div class="row g-2 mb-2">
+      <div class="col-md-6">
+        <label class="lbl">Dergi Adı (Türkçe)</label>
+        <input id="js-name-tr" class="form-control form-control-sm"
+               placeholder="Küresel Turizm ve Teknoloji Araştırmaları Dergisi">
+      </div>
+      <div class="col-md-6">
+        <label class="lbl">Dergi Adı (İngilizce)</label>
+        <input id="js-name-en" class="form-control form-control-sm"
+               placeholder="Journal of Global Tourism and Technology Research">
+      </div>
+    </div>
+    <div class="row g-2 mb-2">
+      <div class="col-md-3">
+        <label class="lbl">Print ISSN</label>
+        <input id="js-issn-print" class="form-control form-control-sm" placeholder="XXXX-XXXX">
+      </div>
+      <div class="col-md-3">
+        <label class="lbl">Online ISSN</label>
+        <input id="js-issn-online" class="form-control form-control-sm" placeholder="XXXX-XXXX">
+      </div>
+      <div class="col-md-6">
+        <label class="lbl">Dergi URL</label>
+        <input id="js-url" class="form-control form-control-sm" placeholder="https://dergipark.org.tr/en/pub/...">
+      </div>
+    </div>
+
+    <!-- Logo & font & style -->
+    <div class="row g-2 mb-1">
+      <div class="col-md-3">
+        <label class="lbl">Dergi Logosu</label>
+        <div class="logo-drop" id="logo-drop" onclick="document.getElementById('logo-inp').click()">
+          <i class="bi bi-image me-1"></i><span id="logo-label">Logo dosyası seçin</span>
+        </div>
+        <input type="file" id="logo-inp" accept=".png,.jpg,.jpeg,.pdf" style="display:none"
+               onchange="onLogoSelect(this)">
+      </div>
+      <div class="col-md-3">
+        <label class="lbl">Yazı Tipi (Font)</label>
+        <select id="js-font" class="form-select form-select-sm">
+          <option value="Palatino Linotype" selected>Palatino Linotype</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Century">Century</option>
+          <option value="Calibri">Calibri</option>
+          <option value="Sans Serif">Sans Serif</option>
+        </select>
+        <div style="font-size:.72rem;color:#aaa;margin-top:2px">Overleaf uyumlu TeX eşdeğerleri kullanılır</div>
+      </div>
+      <div class="col-md-2">
+        <label class="lbl">Gövde Boyutu</label>
+        <select id="js-body-size" class="form-select form-select-sm">
+          <option value="9">9pt</option>
+          <option value="10" selected>10pt</option>
+          <option value="11">11pt</option>
+          <option value="12">12pt</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="lbl">Vurgu Rengi</label>
+        <input type="color" id="js-accent-color" class="form-control form-control-color form-control-sm"
+               value="#833C0B" title="Başlık çubuğu ve bant rengi" style="min-width:60px">
+      </div>
+    </div>
+
+  </div><!-- /js-body -->
+</div>
+
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- 1. KAPAK BİLGİLERİ                                      -->
+<!-- ─────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="sec-hdr" onclick="toggleSec('b-cover',this)">
+    <span class="step-badge">1</span> Kapak Sayfası Bilgileri
+    <i class="bi bi-chevron-down chevron"></i>
+  </div>
+  <div class="card-body" id="b-cover">
+    <div class="mb-2">
+      <label class="lbl">Türkçe Başlık</label>
+      <input class="form-control" id="c-tr-title" placeholder="Makalenin Türkçe başlığı">
+    </div>
+    <div class="mb-3">
+      <label class="lbl">İngilizce Başlık (Title)</label>
+      <input class="form-control" id="c-en-title" placeholder="Article title in English">
+    </div>
+    <div class="row g-2 mb-2">
+      <div class="col-4 col-md-2"><label class="lbl">Yıl</label><input class="form-control form-control-sm" id="c-year" value="2026"></div>
+      <div class="col-4 col-md-2"><label class="lbl">Cilt</label><input class="form-control form-control-sm" id="c-volume" placeholder="x"></div>
+      <div class="col-4 col-md-2"><label class="lbl">Sayı</label><input class="form-control form-control-sm" id="c-issue" placeholder="x"></div>
+      <div class="col-6 col-md-3"><label class="lbl">Başlangıç Sayfası</label><input class="form-control form-control-sm" id="c-start" placeholder="xxx"></div>
+      <div class="col-6 col-md-3"><label class="lbl">Bitiş Sayfası</label><input class="form-control form-control-sm" id="c-end" placeholder="xxx"></div>
+    </div>
+    <div class="row g-2 mb-2">
+      <div class="col-md-6"><label class="lbl">DOI</label><input class="form-control form-control-sm" id="c-doi" placeholder="10.xxxxx/..."></div>
+      <div class="col-md-6">
+        <label class="lbl">Makale Türü</label>
+        <input class="form-control form-control-sm" id="c-article-type" list="article-type-list"
+               placeholder="Araştırma Makalesi -- Research Article">
+        <datalist id="article-type-list">
+          <option value="Araştırma Makalesi -- Research Article">
+          <option value="Derleme Makalesi -- Review Article">
+          <option value="Kısa Bildiri -- Short Communication">
+          <option value="Vaka Analizi -- Case Study">
+          <option value="Editöre Mektup -- Letter to the Editor">
+        </datalist>
+      </div>
+    </div>
+    <div class="row g-2 mb-2">
+      <div class="col-md-4"><label class="lbl">Geliş Tarihi (Received)</label><input class="form-control form-control-sm" id="c-received" placeholder="gg.aa.yyyy"></div>
+      <div class="col-md-4"><label class="lbl">Kabul Tarihi (Accepted)</label><input class="form-control form-control-sm" id="c-accepted" placeholder="gg.aa.yyyy"></div>
+      <div class="col-md-4"><label class="lbl">Yayın Tarihi (Published)</label><input class="form-control form-control-sm" id="c-published" placeholder="gg.aa.yyyy"></div>
+    </div>
+    <div class="row g-2 mb-2">
+      <div class="col-md-6"><label class="lbl">Kısa Yazar (üst bilgi, örn: Yılmaz &amp; Kaya, 2026)</label><input class="form-control form-control-sm" id="c-author-short" placeholder="Yılmaz &amp; Kaya, 2026"></div>
+    </div>
+    <div class="mb-0">
+      <label class="lbl">Etik Beyan / Ethics Statement</label>
+      <textarea class="form-control form-control-sm" id="c-ethics" rows="2"
+        placeholder="Bu araştırma, ilgili etik kurul kararı doğrultusunda yürütülmüştür. / This study was conducted in accordance with the relevant ethics committee decision."></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- 2. YAZARLAR                                              -->
+<!-- ─────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="sec-hdr" onclick="toggleSec('b-authors',this)">
+    <span class="step-badge">2</span> Yazarlar
+    <span class="ms-2 opacity-75" id="badge-authors" style="font-size:.78rem">0 yazar</span>
+    <i class="bi bi-chevron-down chevron"></i>
+  </div>
+  <div class="card-body" id="b-authors">
+    <div id="authors-list"></div>
+    <button class="add-btn mt-1" onclick="addAuthor()"><i class="bi bi-plus-circle me-1"></i>Yazar Ekle</button>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- 3. ÖZET / ABSTRACT                                       -->
+<!-- ─────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="sec-hdr" onclick="toggleSec('b-abstract',this)">
+    <span class="step-badge">3</span> Özet / Abstract
+    <i class="bi bi-chevron-down chevron"></i>
+  </div>
+  <div class="card-body" id="b-abstract">
+    <div class="mb-2"><label class="lbl">Türkçe Özet</label><textarea class="form-control" id="a-tr-abs" rows="5" placeholder="Türkçe özet metni..."></textarea></div>
+    <div class="mb-3"><label class="lbl">Türkçe Anahtar Kelimeler <small class="text-muted">(noktalı virgül ile ayırın)</small></label><input class="form-control" id="a-tr-kw" placeholder="kelime 1; kelime 2; kelime 3"></div>
+    <hr class="my-2">
+    <div class="mb-2"><label class="lbl">English Abstract</label><textarea class="form-control" id="a-en-abs" rows="5" placeholder="English abstract..."></textarea></div>
+    <div class="mb-0"><label class="lbl">English Keywords <small class="text-muted">(separate with semicolons)</small></label><input class="form-control" id="a-en-kw" placeholder="keyword 1; keyword 2; keyword 3"></div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- 4. MAKALE BÖLÜMLERİ                                     -->
+<!-- ─────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="sec-hdr" onclick="toggleSec('b-sections',this)">
+    <span class="step-badge">4</span> Makale Bölümleri
+    <span class="ms-2 opacity-75" id="badge-sections" style="font-size:.78rem">0 bölüm</span>
+    <i class="bi bi-chevron-down chevron"></i>
+  </div>
+  <div class="card-body" id="b-sections">
+    <div id="sections-list"></div>
+    <button class="add-btn mt-1" onclick="addSection()"><i class="bi bi-plus-circle me-1"></i>Bölüm Ekle</button>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- 5. ŞEKİL VE TABLOLAR                                    -->
+<!-- ─────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="sec-hdr" onclick="toggleSec('b-ft',this)">
+    <span class="step-badge">5</span> Şekil ve Tablolar
+    <span class="ms-2 opacity-75" id="badge-ft" style="font-size:.78rem">0 öğe</span>
+    <i class="bi bi-chevron-down chevron"></i>
+  </div>
+  <div class="card-body" id="b-ft">
+    <p class="text-muted mb-2" style="font-size:.82rem">Şekiller yüklenebilir, tablolar pipe-ayrımlı metin olarak girilebilir.</p>
+    <div id="ft-list"></div>
+    <button class="add-btn mt-1" onclick="addFT()"><i class="bi bi-plus-circle me-1"></i>Şekil / Tablo Ekle</button>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- 6. EK BÖLÜMLER                                          -->
+<!-- ─────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="sec-hdr" onclick="toggleSec('b-extra',this)">
+    <span class="step-badge">6</span> Ek Bölümler
+    <i class="bi bi-chevron-down chevron"></i>
+  </div>
+  <div class="card-body" id="b-extra">
+    <div class="mb-3">
+      <div class="form-check mb-1">
+        <input class="form-check-input" type="checkbox" id="ack-on"
+               onchange="document.getElementById('ack-body').style.display=this.checked?'':'none'">
+        <label class="form-check-label" for="ack-on" style="font-size:.88rem;font-weight:600">Teşekkür / Acknowledgements</label>
+      </div>
+      <div id="ack-body" style="display:none">
+        <textarea class="form-control form-control-sm" id="ex-ack" rows="2" placeholder="Teşekkür metni..."></textarea>
+      </div>
+    </div>
+    <div class="mb-2">
+      <label class="lbl">Araştırmacı Katkı Oranı / Author Contributions</label>
+      <textarea class="form-control form-control-sm" id="ex-contrib" rows="3">Kavramsal çerçeve / Conceptualization: ; Yöntem / Methodology: ; Veri toplama / Data collection: ; Analiz / Analysis: ; Yazım / Writing: ; Gözden geçirme / Review &amp; Editing:</textarea>
+    </div>
+    <div class="mb-0">
+      <label class="lbl">Çıkar Çatışması / Conflict of Interest</label>
+      <textarea class="form-control form-control-sm" id="ex-conflict" rows="2">Yazarlar herhangi bir çıkar çatışması olmadığını beyan eder. / The authors declare no conflict of interest.</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- 7. KAYNAKÇA                                             -->
+<!-- ─────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="sec-hdr" onclick="toggleSec('b-refs',this)">
+    <span class="step-badge">7</span> Kaynakça / References
+    <i class="bi bi-chevron-down chevron"></i>
+  </div>
+  <div class="card-body" id="b-refs">
+    <p class="text-muted mb-2" style="font-size:.82rem">Her satıra bir kaynak — APA7 formatında yazın.</p>
+    <textarea class="form-control" id="refs" rows="10" style="font-family:monospace;font-size:.8rem"
+      placeholder="Yılmaz, A. (2020). Makale başlığı. Dergi Adı, 10(2), 1–15. https://doi.org/...&#10;Kaya, B. &amp; Demir, C. (2021). Kitap adı. Yayınevi."></textarea>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────── -->
+<!-- GENERATE                                                 -->
+<!-- ─────────────────────────────────────────────────────── -->
+<div class="text-center my-4">
+  <button id="btn-gen" class="btn btn-jgttr btn-lg px-5 py-3" onclick="doGenerate()">
+    <i class="bi bi-gear-fill me-2"></i>LaTeX Oluştur &amp; ZIP İndir
+  </button>
+</div>
+
+<div id="result-panel" class="card mb-4">
+  <div class="card-header" style="background:#198754;border-radius:12px 12px 0 0;color:#fff;font-weight:600">
+    <i class="bi bi-check-circle-fill me-2"></i>Tamamlandı — ZIP hazır
+  </div>
+  <div class="card-body text-center py-4">
+    <a id="dl-link" href="#" class="btn btn-success btn-lg px-4">
+      <i class="bi bi-download me-2"></i>ZIP İndir
+    </a>
+    <div class="mt-4 p-3 text-start" style="background:#fffde7;border-radius:8px;font-size:.83rem;color:#555">
+      <strong>Sonraki adımlar:</strong>
+      <ol class="mb-0 mt-1">
+        <li>ZIP dosyasını indirin.</li>
+        <li><a href="https://overleaf.com" target="_blank">overleaf.com</a> → New Project → Upload Project → ZIP'i seçin.</li>
+        <li>Menu → Compiler → <strong>XeLaTeX</strong> seçin.</li>
+        <li>Recompile → PDF hazır.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<div id="err-panel" class="alert alert-danger" style="display:none"></div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// ACCORDION
+// ═══════════════════════════════════════════════════
+function toggleSec(id, hdr) {
+  const body = document.getElementById(id);
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  hdr.classList.toggle('collapsed', !hidden);
+}
+function toggleJS(hdr) {
+  const body = document.getElementById('js-body');
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  hdr.classList.toggle('collapsed', !hidden);
+}
+
+// ═══════════════════════════════════════════════════
+// JOURNAL SETTINGS
+// ═══════════════════════════════════════════════════
+function _getLogoFile() {
+  // Her zaman doğrudan DOM'dan oku — ayrı state tutma
+  const inp = document.getElementById('logo-inp');
+  return (inp && inp.files && inp.files[0]) ? inp.files[0] : null;
+}
+
+function _stemFromFilename(filename) {
+  const dot = filename.lastIndexOf('.');
+  const raw = dot > 0 ? filename.substring(0, dot) : filename;
+  return raw.replace(/[^a-zA-Z0-9_\-]/g, '_') || 'journal_logo';
+}
+
+function onLogoSelect(inp) {
+  if(inp.files[0]) {
+    document.getElementById('logo-label').textContent = inp.files[0].name;
+  }
+}
+
+function collectJournalSettings() {
+  const lf          = _getLogoFile();
+  const profileName = document.getElementById('js-profile-name').value.trim();
+  const resolvedStem = lf
+    ? _stemFromFilename(lf.name)
+    : (profileName ? profileName + '_logo' : 'journal_logo');
+
+  return {
+    journal_name_tr: document.getElementById('js-name-tr').value.trim(),
+    journal_name_en: document.getElementById('js-name-en').value.trim(),
+    issn_print:      document.getElementById('js-issn-print').value.trim(),
+    issn_online:     document.getElementById('js-issn-online').value.trim(),
+    journal_url:     document.getElementById('js-url').value.trim(),
+    font:            document.getElementById('js-font').value,
+    body_size:       document.getElementById('js-body-size').value,
+    accent_color:    document.getElementById('js-accent-color').value,
+    logo_stem:       resolvedStem,
+  };
+}
+
+function applyJournalSettings(s) {
+  document.getElementById('js-name-tr').value     = s.journal_name_tr || '';
+  document.getElementById('js-name-en').value     = s.journal_name_en || '';
+  document.getElementById('js-issn-print').value  = s.issn_print      || '';
+  document.getElementById('js-issn-online').value = s.issn_online     || '';
+  document.getElementById('js-url').value         = s.journal_url     || '';
+  document.getElementById('js-font').value        = s.font            || 'texgyrepagella';
+  document.getElementById('js-body-size').value   = s.body_size       || '10';
+  document.getElementById('js-accent-color').value= s.accent_color    || '#833C0B';
+  if(s.logo_filename) {
+    document.getElementById('logo-label').textContent = s.logo_filename + ' (kayıtlı)';
+  }
+}
+
+// ── Profile management ──────────────────────────────────────
+
+async function refreshProfiles() {
+  try {
+    const res = await fetch('/list_profiles');
+    const names = await res.json();
+    const sel = document.getElementById('js-profile-select');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— Profil seçin —</option>' +
+      names.map(n => `<option value="${esc(n)}"${n===cur?' selected':''}>${esc(n)}</option>`).join('');
+  } catch(e) { /* ignore */ }
+}
+
+async function saveProfile() {
+  const name = document.getElementById('js-profile-name').value.trim();
+  if(!name) { alert('Lütfen bir profil adı girin.'); return; }
+
+  const settings = collectJournalSettings();
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('settings', JSON.stringify(settings));
+  const _lf = _getLogoFile(); if(_lf) fd.append('logo', _lf, _lf.name);
+
+  try {
+    const res = await fetch('/save_profile', { method:'POST', body:fd });
+    const r   = await res.json();
+    if(!r.ok) throw new Error(r.error);
+    await refreshProfiles();
+    document.getElementById('js-profile-select').value = name;
+    alert('Profil kaydedildi: ' + name);
+  } catch(e) { alert('Kayıt hatası: ' + e.message); }
+}
+
+async function loadSelectedProfile() {
+  const name = document.getElementById('js-profile-select').value;
+  if(!name) { alert('Lütfen bir profil seçin.'); return; }
+  try {
+    const res = await fetch('/load_profile/' + encodeURIComponent(name));
+    const r   = await res.json();
+    if(!r.ok) throw new Error(r.error);
+    document.getElementById('js-profile-name').value = name;
+    applyJournalSettings(r.settings);
+  } catch(e) { alert('Yükleme hatası: ' + e.message); }
+}
+
+async function deleteSelectedProfile() {
+  const name = document.getElementById('js-profile-select').value;
+  if(!name) { alert('Lütfen bir profil seçin.'); return; }
+  if(!confirm(name + ' profilini silmek istediğinizden emin misiniz?')) return;
+  try {
+    await fetch('/delete_profile/' + encodeURIComponent(name), { method:'DELETE' });
+    await refreshProfiles();
+  } catch(e) { alert('Silme hatası: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// COUNTERS & HELPERS
+// ═══════════════════════════════════════════════════
+let aIdx = 0, sIdx = 0, ftIdx = 0;
+const figFiles = {};
+
+function badge(id, n, label) {
+  document.getElementById(id).textContent = n + ' ' + label;
+}
+
+// ═══════════════════════════════════════════════════
+// AUTHORS
+// ═══════════════════════════════════════════════════
+function addAuthor(d = {}) {
+  const uid = aIdx++;
+  const list = document.getElementById('authors-list');
+  const n = list.children.length + 1;
+  const div = document.createElement('div');
+  div.className = 'author-row';
+  div.id = 'a-' + uid;
+  div.innerHTML = `
+    <div class="d-flex align-items-center mb-2">
+      <span class="author-num me-2">YAZAR ${n}</span>
+      <button class="btn btn-sm btn-outline-danger btn-icon ms-auto" onclick="removeAuthor('a-${uid}')">
+        <i class="bi bi-trash3"></i>
+      </button>
+    </div>
+    <div class="row g-2">
+      <div class="col-md-6">
+        <label class="lbl">Ad Soyad</label>
+        <input class="form-control form-control-sm" data-f="name" placeholder="Ahmet Yılmaz" value="${esc(d.name||'')}">
+      </div>
+      <div class="col-md-6">
+        <label class="lbl">Kurum / Affiliation</label>
+        <input class="form-control form-control-sm" data-f="affiliation" placeholder="Bölüm, Üniversite, Şehir" value="${esc(d.affiliation||'')}">
+      </div>
+      <div class="col-md-4">
+        <label class="lbl">ORCID</label>
+        <input class="form-control form-control-sm" data-f="orcid" placeholder="0000-0000-0000-0000" value="${esc(d.orcid||'')}">
+      </div>
+      <div class="col-md-5">
+        <label class="lbl">E-posta</label>
+        <input class="form-control form-control-sm" data-f="email" type="email" placeholder="ad@uni.edu.tr" value="${esc(d.email||'')}">
+      </div>
+      <div class="col-md-3 d-flex align-items-end pb-1">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" data-f="corresponding" id="corr-${uid}" ${d.corresponding?'checked':''}>
+          <label class="form-check-label" for="corr-${uid}" style="font-size:.8rem">Sorumlu Yazar</label>
+        </div>
+      </div>
+    </div>`;
+  list.appendChild(div);
+  refreshAuthorNums();
+}
+
+function removeAuthor(id) {
+  document.getElementById(id)?.remove();
+  refreshAuthorNums();
+}
+
+function refreshAuthorNums() {
+  document.querySelectorAll('#authors-list .author-row').forEach((r, i) => {
+    r.querySelector('.author-num').textContent = 'YAZAR ' + (i + 1);
+  });
+  badge('badge-authors', document.querySelectorAll('#authors-list .author-row').length, 'yazar');
+}
+
+function collectAuthors() {
+  return [...document.querySelectorAll('#authors-list .author-row')].map(r => ({
+    name:          r.querySelector('[data-f="name"]').value.trim(),
+    affiliation:   r.querySelector('[data-f="affiliation"]').value.trim(),
+    orcid:         r.querySelector('[data-f="orcid"]').value.trim(),
+    email:         r.querySelector('[data-f="email"]').value.trim(),
+    corresponding: r.querySelector('[data-f="corresponding"]').checked,
+  }));
+}
+
+// ═══════════════════════════════════════════════════
+// SECTIONS
+// ═══════════════════════════════════════════════════
+const DEFAULT_SECS = [
+  { name: 'Giriş / Introduction',             level: '1' },
+  { name: 'Yöntem / Methodology',             level: '1' },
+  { name: 'Bulgular / Findings',              level: '1' },
+  { name: 'Sonuç ve Tartışma / Conclusion',   level: '1' },
+];
+
+function addSection(d = {}) {
+  const uid = sIdx++;
+  const list = document.getElementById('sections-list');
+  const lvl = d.level || '1';
+  const div = document.createElement('div');
+  div.className = 'sec-block';
+  div.id = 's-' + uid;
+  div.innerHTML = `
+    <div class="sec-block-hdr">
+      <span class="drag-handle"><i class="bi bi-grip-vertical"></i></span>
+      <input class="form-control form-control-sm" data-f="name"
+             value="${esc(d.name || 'Yeni Bölüm')}"
+             style="max-width:320px;font-weight:600"
+             oninput="updateSectionDropdowns()">
+      <select class="form-select form-select-sm" data-f="level" style="max-width:148px">
+        <option value="1" ${lvl==='1'?'selected':''}>Ana Bölüm (\\section)</option>
+        <option value="2" ${lvl==='2'?'selected':''}>Alt Bölüm (\\subsection)</option>
+        <option value="3" ${lvl==='3'?'selected':''}>Alt-Alt (\\subsubsection)</option>
+      </select>
+      <div class="ms-auto d-flex gap-1">
+        <button class="btn btn-sm btn-outline-secondary btn-icon" onclick="moveEl('s-${uid}',-1)" title="Yukarı"><i class="bi bi-arrow-up"></i></button>
+        <button class="btn btn-sm btn-outline-secondary btn-icon" onclick="moveEl('s-${uid}',1)" title="Aşağı"><i class="bi bi-arrow-down"></i></button>
+        <button class="btn btn-sm btn-outline-danger btn-icon" onclick="removeSection('s-${uid}')"><i class="bi bi-trash3"></i></button>
+      </div>
+    </div>
+    <div class="sec-block-body">
+      <textarea class="form-control" data-f="content" rows="7"
+                placeholder="Bölüm içeriğini buraya yazın...">${esc(d.content || '')}</textarea>
+    </div>`;
+  list.appendChild(div);
+  badge('badge-sections', document.querySelectorAll('#sections-list .sec-block').length, 'bölüm');
+  updateSectionDropdowns();
+}
+
+function removeSection(id) {
+  document.getElementById(id)?.remove();
+  badge('badge-sections', document.querySelectorAll('#sections-list .sec-block').length, 'bölüm');
+  updateSectionDropdowns();
+}
+
+function collectSections() {
+  return [...document.querySelectorAll('#sections-list .sec-block')].map(b => ({
+    name:    b.querySelector('[data-f="name"]').value.trim(),
+    level:   b.querySelector('[data-f="level"]').value,
+    content: b.querySelector('[data-f="content"]').value.trim(),
+  }));
+}
+
+function updateSectionDropdowns() {
+  const names = [...document.querySelectorAll('#sections-list .sec-block')]
+    .map(b => b.querySelector('[data-f="name"]').value.trim() || 'Bölüm');
+  document.querySelectorAll('.ft-sec-sel').forEach(sel => {
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— Gövde sonunda / End of body —</option>' +
+      names.map(n => `<option value="${n}"${n===cur?' selected':''}>${n}</option>`).join('');
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// FIGURES & TABLES
+// ═══════════════════════════════════════════════════
+function addFT(d = {}) {
+  const uid = ftIdx++;
+  const list = document.getElementById('ft-list');
+  const n = list.children.length + 1;
+  const type = d.type || 'figure';
+  const div = document.createElement('div');
+  div.className = 'ft-block';
+  div.id = 'ft-' + uid;
+  div.innerHTML = `
+    <div class="ft-hdr">
+      <select class="form-select form-select-sm" data-f="type" style="max-width:110px"
+              onchange="switchFT(this,'ft-b-${uid}')">
+        <option value="figure"${type==='figure'?' selected':''}>📷 Şekil</option>
+        <option value="table"${type==='table'?' selected':''}>📊 Tablo</option>
+      </select>
+      <span style="font-size:.8rem;color:#666">No:</span>
+      <input class="form-control form-control-sm" data-f="number" value="${n}" style="max-width:50px">
+      <button class="btn btn-sm btn-outline-danger btn-icon ms-auto" onclick="removeFT('ft-${uid}')"><i class="bi bi-trash3"></i></button>
+    </div>
+    <div class="p-3" id="ft-b-${uid}">
+      <div class="row g-2 mb-3">
+        <div class="col-md-6"><label class="lbl">Türkçe Başlık</label><input class="form-control form-control-sm" data-f="tr_cap" placeholder="Türkçe açıklama" value="${esc(d.tr_cap||'')}"></div>
+        <div class="col-md-6"><label class="lbl">English Caption</label><input class="form-control form-control-sm" data-f="en_cap" placeholder="English caption" value="${esc(d.en_cap||'')}"></div>
+      </div>
+      <div class="p-2 mb-3 rounded" style="background:#f0f4f8;border:1px solid #d5dfe8">
+        <div class="lbl mb-2" style="color:#1a56db">📍 Yerleştirme</div>
+        <div class="row g-2">
+          <div class="col-md-4">
+            <label class="lbl">Bölüm</label>
+            <select class="form-select form-select-sm ft-sec-sel" data-f="section">
+              <option value="">— Gövde sonunda —</option>
+            </select>
+          </div>
+          <div class="col-md-8">
+            <label class="lbl">Hangi paragraftan sonra? <span class="text-muted fw-normal" style="font-size:.75rem">— paragrafın birkaç kelimesini yazın</span></label>
+            <input class="form-control form-control-sm" data-f="after_para"
+                   placeholder="örn: Bu çalışmada nicel yöntemler kullanılmıştır"
+                   value="${esc(d.after_para||'')}">
+          </div>
+        </div>
+        <div class="mt-2 d-flex align-items-start gap-1" style="font-size:.75rem;color:#6c757d">
+          <i class="bi bi-info-circle-fill mt-1" style="flex-shrink:0"></i>
+          <span>Bu alan yalnızca konum tespiti için kullanılır — makale metnine eklenmez. Paragraf bulunamazsa bölüm sonuna yerleştirilir.</span>
+        </div>
+      </div>
+      <div class="ft-fig-part"${type!=='figure'?' style="display:none"':''}>
+        <label class="lbl">Şekil Dosyası</label>
+        <div class="fig-drop" id="fdrop-${uid}" onclick="document.getElementById('finp-${uid}').click()">
+          <i class="bi bi-image" style="font-size:1.6rem;color:#bbb"></i>
+          <div style="font-size:.83rem;color:#999;margin-top:4px">Şekil dosyasını sürükleyin veya tıklayın</div>
+          <div style="font-size:.72rem;color:#ccc">PNG, JPG, PDF, EPS</div>
+        </div>
+        <input type="file" id="finp-${uid}" accept="image/*,.pdf,.eps" style="display:none"
+               onchange="onFigSelect(this,${uid})">
+        <div id="fpreview-${uid}"></div>
+      </div>
+      <div class="ft-tbl-part"${type!=='table'?' style="display:none"':''}>
+        <label class="lbl">Tablo Verisi <small class="text-muted fw-normal">(| ile sütunları ayırın — ilk satır başlık)</small></label>
+        <textarea class="form-control form-control-sm" data-f="tbl_data" rows="6"
+                  style="font-family:monospace;font-size:.79rem"
+                  placeholder="Sütun 1 | Sütun 2 | Sütun 3&#10;Veri A   | Veri B   | Veri C">${esc(d.tbl_data||'')}</textarea>
+      </div>
+    </div>`;
+  list.appendChild(div);
+
+  const dz = div.querySelector('.fig-drop');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); const f=e.dataTransfer.files[0]; if(f){figFiles[uid]=f; showFigPreview(uid,f);} });
+
+  badge('badge-ft', document.querySelectorAll('#ft-list .ft-block').length, 'öğe');
+  updateSectionDropdowns();
+}
+
+function removeFT(id) {
+  const uid = id.replace('ft-','');
+  delete figFiles[uid];
+  document.getElementById(id)?.remove();
+  badge('badge-ft', document.querySelectorAll('#ft-list .ft-block').length, 'öğe');
+}
+
+function switchFT(sel, bodyId) {
+  const body = document.getElementById(bodyId);
+  const isFig = sel.value === 'figure';
+  body.querySelector('.ft-fig-part').style.display = isFig ? '' : 'none';
+  body.querySelector('.ft-tbl-part').style.display = isFig ? 'none' : '';
+}
+
+function onFigSelect(inp, uid) {
+  if(inp.files[0]){ figFiles[uid]=inp.files[0]; showFigPreview(uid,inp.files[0]); }
+}
+
+function showFigPreview(uid, file) {
+  const dz = document.getElementById('fdrop-'+uid);
+  dz.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i><strong style="font-size:.83rem">${file.name}</strong>`;
+  if(file.type.startsWith('image/')){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const prev=document.getElementById('fpreview-'+uid);
+      prev.innerHTML='';
+      const img=document.createElement('img'); img.src=e.target.result; img.className='fig-preview'; prev.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function collectFTs() {
+  return [...document.querySelectorAll('#ft-list .ft-block')].map(b => {
+    const uid = b.id.replace('ft-','');
+    const type = b.querySelector('[data-f="type"]').value;
+    return {
+      type,
+      number:     b.querySelector('[data-f="number"]').value.trim(),
+      tr_cap:     b.querySelector('[data-f="tr_cap"]').value.trim(),
+      en_cap:     b.querySelector('[data-f="en_cap"]').value.trim(),
+      section:    b.querySelector('[data-f="section"]').value,
+      after_para: b.querySelector('[data-f="after_para"]')?.value.trim() || '',
+      tbl_data:   type==='table' ? (b.querySelector('[data-f="tbl_data"]')?.value.trim()||'') : '',
+      file_key:   type==='figure' ? String(uid) : '',
+    };
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// MOVE UP / DOWN
+// ═══════════════════════════════════════════════════
+function moveEl(id, dir) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(dir===-1 && el.previousElementSibling) el.parentNode.insertBefore(el, el.previousElementSibling);
+  else if(dir===1 && el.nextElementSibling)  el.parentNode.insertBefore(el.nextElementSibling, el);
+  updateSectionDropdowns();
+}
+
+// ═══════════════════════════════════════════════════
+// GENERATE
+// ═══════════════════════════════════════════════════
+async function doGenerate() {
+  const btn = document.getElementById('btn-gen');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Oluşturuluyor...';
+  document.getElementById('result-panel').style.display = 'none';
+  document.getElementById('err-panel').style.display = 'none';
+
+  try {
+    const payload = {
+      cover: {
+        tr_title:     document.getElementById('c-tr-title').value.trim(),
+        en_title:     document.getElementById('c-en-title').value.trim(),
+        year:         document.getElementById('c-year').value.trim() || '2026',
+        volume:       document.getElementById('c-volume').value.trim() || 'x',
+        issue:        document.getElementById('c-issue').value.trim() || 'x',
+        start_page:   document.getElementById('c-start').value.trim() || 'xxx',
+        end_page:     document.getElementById('c-end').value.trim() || 'xxx',
+        doi:          document.getElementById('c-doi').value.trim(),
+        article_type: document.getElementById('c-article-type').value.trim() ||
+                      'Araştırma Makalesi -- Research Article',
+        received:     document.getElementById('c-received').value.trim() || 'xx.xx.xxxx',
+        accepted:     document.getElementById('c-accepted').value.trim() || 'xx.xx.xxxx',
+        published:    document.getElementById('c-published').value.trim() || 'xx.xx.xxxx',
+        author_short: document.getElementById('c-author-short').value.trim(),
+        ethics:       document.getElementById('c-ethics').value.trim(),
+      },
+      authors:  collectAuthors(),
+      abstract: {
+        tr_abs: document.getElementById('a-tr-abs').value.trim(),
+        tr_kw:  document.getElementById('a-tr-kw').value.trim(),
+        en_abs: document.getElementById('a-en-abs').value.trim(),
+        en_kw:  document.getElementById('a-en-kw').value.trim(),
+      },
+      sections:   collectSections(),
+      figtables:  collectFTs(),
+      extra: {
+        ack:      document.getElementById('ack-on').checked ? document.getElementById('ex-ack').value.trim() : '',
+        contrib:  document.getElementById('ex-contrib').value.trim(),
+        conflict: document.getElementById('ex-conflict').value.trim(),
+      },
+      references: document.getElementById('refs').value.trim(),
+    };
+
+    const journalSettings = collectJournalSettings();
+
+    const fd = new FormData();
+    fd.append('data', JSON.stringify(payload));
+    fd.append('journal_settings', JSON.stringify(journalSettings));
+
+    // Attach figure files
+    for(const [uid, file] of Object.entries(figFiles)){
+      const ext = file.name.split('.').pop().toLowerCase();
+      fd.append('fig_' + uid, file, 'fig_' + uid + '.' + ext);
+    }
+
+    // Attach logo file
+    const _logoFile = _getLogoFile();
+    if(_logoFile) fd.append('logo_upload', _logoFile, _logoFile.name);
+
+    const resp = await fetch('/process_form', { method:'POST', body:fd });
+    const res  = await resp.json();
+    if(!res.ok) throw new Error(res.error || 'Bilinmeyen hata');
+
+    document.getElementById('dl-link').href = '/download/' + res.key;
+    document.getElementById('result-panel').style.display = 'block';
+    document.getElementById('result-panel').scrollIntoView({ behavior:'smooth' });
+
+  } catch(err) {
+    const ep = document.getElementById('err-panel');
+    ep.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>Hata: ' + err.message;
+    ep.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-gear-fill me-2"></i>LaTeX Oluştur &amp; ZIP İndir';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  addAuthor();
+  DEFAULT_SECS.forEach(s => addSection(s));
+  refreshProfiles();
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ── Overleaf Rehberi ── -->
+<div class="container pb-5" style="max-width:960px">
+<div class="card" style="border:2px solid #0070C0;border-radius:14px;overflow:hidden">
+
+  <div style="background:#0070C0;color:#fff;padding:13px 20px;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+      <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+    </svg>
+    Overleaf'e Nasıl Yüklerim?
+  </div>
+
+  <div style="padding:20px 24px;background:#f0f7ff">
+
+    <!-- Adımlar -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px">
+
+      <!-- 1 -->
+      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #0070C0">
+        <div style="font-size:1.3rem;font-weight:800;color:#0070C0;margin-bottom:4px">1</div>
+        <div style="font-weight:600;margin-bottom:4px">ZIP'i İndirin</div>
+        <div style="font-size:.82rem;color:#555">
+          "ZIP İndir" butonuna tıklayın ve dosyayı bilgisayarınıza kaydedin.
+          ZIP içinde <code>main.tex</code>, logo ve şekil dosyaları bulunur.
+        </div>
+      </div>
+
+      <!-- 2 -->
+      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #0070C0">
+        <div style="font-size:1.3rem;font-weight:800;color:#0070C0;margin-bottom:4px">2</div>
+        <div style="font-weight:600;margin-bottom:4px">Overleaf'e Gidin</div>
+        <div style="font-size:.82rem;color:#555">
+          <a href="https://www.overleaf.com" target="_blank" rel="noopener" style="color:#0070C0;font-weight:600">overleaf.com</a>
+          adresine gidin. Oturum açın veya ücretsiz hesap oluşturun.
+        </div>
+      </div>
+
+      <!-- 3 -->
+      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #0070C0">
+        <div style="font-size:1.3rem;font-weight:800;color:#0070C0;margin-bottom:4px">3</div>
+        <div style="font-weight:600;margin-bottom:4px">Proje Oluşturun</div>
+        <div style="font-size:.82rem;color:#555">
+          Sol üstten <strong>New Project</strong> →
+          <strong>Upload Project</strong> seçin.
+          İndirdiğiniz ZIP dosyasını seçin ve yükleyin.
+        </div>
+      </div>
+
+      <!-- 4 -->
+      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #e67e00">
+        <div style="font-size:1.3rem;font-weight:800;color:#e67e00;margin-bottom:4px">4</div>
+        <div style="font-weight:600;margin-bottom:4px">XeLaTeX Seçin <span style="font-size:.75rem;color:#e67e00">⚠ Kritik</span></div>
+        <div style="font-size:.82rem;color:#555">
+          Sol üstte <strong>Menu</strong> butonuna tıklayın.
+          Açılan panelde <strong>Compiler</strong> altından
+          <strong style="color:#e67e00">XeLaTeX</strong>'i seçin.
+          (Varsayılan pdfLaTeX çalışmaz.)
+        </div>
+      </div>
+
+      <!-- 5 -->
+      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #198754">
+        <div style="font-size:1.3rem;font-weight:800;color:#198754;margin-bottom:4px">5</div>
+        <div style="font-weight:600;margin-bottom:4px">Derleyin</div>
+        <div style="font-size:.82rem;color:#555">
+          <strong>Recompile</strong> butonuna tıklayın.
+          Birkaç saniye sonra sağ panelde PDF görünür.
+          İstediğiniz değişiklikleri yapıp tekrar derleyebilirsiniz.
+        </div>
+      </div>
+
+      <!-- 6 -->
+      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #198754">
+        <div style="font-size:1.3rem;font-weight:800;color:#198754;margin-bottom:4px">6</div>
+        <div style="font-weight:600;margin-bottom:4px">PDF İndirin</div>
+        <div style="font-size:.82rem;color:#555">
+          Sağ üstteki <strong>Download PDF</strong> butonuyla
+          hazır PDF'i bilgisayarınıza indirin.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Uyarı notu -->
+    <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:11px 15px;font-size:.82rem;color:#6d4c00;display:flex;gap:10px;align-items:flex-start">
+      <span style="font-size:1.1rem;line-height:1.3">⚠️</span>
+      <span>
+        <strong>Önemli:</strong> Derleyici olarak mutlaka <strong>XeLaTeX</strong> seçilmelidir.
+        Türkçe karakterler, özel fontlar ve orcidlink paketi yalnızca XeLaTeX ile doğru çalışır.
+        Overleaf varsayılan olarak pdfLaTeX kullanır — bunu değiştirmezseniz derleme hatası alırsınız.
+      </span>
+    </div>
+
+  </div>
+</div>
+</div>
+
+</body>
+</html>

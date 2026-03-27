@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# OS
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Runtime / secrets
+*.log
+*.env
+.env.*
+uploads/
+tmp/
+
+# Profiles (user data, not committed)
+profiles/
+*.zip
+
+# Build artifacts
+*.dmg
+*.icns
+*.iconset/
+*.exe
+*.msi
+release/

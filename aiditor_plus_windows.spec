@@ -1,0 +1,33 @@
+# -*- mode: python ; coding: utf-8 -*-
+import os
+BASE = os.path.dirname(os.path.abspath(SPEC))
+
+a = Analysis(
+    [os.path.join(BASE, 'app.py')],
+    pathex=[BASE],
+    binaries=[],
+    datas=[
+        (os.path.join(BASE, 'templates'), 'templates'),
+        (os.path.join(BASE, 'aiditor_plus_icon.png'), '.'),
+        (os.path.join(BASE, 'JGTTR.png'), '.'),
+        (os.path.join(BASE, 'formatter.py'), '.'),
+    ],
+    hiddenimports=[
+        'flask','flask.templating','werkzeug','werkzeug.routing',
+        'werkzeug.serving','werkzeug.exceptions','werkzeug.utils',
+        'jinja2','jinja2.ext','jinja2.loaders','click',
+        'docx','docx.oxml','docx.oxml.ns','docx.shared',
+        're','zipfile','json','uuid','io','threading','webbrowser',
+    ],
+    hookspath=[],
+    excludes=['tkinter','matplotlib','numpy','pandas'],
+    cipher=None, noarchive=False,
+)
+pyz = PYZ(a.pure, a.zipped_data, cipher=None)
+exe = EXE(
+    pyz, a.scripts, a.binaries, a.zipfiles, a.datas, [],
+    name='AIditorPlus',
+    debug=False, strip=False, upx=False,
+    console=False,
+    icon=os.path.join(BASE, 'icon_plus.ico'),
+)

@@ -1,0 +1,139 @@
+name: Build Installers
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  # ──────────────────────────────────────────────────────────
+  # macOS DMG
+  # ──────────────────────────────────────────────────────────
+  build-mac:
+    name: macOS DMG
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pyinstaller pillow
+
+      - name: Build icon (.icns)
+        run: |
+          ICONSET="icon_plus.iconset"
+          mkdir -p "$ICONSET"
+          for SIZE in 16 32 64 128 256 512; do
+            sips -z $SIZE $SIZE aiditor_plus_icon.png --out "$ICONSET/icon_${SIZE}x${SIZE}.png" > /dev/null 2>&1
+            DOUBLE=$((SIZE * 2))
+            sips -z $DOUBLE $DOUBLE aiditor_plus_icon.png --out "$ICONSET/icon_${SIZE}x${SIZE}@2x.png" > /dev/null 2>&1
+          done
+          iconutil -c icns "$ICONSET" -o icon_plus.icns
+          rm -rf "$ICONSET"
+
+      - name: Build .app with PyInstaller
+        run: pyinstaller aiditor_plus.spec --noconfirm
+
+      - name: Create DMG
+        run: |
+          hdiutil create \
+            -volname "AI-ditor Plus" \
+            -srcfolder "dist/AI-ditor Plus.app" \
+            -ov -format UDZO \
+            "dist/AIditorPlus_Installer.dmg"
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AIditorPlus-macOS
+          path: dist/AIditorPlus_Installer.dmg
+
+  # ──────────────────────────────────────────────────────────
+  # Windows EXE
+  # ──────────────────────────────────────────────────────────
+  build-windows:
+    name: Windows EXE
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pyinstaller pillow
+
+      - name: Build .ico (Windows icon)
+        shell: python
+        run: |
+          from PIL import Image
+          import os
+          sizes = [(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)]
+          img = Image.open('aiditor_plus_icon.png').convert('RGBA')
+          frames = [img.resize(s, Image.LANCZOS) for s in sizes]
+          frames[0].save('icon_plus.ico', format='ICO', sizes=sizes,
+                         append_images=frames[1:])
+          print('icon_plus.ico created')
+
+      - name: Build EXE with PyInstaller
+        run: pyinstaller aiditor_plus_windows.spec --noconfirm
+
+      - name: Build installer with Inno Setup
+        run: |
+          choco install innosetup --no-progress -y
+          iscc aiditor_plus_setup.iss
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AIditorPlus-Windows
+          path: dist/AIditorPlus_Setup.exe
+
+  # ──────────────────────────────────────────────────────────
+  # GitHub Release (only on tags)
+  # ──────────────────────────────────────────────────────────
+  release:
+    name: Create Release
+    needs: [build-mac, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: AIditorPlus-macOS
+          path: release/
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: AIditorPlus-Windows
+          path: release/
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "AI-ditor Plus ${{ github.ref_name }}"
+          body: |
+            ## AI-ditor Plus ${{ github.ref_name }}
+
+            Bu yazılım **yalnızca Alparslan Güvenç tarafından yetkili kişilere dağıtılmaktadır**.
+            Lisans için: LICENSE dosyasına bakınız.
+
+            ### Kurulum
+            - **macOS**: `AIditorPlus_Installer.dmg` dosyasını açın, uygulamayı Applications klasörüne sürükleyin.
+            - **Windows**: `AIditorPlus_Setup.exe` dosyasını çalıştırın.
+          files: |
+            release/AIditorPlus_Installer.dmg
+            release/AIditorPlus_Setup.exe
+          draft: false
+          prerelease: false
