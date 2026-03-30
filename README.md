@@ -104,6 +104,4 @@ Overleaf üzerinde derleme yapmak için ücretsiz bir [Overleaf hesabı](https:/
 
 ## Lisans
 
-Bu yazılım tescilli bir lisans altında dağıtılmaktadır. Ayrıntılar için [LICENSE](LICENSE) dosyasına bakınız.
-
-Kaynak kodu, derlenmiş dosyalar ve ilgili tüm materyaller **Alparslan Güvenç**'in özel mülkiyetindedir. İzinsiz kopyalama, dağıtma veya değiştirme yasaktır.
+[MIT License](LICENSE) — Telif hakkı © 2025 Alparslan Güvenç

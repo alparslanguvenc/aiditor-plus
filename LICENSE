@@ -1,29 +1,21 @@
-PROPRIETARY SOFTWARE LICENSE
+MIT License
 
-Copyright (c) 2024-2025 Alparslan Güvenç. All Rights Reserved.
+Copyright (c) 2025 Alparslan Güvenç
 
-This software and its source code, compiled binaries, documentation,
-and all associated materials ("Software") are the exclusive intellectual
-property of Alparslan Güvenç.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-RESTRICTIONS:
-1. You may NOT copy, reproduce, distribute, or transmit the Software or
-   any portion thereof to any third party in any form.
-2. You may NOT sublicense, sell, rent, lease, or otherwise transfer the
-   Software or any rights therein.
-3. You may NOT modify, adapt, translate, reverse engineer, decompile,
-   disassemble, or create derivative works based on the Software.
-4. You may NOT remove or alter any proprietary notices, labels, or marks
-   on the Software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-PERMITTED USE:
-You may install and run a single copy of the Software on your personal
-computer solely for your own personal, non-commercial use, provided that
-you received this Software directly from Alparslan Güvenç.
-
-DISCLAIMER:
-THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED. IN NO EVENT SHALL ALPARSLAN GÜVENÇ BE LIABLE FOR ANY CLAIM,
-DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
-
-Contact: https://www.linkedin.com/in/alparslan-güvenç
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
