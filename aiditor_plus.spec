@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+# PyInstaller 6.x uyumlu — macOS .app bundle
 import os
 BASE = os.path.dirname(os.path.abspath(SPEC))
 
@@ -13,24 +14,36 @@ a = Analysis(
         (os.path.join(BASE, 'formatter.py'), '.'),
     ],
     hiddenimports=[
-        'flask','flask.templating','werkzeug','werkzeug.routing',
-        'werkzeug.serving','werkzeug.exceptions','werkzeug.utils',
-        'jinja2','jinja2.ext','jinja2.loaders','click',
-        'docx','docx.oxml','docx.oxml.ns','docx.shared',
-        're','zipfile','json','uuid','io','threading','webbrowser',
+        'flask', 'flask.templating',
+        'werkzeug', 'werkzeug.routing', 'werkzeug.serving',
+        'werkzeug.exceptions', 'werkzeug.utils',
+        'jinja2', 'jinja2.ext', 'jinja2.loaders',
+        'click',
+        'docx', 'docx.oxml', 'docx.oxml.ns', 'docx.shared',
+        're', 'zipfile', 'json', 'uuid', 'io', 'threading', 'webbrowser',
     ],
     hookspath=[],
-    excludes=['tkinter','matplotlib','numpy','pandas'],
-    cipher=None, noarchive=False,
+    excludes=['tkinter', 'matplotlib', 'numpy', 'pandas'],
+    noarchive=False,
 )
-pyz = PYZ(a.pure, a.zipped_data, cipher=None)
+
+pyz = PYZ(a.pure)
+
 exe = EXE(
-    pyz, a.scripts, a.binaries, a.zipfiles, a.datas, [],
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.datas,
+    [],
     name='AI-ditor Plus',
-    debug=False, strip=False, upx=False,
-    console=False, argv_emulation=True,
+    debug=False,
+    strip=False,
+    upx=False,
+    console=False,
+    argv_emulation=True,
     icon=os.path.join(BASE, 'icon_plus.icns'),
 )
+
 app = BUNDLE(
     exe,
     name='AI-ditor Plus.app',
@@ -39,8 +52,8 @@ app = BUNDLE(
     info_plist={
         'CFBundleName':               'AI-ditor Plus',
         'CFBundleDisplayName':        'AI-ditor Plus',
-        'CFBundleVersion':            '1.0.0',
-        'CFBundleShortVersionString': '1.0',
+        'CFBundleVersion':            '1.1.0',
+        'CFBundleShortVersionString': '1.1',
         'NSHighResolutionCapable':    True,
         'LSMinimumSystemVersion':     '11.0',
     },
