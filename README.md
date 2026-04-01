@@ -7,6 +7,15 @@
 
 ---
 
+## ⬇️ İndir
+
+[![macOS](https://img.shields.io/badge/macOS-DMG%20İndir-000000?logo=apple&logoColor=white&style=for-the-badge)](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Installer.dmg)
+[![Windows](https://img.shields.io/badge/Windows-EXE%20İndir-0078D6?logo=windows&logoColor=white&style=for-the-badge)](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Setup.exe)
+
+Ya da [tüm sürümleri](https://github.com/alparslanguvenc/aiditor-plus/releases) görüntüleyin.
+
+---
+
 ## Özellikler
 
 - Dergi adı, ISSN/e-ISSN, URL ve logo özelleştirme
@@ -25,20 +34,21 @@
 
 ### macOS
 
-1. [Releases](../../releases) sayfasından **`AIditorPlus_Installer.dmg`** dosyasını indirin.
-2. DMG'yi açın.
+1. Yukarıdaki **macOS DMG İndir** butonuna tıklayın.
+2. İndirilen DMG dosyasını açın.
 3. **AI-ditor Plus** simgesini **Applications** klasörüne sürükleyin.
 4. Applications'tan uygulamayı açın.
 
-> **Not:** İlk açılışta macOS güvenlik uyarısı verebilir.
-> Sistem Ayarları → Gizlilik ve Güvenlik → **"Yine de Aç"** butonuna tıklayın.
-> Ya da uygulamaya sağ tıklayıp **"Aç"** seçin.
+> **⚠️ İlk açılışta güvenlik uyarısı alırsanız:**
+> Uygulamaya **sağ tıklayın → "Aç" → "Aç"** seçin.
+> Ya da: **Sistem Ayarları → Gizlilik ve Güvenlik → "Yine de Aç"**
 
 ### Windows
 
-1. [Releases](../../releases) sayfasından **`AIditorPlus_Setup.exe`** dosyasını indirin.
-2. Kurulum sihirbazını takip edin.
-3. Masaüstündeki kısayoldan veya Başlat Menüsü'nden uygulamayı açın.
+1. Yukarıdaki **Windows EXE İndir** butonuna tıklayın.
+2. İndirilen `AIditorPlus_Setup.exe` dosyasını çalıştırın.
+3. Kurulum sihirbazını takip edin.
+4. Masaüstündeki kısayoldan uygulamayı açın.
 
 ---
 
@@ -90,15 +100,14 @@ Sık kullandığınız dergi bilgilerini **"Profil Kaydet"** ile kaydedebilir, s
 3. Proje yüklendikten sonra: **Menu** → **Compiler** → **XeLaTeX** seçin.
 4. **Recompile** butonuna tıklayın.
 
-> Derleyici olarak mutlaka **XeLaTeX** seçilmelidir. pdfLaTeX ile derleme başarısız olur.
+> ⚠️ Derleyici olarak mutlaka **XeLaTeX** seçilmelidir. pdfLaTeX ile derleme başarısız olur.
 
 ---
 
 ## Gereksinimler
 
-Uygulamayı kullanmak için herhangi bir ek yazılım kurmanıza gerek yoktur. Python, Flask ve tüm bağımlılıklar uygulama içinde gömülüdür.
-
-Overleaf üzerinde derleme yapmak için ücretsiz bir [Overleaf hesabı](https://overleaf.com) yeterlidir.
+- Python veya başka bir yazılım kurmanıza **gerek yoktur** — her şey uygulama içinde gömülüdür.
+- Overleaf üzerinde derleme için ücretsiz bir [Overleaf hesabı](https://overleaf.com) yeterlidir.
 
 ---
 
