@@ -131,12 +131,25 @@ jobs:
           body: |
             ## AI-ditor Plus ${{ github.ref_name }}
 
-            Bu yazılım **yalnızca Alparslan Güvenç tarafından yetkili kişilere dağıtılmaktadır**.
-            Lisans için: LICENSE dosyasına bakınız.
+            Akademik dergi makalelerini kolayca LaTeX formatına dönüştüren masaüstü uygulaması.
+            MIT Lisansı ile açık kaynak olarak yayınlanmıştır.
 
-            ### Kurulum
-            - **macOS**: `AIditorPlus_Installer.dmg` dosyasını açın, uygulamayı Applications klasörüne sürükleyin.
-            - **Windows**: `AIditorPlus_Setup.exe` dosyasını çalıştırın.
+            ### ⬇️ İndirme ve Kurulum
+
+            | Platform | Dosya | Açıklama |
+            |---|---|---|
+            | 🍎 macOS | `AIditorPlus_Installer.dmg` | DMG'yi aç → uygulamayı Applications'a sürükle |
+            | 🪟 Windows | `AIditorPlus_Setup.exe` | Kurulum sihirbazını çalıştır |
+
+            ### macOS — İlk Açılışta Güvenlik Uyarısı
+            Uygulama imzalanmamış olduğu için macOS uyarı verebilir.
+            Çözüm: Uygulamaya **sağ tıklayın → Aç → Aç** seçin.
+            Ya da: **Sistem Ayarları → Gizlilik ve Güvenlik → Yine de Aç**
+
+            ### Gereksinimler
+            - Python veya başka bir yazılım kurmanıza gerek yoktur.
+            - Overleaf üzerinde derleme için ücretsiz [Overleaf hesabı](https://overleaf.com) yeterlidir.
+            - Derleyici olarak **XeLaTeX** seçilmelidir.
           files: |
             release/AIditorPlus_Installer.dmg
             release/AIditorPlus_Setup.exe

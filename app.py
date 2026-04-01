@@ -25,7 +25,7 @@ def resource_path(relative_path):
 app = Flask(__name__, template_folder=resource_path('templates'))
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32 MB
 
-PROFILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'profiles')
+PROFILES_DIR = os.path.join(os.path.expanduser('~'), '.aiditor_plus', 'profiles')
 DEFAULT_LOGO  = resource_path('JGTTR.png')
 
 # In-memory store for generated ZIPs (keyed by session UUID)
