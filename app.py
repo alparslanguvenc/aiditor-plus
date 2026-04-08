@@ -25,8 +25,9 @@ def resource_path(relative_path):
 app = Flask(__name__, template_folder=resource_path('templates'))
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32 MB
 
-PROFILES_DIR = os.path.join(os.path.expanduser('~'), '.aiditor_plus', 'profiles')
+PROFILES_DIR  = os.path.join(os.path.expanduser('~'), '.aiditor_plus', 'profiles')
 DEFAULT_LOGO  = resource_path('JGTTR.png')
+DEFAULT_CCBY  = resource_path('ccby.png')
 
 # In-memory store for generated ZIPs (keyed by session UUID)
 _zip_store: dict[str, bytes] = {}
@@ -65,6 +66,20 @@ def process_form():
         js_raw = request.form.get('journal_settings', '{}')
         journal_settings = json.loads(js_raw)
 
+        # ── CC-BY logo upload (opsiyonel) ──
+        ccby_upload_bytes = None
+        ccby_upload_fn    = None
+        ccby_file = request.files.get('ccby_upload')
+        if ccby_file and ccby_file.filename:
+            orig = os.path.basename(ccby_file.filename)
+            safe = ''.join(c for c in orig if c.isalnum() or c in ('_', '-', '.'))
+            if not safe:
+                safe = 'ccby.png'
+            ccby_upload_fn    = safe
+            ccby_upload_bytes = ccby_file.read()
+            stem = safe.rsplit('.', 1)[0] if '.' in safe else safe
+            journal_settings = dict(journal_settings, cc_logo_stem=stem)
+
         # Resolve logo — öncelik sırası:
         # 1. Kullanıcının bu formda yüklediği logo (logo_upload)
         # 2. Kaydedilmiş profil logosu (profiles/ klasöründe)
@@ -101,6 +116,12 @@ def process_form():
             with _zf.ZipFile(buf, 'w', _zf.ZIP_DEFLATED) as zf:
                 zf.writestr('main.tex', tex.encode('utf-8'))
                 zf.writestr(logo_upload_fn, logo_upload_bytes)
+                # CC-BY logo: upload varsa onu, yoksa varsayılanı ekle
+                if ccby_upload_bytes is not None:
+                    zf.writestr(ccby_upload_fn, ccby_upload_bytes)
+                elif os.path.exists(DEFAULT_CCBY):
+                    with open(DEFAULT_CCBY, 'rb') as _f:
+                        zf.writestr('ccby.png', _f.read())
                 for fkey, (zipname, filebytes) in figure_file_bytes.items():
                     zf.writestr(zipname, filebytes)
                 readme = (
@@ -114,7 +135,11 @@ def process_form():
                 zf.writestr('README_Overleaf.txt', readme.encode('utf-8'))
             zip_bytes = buf.getvalue()
         else:
-            zip_bytes = build_zip_form(tex, logo_src, figure_file_bytes, journal_settings)
+            zip_bytes = build_zip_form(
+                tex, logo_src, figure_file_bytes, journal_settings,
+                ccby_src=DEFAULT_CCBY,
+                ccby_upload=(ccby_upload_fn, ccby_upload_bytes) if ccby_upload_bytes else None,
+            )
 
         key = str(uuid.uuid4())
         _zip_store[key] = zip_bytes

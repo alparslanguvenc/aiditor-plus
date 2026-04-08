@@ -354,25 +354,29 @@ def parse_author_info(file_bytes: bytes, filename: str) -> list:
 # ── LaTeX generation ───────────────────────────────────────────────────────────
 SECTION_CMD = {1: r'\section', 2: r'\subsection', 3: r'\subsubsection'}
 
-def _format_author_block(authors: list) -> str:
+def _format_author_block(authors: list, corr_marker: str = '*') -> str:
     parts = []
     for idx, a in enumerate(authors, 1):
         sup = str(idx)
         if a.get('corresponding'):
-            sup += ',*'
+            sup += ',' + corr_marker
         orcid = a.get('orcid', '')
         orcid_part = r'\,\orcidlink{' + orcid + '}' if orcid else ''
-        parts.append(escape(a['name']) + r'\textsuperscript{' + sup + r'}' + orcid_part)
+        # Title (Ünvan) — opsiyonel, varsa ad-soyad'ın önüne eklenir
+        title = a.get('title', '').strip()
+        name_with_title = (escape(title) + r'~' + escape(a['name'])) if title else escape(a['name'])
+        parts.append(name_with_title + r'\textsuperscript{' + sup + r'}' + orcid_part)
     return ',\n  '.join(parts)
 
 
-def _format_affiliations(authors: list) -> str:
+def _format_affiliations(authors: list, english_only: bool = False) -> str:
     lines = []
+    email_label = 'E-mail: ' if english_only else 'E-posta: '
     for idx, a in enumerate(authors, 1):
         orcid = a.get('orcid', '')
         email = a.get('email', '')
         orcid_part = r' ORCID: \href{https://orcid.org/' + orcid + r'}{\mbox{' + orcid + r'}}.' if orcid else ''
-        email_part = r' E-posta: \href{mailto:' + email + r'}{\mbox{' + email + r'}}' if email else ''
+        email_part = (r' ' + email_label + r'\href{mailto:' + email + r'}{\mbox{' + email + r'}}') if email else ''
         lines.append(
             r'\textsuperscript{' + str(idx) + r'}' +
             escape(a.get('affiliation', '')) + '.' +
@@ -381,21 +385,163 @@ def _format_affiliations(authors: list) -> str:
     return r'\\' + '\n  '.join(lines)
 
 
-def _format_corresponding(authors: list) -> str:
+def _format_corresponding(authors: list, english_only: bool = False) -> str:
+    email_label = 'E-mail: ' if english_only else 'E-posta: '
     for a in authors:
         if a.get('corresponding'):
             name  = escape(a.get('name', ''))
             email = a.get('email', '')
             aff   = escape(a.get('affiliation', ''))
-            ep    = r'. E-posta: \href{mailto:' + email + r'}{' + email + r'}' if email else ''
+            ep    = r'. ' + email_label + r'\href{mailto:' + email + r'}{' + email + r'}' if email else ''
             return name + (', ' + aff if aff else '') + ep
     if authors:
         a = authors[0]
         name  = escape(a.get('name', ''))
         email = a.get('email', '')
-        ep    = r'. E-posta: \href{mailto:' + email + r'}{' + email + r'}' if email else ''
+        ep    = r'. ' + email_label + r'\href{mailto:' + email + r'}{' + email + r'}' if email else ''
         return name + ep
-    return 'Yazar Adı, Kurum, E-posta'
+    return 'Author Name, Institution' if english_only else 'Yazar Adı, Kurum, E-posta'
+
+
+# ── First-page LaTeX builder helpers ─────────────────────────────────────────
+def _build_meta_strip(english_only: bool) -> str:
+    """Sayfanın üst kısmındaki Yıl/Cilt/Sayı şeridi."""
+    if english_only:
+        return (r'{\fontsize{8}{10}\selectfont\quad Year: \JGTTRyear\quad '
+                r'Volume: \JGTTRvolume\quad Issue: \JGTTRissue\quad}')
+    return (r'{\fontsize{8}{10}\selectfont\quad Year: \JGTTRyear\quad '
+            r'Volume: \JGTTRvolume\quad Issue: \JGTTRissue%'
+            '\n       '
+            r'\hfill Yıl: \JGTTRyear\quad Cilt: \JGTTRvolume\quad '
+            r'Sayı: \JGTTRissue\quad}')
+
+
+def _build_titles(english_only: bool) -> str:
+    """Türkçe ve İngilizce başlık satırları."""
+    if english_only:
+        return r'{\noindent{\fontsize{13}{15.5}\selectfont\bfseries \JGTTRenglishtitle}\par}%'
+    return (r'{\noindent{\fontsize{13}{15.5}\selectfont\bfseries \JGTTRturkishtitle}\par}%'
+            '\n\n  \\vspace{0.8mm}%\n\n  '
+            r'{\noindent{\fontsize{11.5}{14}\selectfont\bfseries\itshape \JGTTRenglishtitle}\par}%')
+
+
+def _build_corresponding_label(english_only: bool, marker: str) -> str:
+    """Dipnot satırındaki sorumlu yazar etiketi."""
+    if english_only:
+        return marker + r' Corresponding author'
+    return marker + r' Sorumlu yazar / Corresponding author'
+
+
+def _build_editor_row(editor: str, english_only: bool) -> str:
+    """Sol sütunda anahtar kelimelerin altına eklenen opsiyonel 'İlgilenen Editör' satırı."""
+    if not editor:
+        return ''
+    label = 'Editor:' if english_only else 'Editör / Editor:'
+    return (
+        '\n'
+        r'      \vspace{2pt}\inforule%' + '\n'
+        r'      \infoboldlabel{' + label + r'}\par\inforule%' + '\n'
+        r'      \infovalue{' + escape(editor) + r'}\vspace{2pt}%'
+    )
+
+
+def _build_abstract_block(english_only: bool, has_tr: bool, has_en: bool, editor: str = '') -> str:
+    """Özet/Abstract iki sütunlu blok. Boşsa ilgili sütunu gizler.
+
+    English-only modunda yalnızca İngilizce blok gösterilir.
+    """
+    editor_row = _build_editor_row(editor, english_only)
+    # English-only: tek sütun, sadece İngilizce
+    if english_only:
+        if not has_en:
+            return ''
+        return (
+            r'\noindent\begin{minipage}[t]{\textwidth}%' + '\n'
+            r'  \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%' + '\n'
+            r'  \begin{tabular}{@{} p{0.183\textwidth} @{\hspace{2pt}} p{0.797\textwidth} @{}}%' + '\n'
+            r'    \begin{minipage}[t]{0.183\textwidth}%' + '\n'
+            r'      \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%' + '\n'
+            r'      \centering\infolabel{ARTICLE INFO}\par\inforule%' + '\n'
+            r'      \infosubheading{Background:}\par\inforule%' + '\n'
+            r'      {\fontsize{7.5}{9}\selectfont Received: \JGTTRreceived}\par\inforule%' + '\n'
+            r'      {\fontsize{7.5}{9}\selectfont Accepted: \JGTTRaccepted}\par\inforule%' + '\n'
+            r'      {\fontsize{7.5}{9}\selectfont Published: \JGTTRpublished}\par\inforule%' + '\n'
+            r'      \infoboldlabel{Keywords:}\par\inforule%' + '\n'
+            r'      \infovalue{\JGTTRenglishkeywords}\vspace{2pt}%' + editor_row + '\n'
+            r'    \end{minipage}%' + '\n'
+            r'    &%' + '\n'
+            r'    \begin{minipage}[t]{0.797\textwidth}%' + '\n'
+            r'      \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%' + '\n'
+            r'      {\fontsize{8.5}{10.5}\selectfont\bfseries\scshape Abstract}\par%' + '\n'
+            r'      \noindent\rule{\linewidth}{0.4pt}\par%' + '\n'
+            r'      {\fontsize{8.5}{10.5}\selectfont\JGTTRenglishabstract}\vspace{2pt}%' + '\n'
+            r'    \end{minipage}%' + '\n'
+            r'  \end{tabular}%' + '\n'
+            r'\end{minipage}%'
+        )
+
+    # İki dilli — TR ve/veya EN bloklarını koşullu çıkar
+    blocks = []
+
+    if has_tr:
+        blocks.append(
+            r'    \begin{minipage}[t]{0.183\textwidth}%' + '\n'
+            r'      \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%' + '\n'
+            r'      \centering\infolabel{MAKALE BİLGİSİ}\par\inforule%' + '\n'
+            r'      \infosubheading{Makale Geçmişi:}\par\inforule%' + '\n'
+            r'      {\fontsize{7.5}{9}\selectfont Baş. tarihi: \JGTTRreceived}\par\inforule%' + '\n'
+            r'      {\fontsize{7.5}{9}\selectfont Kabul tarihi: \JGTTRaccepted}\par\inforule%' + '\n'
+            r'      {\fontsize{7.5}{9}\selectfont Yayın tarihi: \JGTTRpublished}\par\inforule%' + '\n'
+            r'      \infoboldlabel{Anahtar Kelimeler:}\par\inforule%' + '\n'
+            r'      \infovalue{\JGTTRturkishkeywords}\vspace{2pt}%' + editor_row + '\n'
+            r'    \end{minipage}%' + '\n'
+            r'    &%' + '\n'
+            r'    \begin{minipage}[t]{0.797\textwidth}%' + '\n'
+            r'      \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%' + '\n'
+            r'      {\fontsize{8.5}{10.5}\selectfont\bfseries\scshape Öz}\par%' + '\n'
+            r'      \noindent\rule{\linewidth}{0.4pt}\par%' + '\n'
+            r'      {\fontsize{8.5}{10.5}\selectfont\JGTTRturkishabstract}\vspace{2pt}%' + '\n'
+            r'    \end{minipage}%'
+        )
+
+    if has_en:
+        blocks.append(
+            r'    \begin{minipage}[t]{0.183\textwidth}%' + '\n'
+            r'      \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%' + '\n'
+            r'      \centering\infolabel{ARTICLE INFO}\par\inforule%' + '\n'
+            r'      \infosubheading{Background:}\par\inforule%' + '\n'
+            r'      {\fontsize{7.5}{9}\selectfont Received: \JGTTRreceived}\par\inforule%' + '\n'
+            r'      {\fontsize{7.5}{9}\selectfont Accepted: \JGTTRaccepted}\par\inforule%' + '\n'
+            r'      {\fontsize{7.5}{9}\selectfont Published: \JGTTRpublished}\par\inforule%' + '\n'
+            r'      \infoboldlabel{Keywords:}\par\inforule%' + '\n'
+            r'      \infovalue{\JGTTRenglishkeywords}\vspace{2pt}%' + editor_row + '\n'
+            r'    \end{minipage}%' + '\n'
+            r'    &%' + '\n'
+            r'    \begin{minipage}[t]{0.797\textwidth}%' + '\n'
+            r'      \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%' + '\n'
+            r'      {\fontsize{8.5}{10.5}\selectfont\bfseries\scshape Abstract}\par%' + '\n'
+            r'      \noindent\rule{\linewidth}{0.4pt}\par%' + '\n'
+            r'      {\fontsize{8.5}{10.5}\selectfont\JGTTRenglishabstract}\vspace{2pt}%' + '\n'
+            r'    \end{minipage}%'
+        )
+
+    if not blocks:
+        return ''
+
+    sep = (r'    \\[3pt]%' + '\n'
+           r'    \multicolumn{2}{@{}l@{}}{\rule{\dimexpr0.183\textwidth+0.797\textwidth+8pt\relax}{0.4pt}}\\[2pt]%' + '\n')
+
+    body = blocks[0]
+    for b in blocks[1:]:
+        body += '\n' + r'    \\[3pt]%' + '\n' + sep + b
+    body += r'\\[0pt]%'
+
+    return (
+        r'\noindent%' + '\n'
+        r'\begin{tabular}{@{} p{0.183\textwidth} @{\hspace{2pt}} p{0.797\textwidth} @{}}%' + '\n'
+        + body + '\n'
+        r'\end{tabular}%'
+    )
 
 
 def generate_latex(content: dict, authors: list, meta: dict) -> str:
@@ -1031,6 +1177,26 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
     body_size   = js.get('body_size',   '10')
     accent_hex  = js.get('accent_color', '#833C0B').lstrip('#')
     logo_stem   = js.get('logo_stem',   'journal_logo')
+    # Yeni opsiyonlar
+    english_only      = bool(js.get('english_only', False))
+    corr_marker       = js.get('corresponding_marker', '*') or '*'
+    cc_logo_stem      = js.get('cc_logo_stem', 'ccby')
+    logo_height_cm    = float(js.get('logo_height_cm', 2.3) or 2.3)
+    # DOI konumu: 'top' (URL altı) veya 'bottom' (sağ alt). Varsayılan 'bottom'.
+    doi_position      = (js.get('doi_position', 'bottom') or 'bottom').strip().lower()
+    if doi_position not in ('top', 'bottom'):
+        doi_position = 'bottom'
+    # Top margin'i logo yüksekliğine göre ayarla (logo büyüdükçe üst boşluk azalır)
+    if logo_height_cm <= 1.5:
+        top_margin_cm = 1.2
+    elif logo_height_cm <= 2.0:
+        top_margin_cm = 1.0
+    elif logo_height_cm <= 2.6:
+        top_margin_cm = 0.9
+    elif logo_height_cm <= 3.2:
+        top_margin_cm = 0.7
+    else:
+        top_margin_cm = 0.5
 
     # Font setup in LaTeX
     # Kullanıcı dostu ad → (Overleaf/TeX Live display adı, math font adı veya None)
@@ -1092,6 +1258,7 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
     received   = escape(cov.get('received',  'xx.xx.xxxx'))
     accepted   = escape(cov.get('accepted',  'xx.xx.xxxx'))
     published  = escape(cov.get('published', 'xx.xx.xxxx'))
+    editor_raw = (cov.get('editor', '') or '').strip()
     ethics_raw = cov.get('ethics', '').strip()
     ethics     = escape(ethics_raw) if ethics_raw else (
         r'Bu araştırma, ilgili etik kurul kararı doğrultusunda yürütülmüş olup '
@@ -1117,16 +1284,22 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
     # head_title: use TR title directly (no separate field)
     head_title = tr_title
 
-    # ── Abstract / keywords ──
-    tr_abs = escape(abstr.get('tr_abs', '') or 'Türkçe özet buraya yazılmalıdır.')
-    tr_kw  = escape(abstr.get('tr_kw',  '') or 'anahtar kelime 1; anahtar kelime 2')
-    en_abs = escape(abstr.get('en_abs', '') or 'English abstract goes here.')
-    en_kw  = escape(abstr.get('en_kw',  '') or 'keyword 1; keyword 2')
+    # ── Abstract / keywords (boş olabilirler) ──
+    tr_abs_raw = (abstr.get('tr_abs', '') or '').strip()
+    en_abs_raw = (abstr.get('en_abs', '') or '').strip()
+    tr_kw_raw  = (abstr.get('tr_kw',  '') or '').strip()
+    en_kw_raw  = (abstr.get('en_kw',  '') or '').strip()
+    tr_abs = escape(tr_abs_raw)
+    en_abs = escape(en_abs_raw)
+    tr_kw  = escape(tr_kw_raw)
+    en_kw  = escape(en_kw_raw)
+    has_tr_abs = bool(tr_abs_raw) and not english_only
+    has_en_abs = bool(en_abs_raw)
 
     # ── Author blocks ──
-    author_block  = _format_author_block(authors)  if authors else r'Author One\textsuperscript{1,*}'
-    affiliations  = _format_affiliations(authors)   if authors else r'\textsuperscript{1}Kurum Adı, Şehir.'
-    corresponding = _format_corresponding(authors)  if authors else r'Yazar Adı, Kurum.'
+    author_block  = _format_author_block(authors, corr_marker)        if authors else r'Author One\textsuperscript{1,' + corr_marker + r'}'
+    affiliations  = _format_affiliations(authors, english_only)       if authors else (r'\textsuperscript{1}Institution, City.' if english_only else r'\textsuperscript{1}Kurum Adı, Şehir.')
+    corresponding = _format_corresponding(authors, english_only)      if authors else (r'Author Name, Institution' if english_only else r'Yazar Adı, Kurum.')
 
     # ── APA citation ──
     apa_citation = (
@@ -1220,26 +1393,45 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
             body_lines.append('')
             placed_ft_ids.add(i)
 
-    # ── Extra sections ──
+    # ── Extra sections (başlıklar dil moduna göre) ──
+    ack_heading      = 'Acknowledgements' if english_only else r'Teşekkür / Acknowledgements'
+    contrib_heading  = 'Author Contributions' if english_only else r'Araştırmacıların Katkı Oranı / Author Contributions'
+    conflict_heading = 'Conflict of Interest' if english_only else r'Çıkar Çatışması / Conflict of Interest'
+
     ack = extra.get('ack', '').strip()
     if ack:
-        body_lines.append(r'\section*{Teşekkür / Acknowledgements}')
+        body_lines.append(r'\section*{' + ack_heading + r'}')
         body_lines.append(escape(ack))
         body_lines.append('')
 
     contrib = extra.get('contrib', '').strip()
-    body_lines.append(r'\section*{Araştırmacıların Katkı Oranı / Author Contributions}')
-    body_lines.append(escape(contrib) if contrib else
-                      r'Kavramsal çerçeve / Conceptualization: ; Yöntem / Methodology: ; '
-                      r'Veri toplama / Data collection: ; Analiz / Analysis: ; '
-                      r'Yazım / Writing: ; Gözden geçirme / Review \& Editing:')
+    body_lines.append(r'\section*{' + contrib_heading + r'}')
+    if contrib:
+        body_lines.append(escape(contrib))
+    elif english_only:
+        body_lines.append(
+            r'Conceptualization: ; Methodology: ; Data collection: ; '
+            r'Analysis: ; Writing: ; Review \& Editing:'
+        )
+    else:
+        body_lines.append(
+            r'Kavramsal çerçeve / Conceptualization: ; Yöntem / Methodology: ; '
+            r'Veri toplama / Data collection: ; Analiz / Analysis: ; '
+            r'Yazım / Writing: ; Gözden geçirme / Review \& Editing:'
+        )
     body_lines.append('')
 
     conflict = extra.get('conflict', '').strip()
-    body_lines.append(r'\section*{Çıkar Çatışması / Conflict of Interest}')
-    body_lines.append(escape(conflict) if conflict else
-                      r'Yazarlar herhangi bir çıkar çatışması olmadığını beyan eder. / '
-                      r'The authors declare no conflict of interest.')
+    body_lines.append(r'\section*{' + conflict_heading + r'}')
+    if conflict:
+        body_lines.append(escape(conflict))
+    elif english_only:
+        body_lines.append(r'The authors declare no conflict of interest.')
+    else:
+        body_lines.append(
+            r'Yazarlar herhangi bir çıkar çatışması olmadığını beyan eder. / '
+            r'The authors declare no conflict of interest.'
+        )
     body_lines.append('')
 
     # ── References — alphabetically sorted, hanging indent, no numbers ──
@@ -1247,8 +1439,9 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
         [l.strip() for l in refs_raw.splitlines() if l.strip()],
         key=lambda x: x.lower()
     )
+    refs_heading = 'References' if english_only else r'Kaynakça / References'
     _ref_env_open = (
-        r'\section*{Kaynakça / References}' + '\n'
+        r'\section*{' + refs_heading + r'}' + '\n'
         r'\begin{list}{}{%' + '\n'
         r'  \setlength{\leftmargin}{1.5em}%' + '\n'
         r'  \setlength{\itemindent}{-1.5em}%' + '\n'
@@ -1404,6 +1597,9 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
 \newcommand{\JGTTRapacitation}{""" + apa_citation + r"""}
 \newcommand{\JGTTRethicsstatement}{""" + ethics + r"""}
 
+% ── DOI yardımcı makrosu (doi: önekini tekrar etmeden hyperlink) ──
+\newcommand{\JGTTRdoilink}{\href{https://doi.org/\JGTTRDOI}{\JGTTRDOI}}
+
 % ── Internal helpers ──
 \newcommand{\infolabel}[1]{{\fontsize{9}{11}\selectfont\scshape #1}}
 \newcommand{\infosubheading}[1]{{\fontsize{7.5}{9}\selectfont\bfseries #1}}
@@ -1413,19 +1609,22 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
 
 % ── First page command ──
 \newcommand{\JGTTRfirstpage}[1]{%
-  \newgeometry{a4paper,top=1.2cm,bottom=1.5cm,left=1.5cm,right=1.5cm,headheight=0pt,headsep=0pt,footskip=0.8cm}%
+  \newgeometry{a4paper,top=""" + f"{top_margin_cm}" + r"""cm,bottom=1.5cm,left=1.5cm,right=1.5cm,headheight=0pt,headsep=0pt,footskip=0.8cm}%
   \thispagestyle{firstpage}%
 
   \noindent%
   {\setlength{\tabcolsep}{0pt}\setlength{\extrarowheight}{0pt}%
   \begin{tabular}{@{} m{11cm} @{} >{\raggedleft\arraybackslash}m{7cm} @{}}%
-    \includegraphics[height=2.3cm]{""" + logo_stem + r"""}%
+    \includegraphics[height=""" + f"{logo_height_cm}" + r"""cm]{""" + logo_stem + r"""}%
     &%
     \raggedleft%
     {\fontsize{8.5}{11}\selectfont\color{JGTTRdarkgray}%
       """ + issn_display + r"""
-      \href{""" + j_url + r"""}{\color{JGTTRblue}\itshape """ + j_url + r"""}\\[2pt]%
-      \ifthenelse{\equal{\JGTTRDOI}{}}{\textbf{DOI:} \textit{(atanacak\,/\,to be assigned)}}{\textbf{DOI:} \doi{\JGTTRDOI}}\par}%
+      \href{""" + j_url + r"""}{\color{JGTTRblue}\itshape """ + j_url + r"""}""" + (
+        r"""\\[2pt]%
+      \ifthenelse{\equal{\JGTTRDOI}{}}{\textbf{DOI:} \textit{""" + (r'(to be assigned)' if english_only else r'(atanacak\,/\,to be assigned)') + r"""}}{\textbf{DOI:} \JGTTRdoilink}"""
+        if doi_position == 'top' else ''
+      ) + r"""\par}%
   \end{tabular}}%
 
   \vspace{-1.5mm}%
@@ -1434,8 +1633,7 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
   {\noindent\setlength{\fboxsep}{1.5pt}\setlength{\fboxrule}{0pt}%
   \colorbox{JGTTRgray}{%
     \begin{minipage}{\dimexpr\textwidth-3pt\relax}%
-      {\fontsize{8}{10}\selectfont\quad Year: \JGTTRyear\quad Volume: \JGTTRvolume\quad Issue: \JGTTRissue%
-       \hfill Yıl: \JGTTRyear\quad Cilt: \JGTTRvolume\quad Sayı: \JGTTRissue\quad}%
+      """ + _build_meta_strip(english_only) + r"""%
     \end{minipage}%
   }}%
 
@@ -1445,11 +1643,7 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
 
   \vspace{1.5mm}%
 
-  {\noindent{\fontsize{13}{15.5}\selectfont\bfseries \JGTTRturkishtitle}\par}%
-
-  \vspace{0.8mm}%
-
-  {\noindent{\fontsize{11.5}{14}\selectfont\bfseries\itshape \JGTTRenglishtitle}\par}%
+  """ + _build_titles(english_only) + r"""
 
   \vspace{1.5mm}%
 
@@ -1458,50 +1652,7 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
   \vspace{0.5mm}%
   \noindent\rule{\textwidth}{0.4pt}%
 
-  \noindent%
-  \begin{tabular}{@{} p{0.183\textwidth} @{\hspace{2pt}} p{0.797\textwidth} @{}}%
-
-    \begin{minipage}[t]{0.183\textwidth}%
-      \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%
-      \centering\infolabel{MAKALE BİLGİSİ}\par\inforule%
-      \infosubheading{Makale Geçmişi:}\par\inforule%
-      {\fontsize{7.5}{9}\selectfont Baş. tarihi: \JGTTRreceived}\par\inforule%
-      {\fontsize{7.5}{9}\selectfont Kabul tarihi: \JGTTRaccepted}\par\inforule%
-      {\fontsize{7.5}{9}\selectfont Yayın tarihi: \JGTTRpublished}\par\inforule%
-      \infoboldlabel{Anahtar Kelimeler:}\par\inforule%
-      \infovalue{\JGTTRturkishkeywords}\vspace{2pt}%
-    \end{minipage}%
-    &%
-    \begin{minipage}[t]{0.797\textwidth}%
-      \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%
-      {\fontsize{9}{11}\selectfont\bfseries\scshape Özet}\par%
-      \noindent\rule{\linewidth}{0.4pt}\par%
-      {\fontsize{9}{11}\selectfont\JGTTRturkishabstract}\vspace{2pt}%
-    \end{minipage}%
-    \\[3pt]%
-
-    \multicolumn{2}{@{}l@{}}{\rule{\dimexpr0.183\textwidth+0.797\textwidth+8pt\relax}{0.4pt}}\\[2pt]%
-
-    \begin{minipage}[t]{0.183\textwidth}%
-      \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%
-      \centering\infolabel{ARTICLE INFO}\par\inforule%
-      \infosubheading{Background:}\par\inforule%
-      {\fontsize{7.5}{9}\selectfont Received: \JGTTRreceived}\par\inforule%
-      {\fontsize{7.5}{9}\selectfont Accepted: \JGTTRaccepted}\par\inforule%
-      {\fontsize{7.5}{9}\selectfont Published: \JGTTRpublished}\par\inforule%
-      \infoboldlabel{Keywords:}\par\inforule%
-      \infovalue{\JGTTRenglishkeywords}\vspace{2pt}%
-    \end{minipage}%
-    &%
-    \begin{minipage}[t]{0.797\textwidth}%
-      \setlength{\parindent}{0pt}\setlength{\parskip}{0pt}\vspace{0pt}%
-      {\fontsize{9}{11}\selectfont\bfseries\scshape Abstract}\par%
-      \noindent\rule{\linewidth}{0.4pt}\par%
-      {\fontsize{9}{11}\selectfont\JGTTRenglishabstract}\vspace{2pt}%
-    \end{minipage}%
-    \\[0pt]%
-
-  \end{tabular}%
+  """ + _build_abstract_block(english_only, has_tr_abs, has_en_abs, editor_raw) + r"""
 
   \noindent\rule{\textwidth}{0.4pt}%
 
@@ -1514,10 +1665,27 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
     \noindent\rule{\textwidth}{0.4pt}\par%
     \noindent\JGTTRaffiliations\par%
     \noindent\rule{\textwidth}{0.2pt}\par%
-    \noindent\textit{*Sorumlu yazar / Corresponding author}\par%
-    \noindent\textbf{Önerilen Atıf / Suggested Citation:} \JGTTRapacitation\par%
-    \noindent{\setlength{\parskip}{0pt}\textbf{Etik Beyan / Ethics Statement:} \JGTTRethicsstatement\par}%
+    \noindent\textit{""" + _build_corresponding_label(english_only, corr_marker) + r"""}\par%
+    \noindent\textbf{""" + (r'Suggested Citation:' if english_only else r'Önerilen Atıf / Suggested Citation:') + r"""} \JGTTRapacitation\par%
+    \noindent{\setlength{\parskip}{0pt}\textbf{""" + (r'Ethics Statement:' if english_only else r'Etik Beyan / Ethics Statement:') + r"""} \JGTTRethicsstatement\par}%
   \endgroup%
+  \end{minipage}
+
+  % --- Alt bilgi şeridi: sol CC-BY (+ sağ DOI, eğer doi_position == 'bottom') ---
+  \vspace{4pt}%
+  \noindent\begin{minipage}{\textwidth}%
+    \noindent%
+    \begin{minipage}[c]{0.50\textwidth}\raggedright%
+      \includegraphics[height=0.85cm]{""" + cc_logo_stem + r"""}%
+    \end{minipage}%
+    \begin{minipage}[c]{0.50\textwidth}\raggedleft%
+      """ + (
+        r"""{\fontsize{9}{11}\selectfont\color{JGTTRdarkgray}%
+        \ifthenelse{\equal{\JGTTRDOI}{}}{\textbf{DOI:} \textit{""" + (r'(to be assigned)' if english_only else r'(atanacak\,/\,to be assigned)') + r"""}}{\textbf{DOI:} \JGTTRdoilink}%
+      }"""
+        if doi_position == 'bottom' else ''
+      ) + r"""%
+    \end{minipage}%
   \end{minipage}
 
   \restoregeometry%
@@ -1541,11 +1709,14 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
 
 
 def build_zip_form(tex_content: str, logo_src: str, figure_file_bytes: dict,
-                   journal_settings: dict = None) -> bytes:
+                   journal_settings: dict = None,
+                   ccby_src: str = None,
+                   ccby_upload: tuple = None) -> bytes:
     """
     Build Overleaf-ready ZIP including:
     - main.tex
     - journal_logo.<ext> (logo)
+    - ccby.<ext> (CC-BY 4.0 logo, default or uploaded)
     - figure files (fig_N.ext)
     - README_Overleaf.txt
     """
@@ -1561,6 +1732,13 @@ def build_zip_form(tex_content: str, logo_src: str, figure_file_bytes: dict,
             # Determine extension of the actual logo file
             ext = logo_src.rsplit('.', 1)[-1].lower() if '.' in logo_src else 'png'
             zf.write(logo_src, logo_stem + '.' + ext)
+
+        # CC-BY logo — upload varsa onu, yoksa varsayılanı ekle
+        if ccby_upload and ccby_upload[1]:
+            zf.writestr(ccby_upload[0], ccby_upload[1])
+        elif ccby_src and os.path.exists(ccby_src):
+            with open(ccby_src, 'rb') as _f:
+                zf.writestr('ccby.png', _f.read())
 
         for fkey, (zipname, filebytes) in figure_file_bytes.items():
             zf.writestr(zipname, filebytes)

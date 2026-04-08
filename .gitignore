@@ -22,7 +22,12 @@ desktop.ini
 # IDE
 .vscode/
 .idea/
+.claude/
 *.swp
+
+# Local helper files
+GITHUB_SETUP.txt
+image.png
 
 # Runtime / secrets
 *.log

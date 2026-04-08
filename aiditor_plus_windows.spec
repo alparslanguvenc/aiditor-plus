@@ -11,6 +11,7 @@ a = Analysis(
         (os.path.join(BASE, 'templates'), 'templates'),
         (os.path.join(BASE, 'aiditor_plus_icon.png'), '.'),
         (os.path.join(BASE, 'JGTTR.png'), '.'),
+        (os.path.join(BASE, 'ccby.png'), '.'),
         (os.path.join(BASE, 'formatter.py'), '.'),
     ],
     hiddenimports=[

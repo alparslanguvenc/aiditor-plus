@@ -254,6 +254,58 @@ textarea { resize:vertical; }
       </div>
     </div>
 
+    <hr class="my-2">
+
+    <!-- Yeni opsiyonlar: marker, dil modu, CC-BY logo, logo yüksekliği -->
+    <div class="row g-2 mb-1">
+      <div class="col-md-3">
+        <label class="lbl">Sorumlu Yazar İşareti</label>
+        <select id="js-corr-marker" class="form-select form-select-sm">
+          <option value="*" selected>* (yıldız)</option>
+          <option value="†">† (hançer)</option>
+          <option value="‡">‡ (çift hançer)</option>
+          <option value="§">§ (paragraf)</option>
+          <option value="¶">¶ (pilcrow)</option>
+          <option value="#"># (kare)</option>
+          <option value="★">★ (dolu yıldız)</option>
+          <option value="✉">✉ (mektup)</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="lbl">Logo Yüksekliği (cm)</label>
+        <input type="number" id="js-logo-height" class="form-control form-control-sm"
+               min="1" max="4" step="0.1" value="2.3"
+               title="Üst kenar boşluğu otomatik ayarlanır">
+      </div>
+      <div class="col-md-3">
+        <label class="lbl">CC-BY Logo <span class="text-muted fw-normal" style="font-size:.72rem">(opsiyonel)</span></label>
+        <div class="logo-drop" id="ccby-drop" onclick="document.getElementById('ccby-inp').click()">
+          <i class="bi bi-image me-1"></i><span id="ccby-label">Varsayılan kullan</span>
+        </div>
+        <input type="file" id="ccby-inp" accept=".png,.jpg,.jpeg,.pdf" style="display:none"
+               onchange="onCcbySelect(this)">
+      </div>
+      <div class="col-md-3 d-flex align-items-end pb-1">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="js-english-only">
+          <label class="form-check-label" for="js-english-only" style="font-size:.85rem;font-weight:600">
+            Yalnızca İngilizce kapak
+          </label>
+          <div style="font-size:.7rem;color:#888;margin-top:1px">Türkçe etiketleri gizler</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-2 mb-1">
+      <div class="col-md-4">
+        <label class="lbl">DOI Konumu</label>
+        <select id="js-doi-position" class="form-select form-select-sm">
+          <option value="bottom" selected>Sağ Alt (CC-BY hizası)</option>
+          <option value="top">Sağ Üst (URL altı)</option>
+        </select>
+      </div>
+    </div>
+
   </div><!-- /js-body -->
 </div>
 
@@ -304,6 +356,7 @@ textarea { resize:vertical; }
     </div>
     <div class="row g-2 mb-2">
       <div class="col-md-6"><label class="lbl">Kısa Yazar (üst bilgi, örn: Yılmaz &amp; Kaya, 2026)</label><input class="form-control form-control-sm" id="c-author-short" placeholder="Yılmaz &amp; Kaya, 2026"></div>
+      <div class="col-md-6"><label class="lbl">İlgilenen Editör <span class="text-muted fw-normal" style="font-size:.72rem">(opsiyonel — kapakta anahtar kelimelerin altında görünür)</span></label><input class="form-control form-control-sm" id="c-editor" placeholder="Prof. Dr. Editör Adı"></div>
     </div>
     <div class="mb-0">
       <label class="lbl">Etik Beyan / Ethics Statement</label>
@@ -323,6 +376,17 @@ textarea { resize:vertical; }
     <i class="bi bi-chevron-down chevron"></i>
   </div>
   <div class="card-body" id="b-authors">
+    <datalist id="title-suggestions">
+      <option value="Prof. Dr.">
+      <option value="Doç. Dr.">
+      <option value="Dr. Öğr. Üyesi">
+      <option value="Dr.">
+      <option value="Öğr. Gör.">
+      <option value="Arş. Gör.">
+      <option value="Prof.">
+      <option value="Assoc. Prof.">
+      <option value="Asst. Prof.">
+    </datalist>
     <div id="authors-list"></div>
     <button class="add-btn mt-1" onclick="addAuthor()"><i class="bi bi-plus-circle me-1"></i>Yazar Ekle</button>
   </div>
@@ -492,12 +556,26 @@ function onLogoSelect(inp) {
   }
 }
 
+function _getCcbyFile() {
+  const inp = document.getElementById('ccby-inp');
+  return (inp && inp.files && inp.files[0]) ? inp.files[0] : null;
+}
+
+function onCcbySelect(inp) {
+  if(inp.files[0]) {
+    document.getElementById('ccby-label').textContent = inp.files[0].name;
+  }
+}
+
 function collectJournalSettings() {
   const lf          = _getLogoFile();
   const profileName = document.getElementById('js-profile-name').value.trim();
   const resolvedStem = lf
     ? _stemFromFilename(lf.name)
     : (profileName ? profileName + '_logo' : 'journal_logo');
+
+  const ccf = _getCcbyFile();
+  const ccStem = ccf ? _stemFromFilename(ccf.name) : 'ccby';
 
   return {
     journal_name_tr: document.getElementById('js-name-tr').value.trim(),
@@ -509,6 +587,12 @@ function collectJournalSettings() {
     body_size:       document.getElementById('js-body-size').value,
     accent_color:    document.getElementById('js-accent-color').value,
     logo_stem:       resolvedStem,
+    // yeni opsiyonlar
+    english_only:        document.getElementById('js-english-only').checked,
+    corresponding_marker: document.getElementById('js-corr-marker').value || '*',
+    logo_height_cm:      parseFloat(document.getElementById('js-logo-height').value) || 2.3,
+    cc_logo_stem:        ccStem,
+    doi_position:        document.getElementById('js-doi-position').value || 'bottom',
   };
 }
 
@@ -521,6 +605,10 @@ function applyJournalSettings(s) {
   document.getElementById('js-font').value        = s.font            || 'texgyrepagella';
   document.getElementById('js-body-size').value   = s.body_size       || '10';
   document.getElementById('js-accent-color').value= s.accent_color    || '#833C0B';
+  document.getElementById('js-english-only').checked = !!s.english_only;
+  document.getElementById('js-corr-marker').value    = s.corresponding_marker || '*';
+  document.getElementById('js-logo-height').value    = s.logo_height_cm || 2.3;
+  document.getElementById('js-doi-position').value   = s.doi_position    || 'bottom';
   if(s.logo_filename) {
     document.getElementById('logo-label').textContent = s.logo_filename + ' (kayıtlı)';
   }
@@ -609,11 +697,15 @@ function addAuthor(d = {}) {
       </button>
     </div>
     <div class="row g-2">
-      <div class="col-md-6">
+      <div class="col-md-3">
+        <label class="lbl">Ünvan <span class="text-muted fw-normal" style="font-size:.72rem">(opsiyonel)</span></label>
+        <input class="form-control form-control-sm" data-f="title" placeholder="Prof. Dr." value="${esc(d.title||'')}" list="title-suggestions">
+      </div>
+      <div class="col-md-4">
         <label class="lbl">Ad Soyad</label>
         <input class="form-control form-control-sm" data-f="name" placeholder="Ahmet Yılmaz" value="${esc(d.name||'')}">
       </div>
-      <div class="col-md-6">
+      <div class="col-md-5">
         <label class="lbl">Kurum / Affiliation</label>
         <input class="form-control form-control-sm" data-f="affiliation" placeholder="Bölüm, Üniversite, Şehir" value="${esc(d.affiliation||'')}">
       </div>
@@ -650,6 +742,7 @@ function refreshAuthorNums() {
 
 function collectAuthors() {
   return [...document.querySelectorAll('#authors-list .author-row')].map(r => ({
+    title:         r.querySelector('[data-f="title"]')?.value.trim() || '',
     name:          r.querySelector('[data-f="name"]').value.trim(),
     affiliation:   r.querySelector('[data-f="affiliation"]').value.trim(),
     orcid:         r.querySelector('[data-f="orcid"]').value.trim(),
@@ -890,6 +983,7 @@ async function doGenerate() {
         accepted:     document.getElementById('c-accepted').value.trim() || 'xx.xx.xxxx',
         published:    document.getElementById('c-published').value.trim() || 'xx.xx.xxxx',
         author_short: document.getElementById('c-author-short').value.trim(),
+        editor:       document.getElementById('c-editor').value.trim(),
         ethics:       document.getElementById('c-ethics').value.trim(),
       },
       authors:  collectAuthors(),
@@ -924,6 +1018,10 @@ async function doGenerate() {
     // Attach logo file
     const _logoFile = _getLogoFile();
     if(_logoFile) fd.append('logo_upload', _logoFile, _logoFile.name);
+
+    // Attach CC-BY logo override (opsiyonel)
+    const _ccbyFile = _getCcbyFile();
+    if(_ccbyFile) fd.append('ccby_upload', _ccbyFile, _ccbyFile.name);
 
     const resp = await fetch('/process_form', { method:'POST', body:fd });
     const res  = await resp.json();
