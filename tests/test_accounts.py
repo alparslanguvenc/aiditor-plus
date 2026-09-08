@@ -20,7 +20,7 @@ PNG = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4
 ASSET = {'name': 'journal.png', 'data': 'data:image/png;base64,' + base64.b64encode(PNG).decode()}
 
 def make_setup(tmp_path):
-    application.app.config.update(TESTING=True, AIDITOR_DATA_DIR=tmp_path, SECRET_KEY=AccountStore(tmp_path).session_secret(), LEGACY_PROFILES_DIR=tmp_path / 'legacy')
+    application.app.config.update(TESTING=True, AIDITOR_DATA_DIR=tmp_path, SECRET_KEY=AccountStore(tmp_path).session_secret())
     application._zip_store.clear()
     application._docx_import_store.clear()
     return (application.app, tmp_path)
@@ -261,30 +261,37 @@ class TestAccounts(unittest.TestCase):
         assert b.get(f'/import_docx/{key}/image/0').status_code == 404
         assert a.post('/import_docx', data={'article': (io.BytesIO(b'bad archive'), 'article.docx')}, headers=headers(ua)).status_code == 400
 
-    def test_legacy_migration_is_explicit_safe_and_non_destructive(self):
-        setup = self.setup
-        app, directory = setup
+    def test_obsolete_profiles_cannot_be_discovered_or_imported(self):
+        app, directory = self.setup
         client = app.test_client()
         user = register(client)
-        legacy = directory / 'legacy'
-        legacy.mkdir()
-        original = json.dumps({'journal_name_tr': 'Legacy title', 'logo_filename': 'legacy.png', 'logo_stem': 'Old Journal logo'})
-        (legacy / 'Old Journal.json').write_text(original)
-        (legacy / 'legacy.png').write_bytes(PNG)
-        (legacy / 'escape.json').symlink_to(directory / 'aiditor.sqlite3')
-        profiles = client.get('/api/legacy-profiles', headers=headers(user)).json['profiles']
-        assert profiles == ['Old Journal']
-        response = client.get('/api/legacy-profiles/Old%20Journal', headers=headers(user))
-        assert response.status_code == 200
-        assert response.json['assets']['logo']['data'] == ASSET['data']
+        obsolete = directory / '.aiditor_plus' / 'profiles'
+        obsolete.mkdir(parents=True)
+        private_title = 'Private journal preset fixture'
+        (obsolete / 'private-preset.json').write_text(json.dumps({'journal_name_tr': private_title, 'logo_filename': 'private-logo.png'}))
+        (obsolete / 'private-logo.png').write_bytes(PNG)
+        # A leftover configuration and old on-disk profiles must not expose data.
+        app.config['LEGACY_PROFILES_DIR'] = obsolete
+        self.addCleanup(app.config.pop, 'LEGACY_PROFILES_DIR', None)
+        for method, route in (
+            ('GET', '/api/legacy-profiles'), ('GET', '/list_profiles'),
+            ('GET', '/api/legacy-profiles/private-preset'), ('GET', '/load_profile/private-preset'),
+            ('POST', '/save_profile'), ('DELETE', '/delete_profile/private-preset'),
+        ):
+            response = client.open(route, method=method, headers=headers(user))
+            assert response.status_code == 404, (method, route, response.json)
+            assert private_title not in response.get_data(as_text=True)
+        html = client.get('/').get_data(as_text=True)
+        with client.get('/static/workspace.js') as response:
+            script = response.get_data(as_text=True)
+        for marker in ('legacy-profiles-panel', 'legacy-profile', 'import-legacy', 'Önceki sürümdeki profiller', private_title):
+            assert marker not in html
+            assert marker not in script
+        assert 'id="import-preset"' in html
+        assert 'id="export-preset"' in html
+        assert private_title not in client.get('/api/templates').get_data(as_text=True)
         assert client.get('/api/journal', headers=headers(user)).json['settings']['journal_name_tr'] == 'JOURNAL_A'
-        payload = {'settings': response.json['settings'], 'assets': response.json['assets'], 'base_revision': 0}
-        assert client.put('/api/journal', json=payload, headers=headers(user)).status_code == 200
-        assert (legacy / 'Old Journal.json').read_text() == original
-        assert client.delete('/delete_profile/Old%20Journal', headers=headers(user)).status_code == 410
-        (legacy / 'danger.json').write_text(json.dumps({'logo_filename': '../private.png'}))
-        assert client.get('/api/legacy-profiles/danger', headers=headers(user)).status_code == 400
-        assert client.get('/api/legacy-profiles/escape', headers=headers(user)).status_code == 404
+
     def test_pdf_assets_parse_reject_spoof_and_encryption(self):
         from pypdf import PdfWriter
         app, _ = self.setup

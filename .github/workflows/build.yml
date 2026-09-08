@@ -97,11 +97,13 @@ jobs:
           body: |
             Akademik dergi editörlerinin işlerini kolaylaştırmak için kâr amacı güdülmeden geliştirilen, MIT lisanslı açık kaynak uygulama.
 
-            2.0.1: Sade A monogramı ve turkuaz artı işaretiyle yenilenen lacivert/fildişi logo, arayüzde ve macOS/Windows uygulama simgelerinde ortak bir görsel kimlik sunar.
+            Sade A monogramı ve turkuaz artı işaretiyle yenilenen lacivert/fildişi logo, arayüzde ve macOS/Windows uygulama simgelerinde ortak bir görsel kimlik sunar.
 
             Dergi hesapları, kalıcı ön ayarlar ve logolar; dört özelleştirilebilir sayfa düzeni; Word/Excel tabloları; otomatik kaydedilen makale arşivi ve taşınabilir JSON yedekleri.
 
-            Hesaplar bu bilgisayardaki kuruluma aittir. Bulut hesabı veya cihazlar arası otomatik eşitleme yoktur. Mevcut eski profiller, dergi hesabına giriş yapıldıktan sonra içe aktarılabilir.
+            2.0.2: Önceki kurulumlardan kalan dergi profillerini otomatik keşfetme ve içe aktarma kaldırıldı. Her hesap kendi dergi ayarlarını kullanır; JSON yedekleme ve içe aktarma devam eder.
+
+            Hesaplar bu bilgisayardaki kuruluma aittir. Bulut hesabı veya cihazlar arası otomatik eşitleme yoktur.
 
             macOS: DMG dosyasını açıp uygulamayı Applications klasörüne sürükleyin. İlk açılışta macOS Gizlilik ve Güvenlik bölümünden uygulamaya izin vermeniz gerekebilir. Windows: Setup.exe dosyasını çalıştırın; WebView2 gerektirir. ZIP çıktısı Overleaf üzerinde XeLaTeX ile derlenir.
           files: release/*

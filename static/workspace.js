@@ -211,7 +211,6 @@ window.journalWorkspace = (() => {
   }
   function renderReplacementRecovery() {
     byId('import-preset-button').disabled=!!replacementAttempt;
-    byId('import-legacy').disabled=!!replacementAttempt;
     byId('template-gallery').querySelectorAll('button').forEach(button=>{button.disabled=!!replacementAttempt;});
     let banner=byId('journal-import-recovery');
     if(!replacementAttempt){banner?.remove();return;}
@@ -291,7 +290,6 @@ window.journalWorkspace = (() => {
     switchPane(!newlyRegistered && (settings.journal_name_tr || settings.journal_name_en) ? 'articles' : 'journal');
     if(!settings.journal_name_tr && !settings.journal_name_en){byId('js-name-tr').value=user.display_name;changed();}
     resolveAccountReady(user);
-    api('/api/legacy-profiles').then(result=>{if(result.profiles?.length){byId('legacy-profiles-panel').hidden=false;for(const name of result.profiles){const option=document.createElement('option');option.value=name;option.textContent=name;byId('legacy-profile').append(option);}}}).catch(()=>{});
   }
   async function bootstrap(){
     byId('auth-submit').disabled=true;byId('session-retry').hidden=true;
@@ -324,7 +322,6 @@ window.journalWorkspace = (() => {
     byId('logo-inp').addEventListener('change',event=>readAsset('logo',event.target));byId('ccby-inp').addEventListener('change',event=>readAsset('license',event.target));
     for(const [key,id] of [['logo','logo'],['license','ccby']])byId('remove-'+key).addEventListener('click',()=>{invalidateAssetRead(key);assets[key]=null;byId(id+'-inp').value='';updateAssets();changed();});
     byId('export-preset').addEventListener('click',exportPreset);byId('import-preset-button').addEventListener('click',()=>byId('import-preset').click());byId('import-preset').addEventListener('change',event=>importPreset(event.target.files[0]));
-    byId('import-legacy').addEventListener('click',async()=>{try{const name=byId('legacy-profile').value;if(!name)return;const result=await api('/api/legacy-profiles/'+encodeURIComponent(name));if(await replacePreset(result.settings,result.assets || {}))showToast('Önceki profil bu dergi hesabına aktarıldı.');}catch(error){showToast(error.message);}});
     // Labels inherited from the article editor are connected to their controls.
     document.querySelectorAll('#article-editor label:not([for])').forEach(label=>{const input=label.parentElement.querySelector('input,textarea,select');if(input?.id)label.htmlFor=input.id;});
     bootstrap();

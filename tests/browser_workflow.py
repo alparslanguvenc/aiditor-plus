@@ -46,7 +46,7 @@ class Server:
                 try:
                     with urllib.request.urlopen(self.url+'/health',timeout=1) as response:
                         health=json.load(response)
-                    if health.get('app')=='AI-ditor Plus' and health.get('version')=='2.0.1':return self.url
+                    if health.get('app')=='AI-ditor Plus' and health.get('version')=='2.0.2':return self.url
                 except (OSError,ValueError):pass
             self.log.seek(0)
             content=self.log.read()

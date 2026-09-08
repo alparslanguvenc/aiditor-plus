@@ -6,7 +6,6 @@ import copy
 import io
 import json
 import os
-from pathlib import Path
 import re
 import sqlite3
 import sys
@@ -24,7 +23,7 @@ from account_store import AccountStore, DuplicateUsername, RevisionConflict, che
 from journal_templates import TEMPLATES, default_settings, normalize_settings
 from formatter import generate_latex_from_form, extract_form_data_from_docx, _normalize_table_model
 
-APP_VERSION = '2.0.1'
+APP_VERSION = '2.0.2'
 
 
 def resource_path(relative_path):
@@ -36,7 +35,6 @@ app.config.update(MAX_CONTENT_LENGTH=32 * 1024 * 1024, SESSION_COOKIE_HTTPONLY=T
                   SESSION_COOKIE_SAMESITE='Strict', SESSION_COOKIE_NAME='aiditor_plus_session',
                   SESSION_REFRESH_EACH_REQUEST=False)
 app.secret_key = AccountStore().session_secret()
-PROFILES_DIR = str(Path.home() / '.aiditor_plus' / 'profiles')
 _zip_store = {}
 _docx_import_store = {}
 _cache_lock = threading.RLock()
@@ -583,72 +581,6 @@ def imported_docx_image(import_key, image_index):
     image = images[image_index]
     return send_file(io.BytesIO(image['bytes']), mimetype=image.get('mimetype', 'application/octet-stream'),
                      as_attachment=False, download_name=secure_filename(image.get('filename', 'image.png')) or 'image.png')
-
-
-def legacy_directory():
-    return Path(app.config.get('LEGACY_PROFILES_DIR', PROFILES_DIR))
-
-
-def legacy_name(name):
-    if not isinstance(name, str) or not re.fullmatch(r'[\w .-]{1,100}', name) or name in {'.', '..'} or name.startswith('.') or name != name.strip():
-        raise ValueError('Eski profil adı geçersiz.')
-    return name
-
-
-@app.route('/api/legacy-profiles')
-@app.route('/list_profiles')
-def list_legacy_profiles():
-    directory = legacy_directory()
-    names = []
-    if directory.is_dir():
-        for path in directory.glob('*.json'):
-            try:
-                legacy_name(path.stem)
-            except ValueError:
-                continue
-            if path.is_file() and not path.is_symlink():
-                names.append(path.stem)
-    return jsonify(ok=True, profiles=sorted(names))
-
-
-@app.route('/api/legacy-profiles/<name>')
-@app.route('/load_profile/<name>')
-def load_legacy_profile(name):
-    directory = legacy_directory()
-    path = directory / (legacy_name(name) + '.json')
-    if not path.is_file() or path.is_symlink():
-        return jsonify(ok=False, error='Eski profil bulunamadı.'), 404
-    if path.stat().st_size > 128 * 1024:
-        raise ValueError('Eski profil dosyası çok büyük.')
-    raw = parse_json(path.read_text(encoding='utf-8'))
-    if not isinstance(raw, dict):
-        raise ValueError('Eski profil ayarları geçersiz.')
-    # Legacy names may contain spaces or Unicode. Copy graphics to canonical names
-    # while importing; never interpret saved logo stems as filesystem paths.
-    settings_raw = dict(raw, logo_stem='journal_logo', cc_logo_stem='journal_license')
-    settings = normalize_settings(settings_raw)
-    assets = {}
-    for key, field in (('logo', 'logo_filename'), ('license', 'ccby_filename')):
-        filename = raw.get(field)
-        if not filename:
-            continue
-        if not isinstance(filename, str) or '/' in filename or '\\' in filename or filename.startswith('.'):
-            raise ValueError('Eski profil görsel yolu güvenli değil.')
-        candidate = directory / filename
-        if candidate.is_file() and not candidate.is_symlink():
-            if candidate.stat().st_size > 8 * 1024 * 1024:
-                raise ValueError('Eski profil görseli 8 MB sınırını aşıyor.')
-            blob = candidate.read_bytes()
-            ext = validate_image(filename, blob)
-            mime = {'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'pdf': 'application/pdf'}[ext]
-            assets[key] = {'name': filename, 'data': f'data:{mime};base64,' + base64.b64encode(blob).decode('ascii')}
-    return jsonify(ok=True, settings=settings, assets=assets, legacy=True)
-
-
-@app.route('/save_profile', methods=['POST'])
-@app.route('/delete_profile/<name>', methods=['DELETE'])
-def retired_profile_write(name=None):
-    return jsonify(ok=False, error='Eski profiller salt okunur. Ayarları dergi hesabınıza aktararak kaydedin.'), 410
 
 
 def create_local_server(port=5051):

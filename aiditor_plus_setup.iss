@@ -2,7 +2,7 @@
 ; Build with: iscc aiditor_plus_setup.iss
 
 #define MyAppName "AI-ditor Plus"
-#define MyAppVersion "2.0.1"
+#define MyAppVersion "2.0.2"
 #define MyAppPublisher "Alparslan Guvenc"
 #define MyAppExeName "AIditorPlus.exe"
 

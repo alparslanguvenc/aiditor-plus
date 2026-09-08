@@ -26,7 +26,7 @@ macOS'ta DMG içindeki **AI-ditor Plus** uygulamasını **Applications** klasör
 - **Zengin tablo düzenleme:** Word/Excel'den yapıştırma, birleşik hücreler, hizalama, kalın/italik yazı, renkler ve uzun tablolar. Eski düz metin tabloları da desteklenir.
 - **Bölümleri taşıma:** Sürükle bırak veya klavye ile sıralama; şekil ve tablo bağlantıları bölüm adı değişince kaybolmaz.
 - **Kapak sığdırma:** Otomatik, sıkı ve yoğun seçenekleri; ilk sayfada makale bilgileri ve dipnot alanının birlikte düzenlenmesi.
-- **Taşınabilir yedekler:** Dergi ön ayarları/logoları ve makale projeleri için JSON aktarımı. Eski Plus profillerini hesaba açıkça içe aktarabilirsiniz.
+- **Taşınabilir yedekler:** Dergi ön ayarları/logoları ve makale projeleri için JSON aktarımı.
 - **Overleaf çıktısı:** `main.tex`, gerekli görseller ve kullanım açıklaması içeren ZIP.
 
 ![Dergi hesabı giriş ekranı](docs/images/login.png)
@@ -55,7 +55,7 @@ Veriler uygulama paketinin dışında tutulduğu için sürüm güncellemesi der
 | Windows | `%LOCALAPPDATA%/AI-ditor Plus/` |
 | Linux | `$XDG_DATA_HOME/aiditor-plus/` veya `~/.local/share/aiditor-plus/` |
 
-Başka bilgisayara geçerken dergi ön ayarlarını ve makale projelerini JSON olarak dışa aktarın, yeni kurulumda hesap oluşturup dosyaları içe aktarın. Tam yerel yedek için uygulama kapalıyken veri klasörünün tamamını kopyalayın. Parolalar açık metin olarak saklanmaz; bu yerel hesap sistemi işletim sistemi düzeyindeki disk erişiminin yerine geçmez. Eski `~/.aiditor_plus/profiles/` dosyaları otomatik silinmez.
+Başka bilgisayara geçerken dergi ön ayarlarını ve makale projelerini JSON olarak dışa aktarın, yeni kurulumda hesap oluşturup dosyaları içe aktarın. Tam yerel yedek için uygulama kapalıyken veri klasörünün tamamını kopyalayın. Parolalar açık metin olarak saklanmaz; bu yerel hesap sistemi işletim sistemi düzeyindeki disk erişiminin yerine geçmez.
 
 **JGTTR Formatter bağımsız bir uygulamadır.** AI-ditor Plus farklı veri klasörü, uygulama kimliği ve çalışma alanı kullanır.
 

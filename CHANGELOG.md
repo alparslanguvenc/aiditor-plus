@@ -1,5 +1,9 @@
 # Sürüm geçmişi
 
+## 2.0.2 — 2026-09-08
+
+Önceki kurulumlardan kalan özel dergi profillerini otomatik keşfeden ve listeleyen bölüm kaldırıldı. Eski profil erişim ve aktarım uçları kapatıldı; uygulama başka dergilerin yerel ön ayarlarını sunmaz. Dergi hesaplarına ait ayarlar ile kullanıcının seçtiği JSON yedeklerini içe/dışa aktarma korunur.
+
 ## 2.0.1 — 2026-09-08
 
 Uygulama logosu sade bir A monogramı ve turkuaz artı işaretiyle yenilendi. Lacivert ve fildişi renklerini kullanan görsel kimlik; uygulama arayüzü, tarayıcı simgesi, macOS uygulama simgesi ve Windows uygulama/kurulum simgelerinde tutarlı biçimde kullanılıyor.
