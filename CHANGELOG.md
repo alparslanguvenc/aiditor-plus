@@ -1,5 +1,9 @@
 # Sürüm geçmişi
 
+## 2.0.1 — 2026-09-08
+
+Uygulama logosu sade bir A monogramı ve turkuaz artı işaretiyle yenilendi. Lacivert ve fildişi renklerini kullanan görsel kimlik; uygulama arayüzü, tarayıcı simgesi, macOS uygulama simgesi ve Windows uygulama/kurulum simgelerinde tutarlı biçimde kullanılıyor.
+
 ## 2.0.0 — 2026-09-08
 
 Dergi ayarları artık yerel hesaplara bağlıdır. Her dergi kendi logo, sayfa düzeni, tipografi, künye ve dipnot ön ayarlarıyla yeniden açılır. Dört görsel başlangıç şablonu seçildikten sonra özelleştirilebilir; ön ayarlar görselleriyle birlikte yedeklenebilir.

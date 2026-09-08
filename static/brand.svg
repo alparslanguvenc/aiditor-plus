@@ -1,1 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#e9f1ec"/><path d="M13 12h16l7 7v18H13z" fill="none" stroke="#153449" stroke-width="2"/><path d="M28 12v9h8M19 26h11M19 31h8" fill="none" stroke="#176b6a" stroke-width="2"/><path d="M36 30v12m-6-6h12" stroke="#176b6a" stroke-width="3"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" fill="none">
+  <title>AI-ditor Plus</title>
+  <rect x="80" y="80" width="840" height="840" rx="180" fill="#153449"/>
+  <path fill="#F7F5EF" fill-rule="evenodd" d="M469 319h31l142 331c29 66 32 76 65 83v13H519v-13c37-7 51-17 38-50l-25-61H382l-22 59c-12 33-3 44 36 52v13H262v-13c37-5 52-23 71-66L469 319Zm-72 264h119l-58-147-61 147Z"/>
+  <path fill="#88C9BD" d="M666 296h34v51h51v34h-51v51h-34v-51h-51v-34h51v-51Z"/>
+</svg>

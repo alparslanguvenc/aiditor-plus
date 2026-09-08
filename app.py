@@ -24,7 +24,7 @@ from account_store import AccountStore, DuplicateUsername, RevisionConflict, che
 from journal_templates import TEMPLATES, default_settings, normalize_settings
 from formatter import generate_latex_from_form, extract_form_data_from_docx, _normalize_table_model
 
-APP_VERSION = '2.0.0'
+APP_VERSION = '2.0.1'
 
 
 def resource_path(relative_path):

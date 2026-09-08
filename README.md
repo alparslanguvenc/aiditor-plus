@@ -1,5 +1,7 @@
 # AI-ditor Plus
 
+<img src="static/brand.svg" alt="AI-ditor Plus A+ logosu" width="112" height="112">
+
 **Her dergi için kendi düzeni, kaldığınız yerden devam eden bir çalışma alanı.**
 
 AI-ditor Plus, akademik dergi editörlerinin mizanpaj işlerini kolaylaştırmak için **kâr amacı güdülmeden** geliştirilmiş, **MIT lisanslı açık kaynak** bir masaüstü uygulamasıdır. Bir dergi hesabı oluşturun, örnek sayfa düzenlerinden birini seçin, derginizin kimliğini tanımlayın ve makalelerinizi aynı ön ayarlarla hazırlayın.
