@@ -4,54 +4,123 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI-ditor Plus</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/static/brand.svg">
+<link rel="stylesheet" href="/static/library.css">
+<link href="/static/vendor/bootstrap.min.css" rel="stylesheet">
+<link href="/static/vendor/bootstrap-icons.css" rel="stylesheet">
 <style>
-:root { --brown:#833C0B; --brown-d:#5a2807; --brown-light:#f9f0eb; --blue:#0070C0; }
-body { background:#f0f2f5; font-family:'Segoe UI',sans-serif; }
-.navbar { background:var(--brown) !important; }
-.navbar-brand { color:#fff !important; font-weight:700; letter-spacing:.3px; }
+:root {
+  --ink:#153449; --ink-deep:#0d2838; --teal:#087f78; --teal-dark:#08625f;
+  --mint:#57c8b8; --coral:#ef6a5b; --saffron:#f4bd4f; --sky:#4f8fe8;
+  --paper:#fffdf8; --canvas:#eef7f5; --line:#d9e7e4; --muted:#637681;
+  --brown:var(--teal); --brown-d:var(--teal-dark); --brown-light:#eaf7f4; --blue:#3479c9;
+}
+body {
+  min-height:100vh; color:var(--ink); background:
+    radial-gradient(circle at 8% 4%,rgba(244,189,79,.20),transparent 26rem),
+    radial-gradient(circle at 96% 16%,rgba(87,200,184,.18),transparent 31rem),
+    linear-gradient(180deg,#f8fbf9 0%,var(--canvas) 52%,#edf3f7 100%);
+  font-family:'Avenir Next','Segoe UI',sans-serif;
+}
+body::before {
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.28; z-index:-1;
+  background-image:radial-gradient(rgba(21,52,73,.13) .65px,transparent .65px);
+  background-size:18px 18px;
+}
+.navbar {
+  position:relative; background:linear-gradient(104deg,var(--ink-deep),#135b64 64%,#087f78) !important;
+  box-shadow:0 10px 28px rgba(13,40,56,.18); padding:.85rem 0;
+}
+.navbar::after {
+  content:""; position:absolute; left:0; right:0; bottom:0; height:3px;
+  background:linear-gradient(90deg,var(--coral) 0 25%,var(--saffron) 25% 49%,var(--mint) 49% 74%,var(--sky) 74%);
+}
+.brand-lockup { display:flex; align-items:center; gap:11px; min-width:0; }
+.brand-mark {
+  display:block; width:44px; height:44px; flex:0 0 44px; object-fit:contain;
+}
+.navbar-brand {
+  display:block; padding:0; margin:0; color:#fff !important; font-family:'Iowan Old Style','Palatino Linotype',Georgia,serif;
+  font-size:1.28rem; font-weight:700; letter-spacing:.2px; line-height:1.05;
+}
+.brand-subtitle { color:rgba(255,255,255,.72); font-size:.69rem; letter-spacing:.04em; }
+.workspace-pill {
+  color:#eafffb; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10);
+  border-radius:999px; padding:6px 11px; font-size:.72rem; backdrop-filter:blur(8px);
+}
 
 /* Cards */
-.card { border:none; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:1rem; }
+.card {
+  border:1px solid rgba(21,52,73,.08); border-radius:17px; background:rgba(255,255,255,.94);
+  box-shadow:0 8px 26px rgba(21,52,73,.075),0 1px 2px rgba(21,52,73,.08);
+  margin-bottom:1.05rem; overflow:hidden;
+}
 
 /* Section headers */
 .sec-hdr {
-  background:var(--brown); color:#fff;
-  border-radius:12px 12px 0 0;
+  position:relative; background:linear-gradient(103deg,var(--ink-deep),#17596a); color:#fff;
+  border-radius:16px 16px 0 0;
   font-weight:600; cursor:pointer; user-select:none;
-  display:flex; align-items:center; padding:11px 16px; gap:8px;
-  transition: border-radius .15s;
+  display:flex; align-items:center; padding:12px 16px; gap:9px;
+  transition:border-radius .18s,filter .18s,transform .18s;
 }
-.sec-hdr:hover { background:var(--brown-d); }
-.sec-hdr.collapsed { border-radius:12px !important; }
+.sec-hdr::before {
+  content:""; position:absolute; inset:0 auto 0 0; width:5px; background:var(--section-accent,var(--mint));
+}
+.sec-hdr:hover { filter:brightness(1.09); }
+.sec-hdr.collapsed { border-radius:16px !important; }
 .sec-hdr .chevron { margin-left:auto; transition:transform .2s; }
 .sec-hdr.collapsed .chevron { transform:rotate(-90deg); }
 
+.container > .card:nth-of-type(2) { --section-accent:var(--coral); }
+.container > .card:nth-of-type(3) { --section-accent:var(--saffron); }
+.container > .card:nth-of-type(4) { --section-accent:var(--mint); }
+.container > .card:nth-of-type(5) { --section-accent:var(--sky); }
+.container > .card:nth-of-type(6) { --section-accent:#ba7de1; }
+.container > .card:nth-of-type(7) { --section-accent:#ef8d52; }
+.container > .card:nth-of-type(8) { --section-accent:#65b66d; }
+
 .step-badge {
   display:inline-flex; align-items:center; justify-content:center;
-  background:rgba(255,255,255,.22); border-radius:50%;
-  width:24px; height:24px; font-size:.8rem; font-weight:700; flex-shrink:0;
+  color:var(--ink-deep); background:var(--section-accent,var(--mint)); border-radius:9px;
+  width:27px; height:27px; font-size:.78rem; font-weight:800; flex-shrink:0;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);
 }
 
 /* Author rows */
 .author-row {
-  background:#fff; border:1px solid #e5ddd7; border-radius:10px;
+  background:#fbfefc; border:1px solid var(--line); border-radius:12px;
   padding:12px 14px; margin-bottom:10px;
 }
 .author-num { font-size:.8rem; font-weight:700; color:#888; }
 
 /* Section blocks */
-.sec-block { background:#fff; border:1px solid #e5ddd7; border-radius:10px; margin-bottom:10px; overflow:hidden; }
+.sec-block {
+  position:relative; background:#fff; border:1px solid var(--line);
+  border-radius:13px; margin-bottom:11px; overflow:visible;
+  transition:box-shadow .2s ease, opacity .2s ease, border-color .2s ease;
+}
+.sec-block.is-dragging {
+  opacity:.52; border-color:var(--brown); box-shadow:0 12px 28px rgba(90,40,7,.18);
+}
+.sec-block.drop-before::before,.sec-block.drop-after::after {
+  content:""; position:absolute; z-index:4; left:10px; right:10px; height:3px;
+  border-radius:999px; background:var(--brown); box-shadow:0 0 0 3px rgba(131,60,11,.12);
+  animation:dropPulse .75s ease-in-out infinite alternate;
+}
+.sec-block.drop-before::before { top:-7px; }
+.sec-block.drop-after::after { bottom:-7px; }
+@keyframes dropPulse { from { opacity:.55; transform:scaleX(.985); } to { opacity:1; transform:scaleX(1); } }
 .sec-block-hdr {
-  background:#f7f0ec; border-bottom:1px solid #e5ddd7;
+  background:linear-gradient(90deg,#edf8f5,#f6fbfa); border-bottom:1px solid var(--line);
   padding:7px 10px; display:flex; align-items:center; gap:7px;
+  border-radius:12px 12px 0 0;
 }
 .sec-block-body { padding:10px 12px; }
 
 /* Figure/Table blocks */
-.ft-block { background:#fff; border:1px solid #d5dfe8; border-radius:10px; margin-bottom:10px; overflow:hidden; }
-.ft-hdr { background:#eef2f8; border-bottom:1px solid #d5dfe8; padding:7px 10px; display:flex; align-items:center; gap:7px; }
+.ft-block { background:#fff; border:1px solid #d6e4eb; border-radius:13px; margin-bottom:10px; overflow:hidden; }
+.ft-hdr { background:linear-gradient(90deg,#edf4fb,#f4f8fc); border-bottom:1px solid #d6e4eb; padding:7px 10px; display:flex; align-items:center; gap:7px; }
 
 /* Figure drop zone */
 .fig-drop {
@@ -60,255 +129,244 @@ body { background:#f0f2f5; font-family:'Segoe UI',sans-serif; }
   background:#fafafa; transition:all .2s; min-height:80px;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
 }
-.fig-drop:hover,.fig-drop.over { background:#eef2f8; border-color:var(--blue); }
+.fig-drop:hover,.fig-drop.over { background:#edf8f5; border-color:var(--teal); }
 .fig-preview { max-width:100%; max-height:140px; border-radius:6px; margin-top:8px; }
 
 /* Buttons */
-.btn-jgttr { background:var(--brown); color:#fff; border:none; font-weight:600; border-radius:8px; }
-.btn-jgttr:hover { background:var(--brown-d); color:#fff; }
+.btn-jgttr {
+  color:#fff; border:none; font-weight:700; border-radius:12px;
+  background:linear-gradient(105deg,var(--teal-dark),var(--teal));
+  box-shadow:0 10px 23px rgba(8,127,120,.23); transition:transform .18s,box-shadow .18s,filter .18s;
+}
+.btn-jgttr:hover { color:#fff; filter:brightness(1.08); transform:translateY(-1px); box-shadow:0 13px 27px rgba(8,127,120,.28); }
 .add-btn {
-  border:2px dashed #ccc; background:#fff; border-radius:8px; color:#999;
+  border:1.5px dashed #9fc6bf; background:#f9fdfc; border-radius:11px; color:var(--teal-dark);
   width:100%; padding:7px; font-size:.88rem; transition:all .2s; cursor:pointer;
 }
-.add-btn:hover { border-color:var(--brown); color:var(--brown); }
+.add-btn:hover { border-color:var(--teal); color:var(--teal-dark); background:#eaf7f4; transform:translateY(-1px); }
 
 .btn-icon { padding:2px 7px; font-size:.78rem; border-radius:6px; line-height:1.6; }
-.drag-handle { color:#ccc; cursor:grab; }
-.drag-handle:hover { color:#888; }
+.drag-handle {
+  color:#aaa; cursor:grab; touch-action:none; border:0; background:transparent;
+  border-radius:6px; padding:4px 5px; line-height:1; transition:color .18s, background .18s, transform .18s;
+}
+.drag-handle:hover,.drag-handle:focus-visible { color:var(--teal); background:#dff2ee; outline:none; transform:scale(1.05); }
+.drag-handle:active { cursor:grabbing; }
 
-.lbl { font-size:.8rem; font-weight:600; color:#555; margin-bottom:2px; }
+.lbl { font-size:.8rem; font-weight:700; color:#435d6a; margin-bottom:3px; }
 .form-control, .form-select { font-size:.875rem; }
 .form-control-sm, .form-select-sm { font-size:.82rem; }
+.form-control,.form-select {
+  color:var(--ink); border-color:#cfdfdc; border-radius:9px; background-color:#fff;
+  transition:border-color .15s,box-shadow .15s,background .15s;
+}
+.form-control:focus,.form-select:focus {
+  color:var(--ink); border-color:var(--teal); background:#fff;
+  box-shadow:0 0 0 .2rem rgba(8,127,120,.13);
+}
+.form-check-input:checked { background-color:var(--teal); border-color:var(--teal); }
 textarea { resize:vertical; }
 #result-panel { display:none; }
 .spinner-border { width:1.1rem; height:1.1rem; }
 
-/* Journal settings panel */
-#journal-settings-panel { border:2px solid #2c3e50; background:#fff; }
-#journal-settings-panel .js-hdr {
-  background:#2c3e50; color:#fff; border-radius:10px 10px 0 0;
-  padding:10px 16px; font-weight:700; display:flex; align-items:center; gap:8px;
-  cursor:pointer; user-select:none;
-}
-#journal-settings-panel .js-hdr:hover { background:#1a252f; }
-#journal-settings-panel .js-hdr .chevron { margin-left:auto; transition:transform .2s; }
-#journal-settings-panel .js-hdr.collapsed .chevron { transform:rotate(-90deg); }
-.js-body { padding:14px 16px; }
-
-/* Logo drop */
-.logo-drop {
-  border:2px dashed #bbb; border-radius:8px;
-  padding:10px 14px; text-align:center; cursor:pointer;
-  background:#fafafa; transition:all .2s; font-size:.82rem; color:#999;
-}
-.logo-drop:hover { background:#eef2f8; border-color:#2c3e50; }
-
 /* Subsection level color */
-.lvl-1 { color:var(--brown); }
-.lvl-2 { color:#1a56db; }
-.lvl-3 { color:#1a7f3c; }
+.lvl-1 { color:var(--coral); }
+.lvl-2 { color:#3479c9; }
+.lvl-3 { color:var(--teal); }
+
+/* Table editor grid */
+.table-entry-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.table-entry-option {
+  display:flex; align-items:center; gap:10px; min-height:64px; padding:11px 12px; text-align:left;
+  border:1px solid #cfe1de; border-radius:12px; color:var(--ink); background:#fff;
+  transition:transform .18s,box-shadow .18s,border-color .18s,background .18s;
+}
+.table-entry-option:hover { transform:translateY(-2px); border-color:var(--teal); box-shadow:0 9px 20px rgba(8,127,120,.12); background:#fbfffe; }
+.table-entry-option i { display:grid; place-items:center; width:35px; height:35px; flex:0 0 35px; border-radius:10px; font-size:1rem; }
+.table-entry-option strong { display:block; font-size:.82rem; }
+.table-entry-option small { display:block; margin-top:2px; color:var(--muted); font-size:.68rem; line-height:1.25; }
+.table-entry-option.figure i { color:#2f6ebd; background:#e8f1fc; }
+.table-entry-option.paste i { color:#fff; background:var(--coral); }
+.table-entry-option.blank i { color:var(--teal-dark); background:#dff5ef; }
+.table-source-chip { display:inline-flex; align-items:center; gap:4px; padding:3px 7px; border-radius:999px; color:#45616d; background:#edf6f4; font-size:.68rem; font-weight:700; }
+.word-paste-canvas {
+  display:grid; place-items:center; min-height:190px; padding:28px; text-align:center; cursor:text;
+  border:2px dashed #82bdb4; border-radius:4px; color:var(--ink); background:#fff;
+  box-shadow:0 8px 24px rgba(21,52,73,.09); outline:none;
+  transition:border-color .18s,box-shadow .18s,transform .18s;
+}
+.word-paste-canvas:focus,.word-paste-canvas:hover { border-color:var(--teal); box-shadow:0 12px 28px rgba(8,127,120,.14); transform:translateY(-1px); }
+.word-paste-canvas .paste-hero-icon { display:grid; place-items:center; width:52px; height:52px; margin:0 auto 10px; border-radius:15px; color:#fff; background:var(--coral); font-size:1.35rem; }
+.word-paste-canvas .paste-shortcut { display:inline-block; margin-top:8px; padding:4px 8px; border-radius:7px; color:var(--teal-dark); background:#eaf7f4; font-size:.7rem; font-weight:700; }
+.word-page-shell { padding:16px; border-radius:12px; background:#dfe9e8; overflow:auto; }
+.word-page {
+  width:min(100%,760px); min-height:270px; margin:0 auto; padding:34px 38px; background:#fff;
+  border:1px solid #d8dfde; box-shadow:0 8px 22px rgba(21,52,73,.13);
+}
+.tbl-editor-wrap { overflow-x:auto; padding:3px; }
+.tbl-editor { border-collapse:collapse; width:100%; min-width:300px; table-layout:fixed; color:#202a31; font-family:Calibri,'Avenir Next',sans-serif; }
+.tbl-editor td {
+  min-width:72px; min-height:30px; padding:6px 8px; border:1px solid #626f76; background:#fff;
+  font-size:.82rem; white-space:pre-wrap; vertical-align:top; outline:none; cursor:text;
+}
+.tbl-editor tr.tbl-header-row td { background:#eef5f8; }
+.tbl-editor td[data-bold="true"] { font-weight:700; }
+.tbl-editor td[data-italic="true"] { font-style:italic; }
+.tbl-editor td[data-underline="true"] { text-decoration:underline; }
+.tbl-editor td:empty::before { content:attr(data-placeholder); color:#a4afb5; pointer-events:none; }
+.tbl-editor td:focus,.tbl-editor td.active-cell { position:relative; box-shadow:inset 0 0 0 2px var(--teal); z-index:1; }
+.tbl-toolbar { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:9px; align-items:center; }
+.tbl-toolbar .btn { font-size:.73rem; padding:3px 8px; }
+.tbl-toolbar-group { display:inline-flex; overflow:hidden; border:1px solid #cfddda; border-radius:8px; background:#fff; }
+.tbl-toolbar-group .btn { border:0; border-radius:0; }
+.tbl-toolbar-group .btn + .btn { border-left:1px solid #e0e9e7; }
+.paste-note {
+  display:flex; align-items:flex-start; gap:6px; margin-top:6px; padding:7px 9px;
+  border-radius:7px; background:#f7fafc; color:#687584; font-size:.73rem;
+}
+.paste-status { color:#176b3a; font-weight:600; }
+.app-toast {
+  position:fixed; z-index:1080; right:22px; bottom:22px; max-width:390px;
+  padding:11px 14px; border-radius:12px; color:#fff; background:var(--teal-dark);
+  box-shadow:0 12px 30px rgba(0,0,0,.2); font-size:.84rem;
+  opacity:0; transform:translateY(12px); pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease;
+}
+.app-toast.show { opacity:1; transform:translateY(0); }
+.docx-import-card {
+  position:relative; overflow:hidden; border:1px solid rgba(8,127,120,.17);
+  background:linear-gradient(124deg,rgba(255,255,255,.98),rgba(231,248,244,.98));
+}
+.docx-import-card::after {
+  content:""; position:absolute; width:150px; height:150px; border-radius:50%; right:-52px; top:-85px;
+  background:var(--saffron); opacity:.25; pointer-events:none;
+}
+.docx-drop-zone {
+  display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px;
+  position:relative; z-index:1; padding:18px; border:1.5px dashed #83b9b1; border-radius:13px;
+  color:var(--ink); background:rgba(255,255,255,.67); cursor:pointer;
+  transition:border-color .2s,background .2s,transform .2s,box-shadow .2s;
+}
+.docx-drop-zone:hover,.docx-drop-zone.over {
+  border-color:var(--teal); background:#fff; box-shadow:0 10px 25px rgba(8,127,120,.13);
+}
+.docx-drop-zone.over { transform:translateY(-2px); }
+.docx-drop-icon {
+  display:flex; align-items:center; justify-content:center; width:46px; height:46px;
+  border-radius:13px; background:var(--coral); color:#fff; font-size:1.45rem;
+  box-shadow:0 8px 18px rgba(239,106,91,.24);
+}
+.docx-import-status { display:none; margin-top:10px; padding:9px 11px; border-radius:8px; font-size:.8rem; }
+.docx-import-status.loading { display:block; color:#76501f; background:#fff8dd; }
+.docx-import-status.success { display:block; color:#176b3a; background:#eaf7ef; }
+.docx-import-status.error { display:block; color:#a1262f; background:#fff0f1; }
+@media (max-width:575.98px) {
+  .workspace-pill { display:none; }
+  .brand-subtitle { display:none; }
+  .docx-drop-zone { grid-template-columns:auto 1fr; }
+  .docx-drop-zone .btn { grid-column:1 / -1; }
+  .table-entry-actions { grid-template-columns:1fr; }
+  .word-page { padding:20px 16px; min-width:560px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .sec-block,.drag-handle,.app-toast,.docx-drop-zone,.btn-jgttr,.add-btn { transition:none; }
+  .sec-block.drop-before::before,.sec-block.drop-after::after { animation:none; }
+}
 </style>
+<link rel="stylesheet" href="/static/workspace.css">
 </head>
 <body>
 
-<!-- ── Navbar ── -->
+<a class="skip-link" href="#main-workspace">Çalışma alanına geç</a>
 <nav class="navbar navbar-dark">
-  <div class="container">
-    <span class="navbar-brand mb-0">📄 AI-ditor Plus</span>
-    <span class="text-white-50" style="font-size:.8rem">Evrensel Akademik Dergi LaTeX Şablonu</span>
-  </div>
+ <div class="container shell-width">
+  <a class="brand-lockup" href="/" aria-label="AI-ditor Plus ana sayfa"><img src="/static/brand.svg" alt="" width="42" height="42"><span><span class="navbar-brand">AI-ditor <b>Plus</b><small>2.0</small></span><span class="brand-subtitle">Derginize ait bir çalışma alanı.</span></span></a>
+  <div id="account-controls" hidden><span id="account-name"></span><button type="button" id="logout-button" class="btn btn-sm btn-outline-light">Çıkış yap</button></div>
+ </div>
 </nav>
+<section id="auth-screen" class="container shell-width auth-screen" aria-labelledby="auth-heading">
+ <div class="welcome-copy"><span class="eyebrow">AKADEMİK YAYINCILIK İÇİN AÇIK KAYNAK</span><h1 id="auth-heading">Derginizin düzenini<br>bir kez oluşturun.</h1><p>Kimliğinizi ve sayfa tasarımınızı kaydedin. Her yeni makalede aynı düzenle, kaldığınız yerden devam edin.</p>
+ <div class="welcome-benefits"><span><b>01</b> Bir sayfa düzeni seçin</span><span><b>02</b> Derginize göre özelleştirin</span><span><b>03</b> Makalenizi yayına hazırlayın</span></div>
+ <div class="welcome-paper" aria-hidden="true"><div class="mini-paper contemporary"><div class="mini-mast"><i>J</i><b>AKADEMİK<br>ARAŞTIRMALAR</b></div><div class="mini-band">RESEARCH ARTICLE · 2026</div><h4>Bilgiyi birlikte<br>görünür kılmak</h4><div class="mini-authors">Yazar Adı · Yazar Adı</div><div class="mini-rule"></div><h5>ÖZET</h5><div class="mini-lines"></div><h5>ABSTRACT</h5><div class="mini-lines"></div><div class="mini-foot">Açık erişim · Akademik yayıncılık</div></div><div class="paper-caption">Sizin derginiz.<br>Sizin yayın düzeniniz.</div></div>
+ </div>
+ <div class="auth-card"><span class="eyebrow">DERGİ HESABI</span><h2 id="auth-form-title">Çalışma alanınıza girin</h2><p id="auth-description">Kayıtlı dergi ayarlarınız ve makaleleriniz sizi bekliyor.</p>
+ <div class="auth-tabs" role="tablist" aria-label="Hesap işlemi"><button type="button" id="login-tab" role="tab" aria-selected="true">Giriş yap</button><button type="button" id="register-tab" role="tab" aria-selected="false">Hesap oluştur</button></div>
+ <form id="auth-form"><div id="register-name-wrap" hidden><label for="auth-display-name">Dergi adı</label><input class="form-control" id="auth-display-name" autocomplete="organization" maxlength="120" minlength="2" placeholder="Derginizin adı"></div>
+ <label for="auth-username">Kullanıcı adı</label><input class="form-control" id="auth-username" autocomplete="username" required minlength="3" maxlength="40" pattern="[A-Za-z0-9_.-]+" placeholder="ornek_dergi"><small>En az 3 karakter; harf, rakam, nokta, tire veya alt çizgi.</small>
+ <label for="auth-password">Parola</label><input type="password" class="form-control" id="auth-password" autocomplete="current-password" required minlength="8" maxlength="256" placeholder="En az 8 karakter">
+ <div id="auth-status" role="status" aria-live="polite"></div><button type="submit" id="auth-submit" class="btn btn-jgttr w-100">Giriş yap <span aria-hidden="true">→</span></button></form>
+ <div class="local-note"><i class="bi bi-hdd" aria-hidden="true"></i><p>Hesaplar ve kayıtlar bu kurulumda saklanır. Başka bir bilgisayara geçerken dergi ayarlarınızı ve makalelerinizi JSON yedeğiyle taşıyabilirsiniz.</p></div>
+ <button type="button" id="session-retry" class="btn btn-link" hidden>Bağlantıyı yeniden dene</button>
+ </div>
+</section>
+<main id="main-workspace" class="container shell-width pb-5" hidden>
+ <header class="workspace-heading"><div><span class="eyebrow">DERGİ ÇALIŞMA ALANI</span><h1 id="journal-heading">Derginiz</h1><p id="journal-summary">Sayfa düzeninizi bir kez belirleyin; her makalede tekrar kullanın.</p></div><div class="workspace-label"><span class="status-dot"></span>Bu kurulumda saklanır</div></header>
+ <div class="workspace-tabs" role="tablist" aria-label="Çalışma alanları"><button type="button" id="articles-tab" role="tab" aria-controls="articles-pane" aria-selected="true"><i class="bi bi-files" aria-hidden="true"></i>Makaleler</button><button type="button" id="journal-tab" role="tab" aria-controls="journal-pane" aria-selected="false"><i class="bi bi-sliders" aria-hidden="true"></i>Dergi tasarımı ve ayarları</button><span id="preset-mini-status" role="status"></span></div>
+ <section id="journal-pane" role="tabpanel" aria-labelledby="journal-tab" hidden>
+  <div class="setup-heading"><div><span class="eyebrow">01 / BAŞLANGIÇ DÜZENİ</span><h2>Bir sayfa düzeniyle başlayın</h2><p>Örnek bir görünüm seçin, ardından tüm ayrıntıları derginize göre düzenleyin. Dergi adı ve yüklediğiniz logolar korunur.</p></div></div>
+  <div id="template-gallery" class="template-gallery" role="group" aria-label="Örnek ilk sayfa düzenleri"></div>
+  <p class="preview-note">Bu görseller yerleşimi gösterir. Makalenizin son sayfa görünümünü oluşturulan LaTeX dosyasını derleyerek kontrol edin.</p>
+  <div class="setup-grid"><form id="journal-form" class="journal-form"><div class="settings-section"><span class="eyebrow">02 / DERGİ KİMLİĞİ</span><h2>Size ait ayrıntılar</h2><div class="row g-3">
+   <div class="col-md-6"><label for="js-name-tr">Dergi adı · Türkçe</label><input id="js-name-tr" class="form-control" maxlength="250" placeholder="Derginizin Türkçe adı"></div><div class="col-md-6"><label for="js-name-en">Dergi adı · İngilizce</label><input id="js-name-en" class="form-control" maxlength="250" placeholder="Journal name in English"></div>
+   <div class="col-md-3"><label for="js-issn-print">Basılı ISSN</label><input id="js-issn-print" class="form-control" placeholder="0000-0000"></div><div class="col-md-3"><label for="js-issn-online">Elektronik ISSN</label><input id="js-issn-online" class="form-control" placeholder="0000-0000"></div><div class="col-md-6"><label for="js-url">Dergi web adresi</label><input id="js-url" type="url" class="form-control" placeholder="https://derginiz.org"></div>
+   <div class="col-md-6"><label for="logo-inp">Dergi logosu</label><input id="logo-inp" type="file" class="form-control" accept=".png,.jpg,.jpeg,.pdf"><div class="asset-line"><span id="logo-label">Logo eklenmedi</span><button type="button" id="remove-logo" class="text-button" hidden>Kaldır</button></div></div><div class="col-md-6"><label for="ccby-inp">Lisans görseli · isteğe bağlı</label><input id="ccby-inp" type="file" class="form-control" accept=".png,.jpg,.jpeg,.pdf"><div class="asset-line"><span id="ccby-label">Lisans görseli eklenmedi</span><button type="button" id="remove-license" class="text-button" hidden>Kaldır</button></div></div>
+   <div class="col-12"><small>PNG, JPG veya PDF · Her görsel en fazla 8 MB. PDF dosyalarında ilk sayfa kullanılır; taslak görünümünde dosya adı gösterilir.</small></div>
+  </div></div>
+  <div class="settings-section"><span class="eyebrow">03 / SAYFA TASARIMI</span><h2>Yerleşim ve tipografi</h2><div class="row g-3">
+   <div class="col-md-6"><label for="js-font">Yazı tipi</label><select id="js-font" class="form-select"><option>Palatino Linotype</option><option>Times New Roman</option><option>Century</option><option>Calibri</option><option>Sans Serif</option><option>Latin Modern</option></select><small>Çıktıda Overleaf uyumlu yazı tipi eşdeğerleri kullanılır.</small></div>
+   <div class="col-md-3"><label for="js-body-size">Gövde puntosu</label><select id="js-body-size" class="form-select"><option value="10">10 punto</option><option value="11">11 punto</option><option value="12">12 punto</option></select></div><div class="col-md-3"><label for="js-accent-color">Vurgu rengi</label><input id="js-accent-color" type="color" class="form-control form-control-color" value="#176B6A"></div>
+   <div class="col-md-6"><label for="js-header-layout">Üst bilgi yerleşimi</label><select id="js-header-layout" class="form-select"><option value="classic">Klasik · logo ve çift dil</option><option value="contemporary">Çağdaş · vurgu bandı</option><option value="centered">Ortalanmış · simetrik başlık</option><option value="minimal">Sade · yalın üst bilgi</option></select></div>
+   <div class="col-md-6"><label for="js-first-page-fit">Varsayılan ilk sayfa yerleşimi</label><select id="js-first-page-fit" class="form-select"><option value="auto">Otomatik sığdır</option><option value="compact">Sıkı yerleşim</option><option value="dense">Çok sıkı yerleşim</option></select><small>Yeni makalelere uygulanır; her makalede ayrıca değiştirilebilir.</small></div>
+   <div class="col-md-4"><label for="js-logo-height">Logo yüksekliği · cm</label><input id="js-logo-height" type="number" min="0.5" max="3.5" step="0.1" class="form-control" value="2.3"></div><div class="col-md-4"><label for="js-corr-marker">Sorumlu yazar işareti</label><select id="js-corr-marker" class="form-select"><option value="*">* Yıldız</option><option value="†">† Hançer</option><option value="‡">‡ Çift hançer</option><option value="§">§ Paragraf</option><option value="¶">¶ Pilcrow</option><option value="#"># Kare</option><option value="★">★ Dolu yıldız</option><option value="✉">✉ Mektup</option></select></div><div class="col-md-4"><label for="js-doi-position">DOI konumu</label><select id="js-doi-position" class="form-select"><option value="bottom">İlk sayfanın altında</option><option value="top">Üst bilgi alanında</option></select></div>
+   <div class="col-12"><label class="check-label"><input type="checkbox" id="js-english-only" class="form-check-input"> Yalnızca İngilizce kapak ve etiketler kullan</label></div>
+  </div></div>
+  <div class="settings-section"><span class="eyebrow">04 / DİPNOT VE LİSANS</span><h2>Sayfanın altındaki bilgiler</h2><div class="row g-3"><div class="col-md-5"><label for="js-footer-layout">Alt bilgi düzeni</label><select id="js-footer-layout" class="form-select"><option value="full">Ayrıntılı · tüm bilgiler</option><option value="compact">Kısa · daha az boşluk</option><option value="minimal">Sade · temel bilgiler</option></select></div><div class="col-md-7"><label for="js-footer-text">Derginin sabit dipnot / lisans metni</label><textarea id="js-footer-text" class="form-control" rows="3" maxlength="2000" placeholder="Derginizin yayın ve lisans bilgisi…"></textarea></div></div><small>Makale başlık dipnotu ve etik beyanı, ilgili makalenin kapak alanında girilir.</small></div>
+  <div class="journal-savebar"><div><span id="journal-save-status" role="status" aria-live="polite">Ayarlar yükleniyor…</span><small>Değişiklikler otomatik kaydedilir.</small></div><button type="submit" class="btn btn-jgttr" id="save-journal">Ayarları kaydet</button><button type="button" id="journal-reload" class="btn btn-outline-secondary" hidden>Sunucudaki ayarları yükle</button></div>
+  </form>
+  <aside class="setup-aside"><div class="preview-card"><span class="eyebrow">CANLI TASARIM TASLAĞI</span><div id="live-preview"></div><p>Dergi kimliğiniz ve görsel tercihleriniz burada görünür.</p></div><div class="portable-card"><h3>Ayarlarınız taşınabilir.</h3><p>Dergi adı, düzen, dipnot ve logoları tek dosyada yedekleyin.</p><button type="button" id="export-preset" class="btn btn-outline-secondary w-100">Dergi ayarlarını yedekle</button><button type="button" id="import-preset-button" class="btn btn-link w-100">Dergi ayarlarını içe aktar</button><input type="file" id="import-preset" accept=".json" hidden><small>Makale JSON yedeği, Makaleler alanından alınır.</small></div><details id="legacy-profiles-panel" class="portable-card" hidden><summary>Önceki sürümdeki profiller</summary><p>Bir profili bu dergi hesabına aktarabilirsiniz.</p><select id="legacy-profile" class="form-select" aria-label="Önceki profil"></select><button type="button" id="import-legacy" class="btn btn-outline-secondary mt-2">Profili aktar</button></details></aside>
+ </div>
+ </section>
+ <section id="articles-pane" role="tabpanel" aria-labelledby="articles-tab">
+<section class="article-library" aria-labelledby="library-heading">
+  <div class="library-topline">
+    <div><span class="library-eyebrow">DERGİNİZİN MAKALE ARŞİVİ</span>
+      <h2 id="library-heading">Kayıtlı makaleler</h2></div>
+    <button type="button" id="new-article" class="btn btn-jgttr" disabled>+ Yeni makale</button>
+  </div>
+  <div class="library-controls">
+    <label class="visually-hidden" for="article-search">Kayıtlı makalelerde ara</label>
+    <input id="article-search" type="search" class="form-control" placeholder="Başlık veya yazar adıyla ara…">
+    <button type="button" id="library-refresh" class="btn btn-outline-secondary">Listeyi yenile</button>
+  </div>
+  <div id="article-list" class="article-list" aria-label="Kayıtlı makaleler"><p>Kayıtlar açılıyor…</p></div>
+  <div class="save-bar">
+    <span id="autosave-status" role="status" aria-live="polite" data-state="loading">Kayıt alanı hazırlanıyor…</span>
+    <button type="button" id="autosave-retry" class="btn btn-sm btn-outline-danger" hidden>Yeniden dene</button>
+    <button type="button" id="save-conflict-copy" class="btn btn-sm btn-outline-danger" hidden>Yeni kayıt olarak koru</button>
+  </div>
+  <p class="library-hint">Her değişiklik otomatik kaydedilir. Başka bir makaleye geçmeden önce mevcut kayıt tamamlanır. JSON dosyanızı “Makale yedeği aç” ile bu listeye ekleyebilirsiniz.</p>
+</section>
+<div id="article-editor" inert>
 
-<!-- ── Bilgilendirme Şeridi ── -->
-<div style="background:linear-gradient(90deg,#c0392b,#e74c3c);color:#fff;padding:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.25)">
-  <div class="container" style="max-width:960px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-    <span style="font-size:.88rem;line-height:1.5;flex:1;min-width:200px">
-      💡 Bu yazılım <strong>Alparslan Güvenç</strong> tarafından kar amacı gütmeksizin geliştirilmiştir.
-      Dergi editörlerine ve teknik ekibe kolaylık sağlaması dileğiyle…
-    </span>
-    <span style="display:inline-flex;align-items:center;gap:12px;flex-shrink:0">
-      <!-- LinkedIn -->
-      <a href="https://www.linkedin.com/in/alparslanguvenc/" target="_blank" rel="noopener"
-         title="LinkedIn" style="color:#fff;opacity:.9;display:inline-flex;align-items:center;transition:opacity .2s"
-         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.9">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.27c-.97 0-1.75-.79-1.75-1.76s.78-1.76 1.75-1.76 1.75.79 1.75 1.76-.78 1.76-1.75 1.76zm13.5 11.27h-3v-5.6c0-1.34-.03-3.07-1.87-3.07-1.87 0-2.16 1.46-2.16 2.97v5.7h-3v-10h2.88v1.36h.04c.4-.76 1.38-1.56 2.84-1.56 3.04 0 3.6 2 3.6 4.59v5.61z"/>
-        </svg>
-      </a>
-      <!-- X (Twitter) -->
-      <a href="https://x.com/AlparslanGvnc" target="_blank" rel="noopener"
-         title="X / Twitter" style="color:#fff;opacity:.9;display:inline-flex;align-items:center;transition:opacity .2s"
-         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.9">
-        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.629 5.905-5.629zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-        </svg>
-      </a>
-      <!-- ORCID -->
-      <a href="https://orcid.org/0000-0002-6195-0654" target="_blank" rel="noopener"
-         title="ORCID" style="color:#fff;opacity:.9;display:inline-flex;align-items:center;transition:opacity .2s"
-         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.9">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm-1.374 4.584c.584 0 1.056.472 1.056 1.056s-.472 1.056-1.056 1.056-1.056-.472-1.056-1.056.472-1.056 1.056-1.056zM9.24 8.88h1.932v9.792H9.24V8.88zm3.528 0h3.024c2.928 0 4.344 2.064 4.344 4.896 0 2.784-1.368 4.896-4.344 4.896h-3.024V8.88zm1.932 1.68v6.432h1.02c1.548 0 2.46-1.116 2.46-3.216 0-2.076-.9-3.216-2.46-3.216h-1.02z"/>
-        </svg>
-      </a>
-    </span>
+<!-- Word document import -->
+<div class="card docx-import-card">
+  <div class="card-body p-3">
+    <div id="docx-drop-zone" class="docx-drop-zone" role="button" tabindex="0"
+         aria-label="Word dosyasını içe aktar"
+         onclick="document.getElementById('docx-file-input').click()">
+      <div class="docx-drop-icon"><i class="bi bi-file-earmark-word" aria-hidden="true"></i></div>
+      <div>
+        <div style="font-weight:700">Word makalesini buraya bırakın</div>
+        <div class="text-muted mt-1" style="font-size:.79rem">Başlık, özet, bölümler, kaynakça, tablolar ve gövde görselleri form alanlarına aktarılır.</div>
+      </div>
+      <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="event.stopPropagation();document.getElementById('docx-file-input').click()">
+        <i class="bi bi-folder2-open me-1"></i>Dosya Seç
+      </button>
+    </div>
+    <input id="docx-file-input" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none">
+    <div id="docx-import-status" class="docx-import-status" role="status" aria-live="polite"></div>
   </div>
 </div>
-<div style="height:14px"></div>
-
-<div class="container pb-5" style="max-width:960px">
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!--  DERGİ AYARLARI (Journal Settings)                         -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="card mb-3" id="journal-settings-panel">
-  <div class="js-hdr" onclick="toggleJS(this)">
-    <i class="bi bi-journal-text"></i> Dergi Ayarları / Journal Settings
-    <i class="bi bi-chevron-down chevron"></i>
-  </div>
-  <div class="js-body" id="js-body">
-
-    <!-- Profile row -->
-    <div class="row g-2 mb-3 align-items-end">
-      <div class="col-md-3">
-        <label class="lbl">Profil Adı</label>
-        <input id="js-profile-name" class="form-control form-control-sm" placeholder="örn: JGTTR">
-      </div>
-      <div class="col-md-4">
-        <label class="lbl">Kayıtlı Profiller</label>
-        <select id="js-profile-select" class="form-select form-select-sm">
-          <option value="">— Profil seçin —</option>
-        </select>
-      </div>
-      <div class="col-md-5 d-flex gap-2 flex-wrap">
-        <button class="btn btn-success btn-sm" onclick="saveProfile()"><i class="bi bi-floppy me-1"></i>Kaydet</button>
-        <button class="btn btn-primary btn-sm" onclick="loadSelectedProfile()"><i class="bi bi-folder2-open me-1"></i>Yükle</button>
-        <button class="btn btn-outline-danger btn-sm" onclick="deleteSelectedProfile()"><i class="bi bi-trash3 me-1"></i>Sil</button>
-      </div>
-    </div>
-
-    <hr class="my-2">
-
-    <!-- Journal identity -->
-    <div class="row g-2 mb-2">
-      <div class="col-md-6">
-        <label class="lbl">Dergi Adı (Türkçe)</label>
-        <input id="js-name-tr" class="form-control form-control-sm"
-               placeholder="Küresel Turizm ve Teknoloji Araştırmaları Dergisi">
-      </div>
-      <div class="col-md-6">
-        <label class="lbl">Dergi Adı (İngilizce)</label>
-        <input id="js-name-en" class="form-control form-control-sm"
-               placeholder="Journal of Global Tourism and Technology Research">
-      </div>
-    </div>
-    <div class="row g-2 mb-2">
-      <div class="col-md-3">
-        <label class="lbl">Print ISSN</label>
-        <input id="js-issn-print" class="form-control form-control-sm" placeholder="XXXX-XXXX">
-      </div>
-      <div class="col-md-3">
-        <label class="lbl">Online ISSN</label>
-        <input id="js-issn-online" class="form-control form-control-sm" placeholder="XXXX-XXXX">
-      </div>
-      <div class="col-md-6">
-        <label class="lbl">Dergi URL</label>
-        <input id="js-url" class="form-control form-control-sm" placeholder="https://dergipark.org.tr/en/pub/...">
-      </div>
-    </div>
-
-    <!-- Logo & font & style -->
-    <div class="row g-2 mb-1">
-      <div class="col-md-3">
-        <label class="lbl">Dergi Logosu</label>
-        <div class="logo-drop" id="logo-drop" onclick="document.getElementById('logo-inp').click()">
-          <i class="bi bi-image me-1"></i><span id="logo-label">Logo dosyası seçin</span>
-        </div>
-        <input type="file" id="logo-inp" accept=".png,.jpg,.jpeg,.pdf" style="display:none"
-               onchange="onLogoSelect(this)">
-      </div>
-      <div class="col-md-3">
-        <label class="lbl">Yazı Tipi (Font)</label>
-        <select id="js-font" class="form-select form-select-sm">
-          <option value="Palatino Linotype" selected>Palatino Linotype</option>
-          <option value="Times New Roman">Times New Roman</option>
-          <option value="Century">Century</option>
-          <option value="Calibri">Calibri</option>
-          <option value="Sans Serif">Sans Serif</option>
-        </select>
-        <div style="font-size:.72rem;color:#aaa;margin-top:2px">Overleaf uyumlu TeX eşdeğerleri kullanılır</div>
-      </div>
-      <div class="col-md-2">
-        <label class="lbl">Gövde Boyutu</label>
-        <select id="js-body-size" class="form-select form-select-sm">
-          <option value="9">9pt</option>
-          <option value="10" selected>10pt</option>
-          <option value="11">11pt</option>
-          <option value="12">12pt</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <label class="lbl">Vurgu Rengi</label>
-        <input type="color" id="js-accent-color" class="form-control form-control-color form-control-sm"
-               value="#833C0B" title="Başlık çubuğu ve bant rengi" style="min-width:60px">
-      </div>
-    </div>
-
-    <hr class="my-2">
-
-    <!-- Yeni opsiyonlar: marker, dil modu, CC-BY logo, logo yüksekliği -->
-    <div class="row g-2 mb-1">
-      <div class="col-md-3">
-        <label class="lbl">Sorumlu Yazar İşareti</label>
-        <select id="js-corr-marker" class="form-select form-select-sm">
-          <option value="*" selected>* (yıldız)</option>
-          <option value="†">† (hançer)</option>
-          <option value="‡">‡ (çift hançer)</option>
-          <option value="§">§ (paragraf)</option>
-          <option value="¶">¶ (pilcrow)</option>
-          <option value="#"># (kare)</option>
-          <option value="★">★ (dolu yıldız)</option>
-          <option value="✉">✉ (mektup)</option>
-        </select>
-      </div>
-      <div class="col-md-3">
-        <label class="lbl">Logo Yüksekliği (cm)</label>
-        <input type="number" id="js-logo-height" class="form-control form-control-sm"
-               min="1" max="4" step="0.1" value="2.3"
-               title="Üst kenar boşluğu otomatik ayarlanır">
-      </div>
-      <div class="col-md-3">
-        <label class="lbl">CC-BY Logo <span class="text-muted fw-normal" style="font-size:.72rem">(opsiyonel)</span></label>
-        <div class="logo-drop" id="ccby-drop" onclick="document.getElementById('ccby-inp').click()">
-          <i class="bi bi-image me-1"></i><span id="ccby-label">Varsayılan kullan</span>
-        </div>
-        <input type="file" id="ccby-inp" accept=".png,.jpg,.jpeg,.pdf" style="display:none"
-               onchange="onCcbySelect(this)">
-      </div>
-      <div class="col-md-3 d-flex align-items-end pb-1">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="js-english-only">
-          <label class="form-check-label" for="js-english-only" style="font-size:.85rem;font-weight:600">
-            Yalnızca İngilizce kapak
-          </label>
-          <div style="font-size:.7rem;color:#888;margin-top:1px">Türkçe etiketleri gizler</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row g-2 mb-1">
-      <div class="col-md-4">
-        <label class="lbl">DOI Konumu</label>
-        <select id="js-doi-position" class="form-select form-select-sm">
-          <option value="bottom" selected>Sağ Alt (CC-BY hizası)</option>
-          <option value="top">Sağ Üst (URL altı)</option>
-        </select>
-      </div>
-    </div>
-
-  </div><!-- /js-body -->
-</div>
-
 
 <!-- ─────────────────────────────────────────────────────── -->
 <!-- 1. KAPAK BİLGİLERİ                                      -->
@@ -335,7 +393,7 @@ textarea { resize:vertical; }
       <div class="col-6 col-md-3"><label class="lbl">Bitiş Sayfası</label><input class="form-control form-control-sm" id="c-end" placeholder="xxx"></div>
     </div>
     <div class="row g-2 mb-2">
-      <div class="col-md-6"><label class="lbl">DOI</label><input class="form-control form-control-sm" id="c-doi" placeholder="10.xxxxx/..."></div>
+      <div class="col-md-6"><label class="lbl">DOI</label><input class="form-control form-control-sm" id="c-doi" placeholder="10.xxxxx/dergi.2026.001"></div>
       <div class="col-md-6">
         <label class="lbl">Makale Türü</label>
         <input class="form-control form-control-sm" id="c-article-type" list="article-type-list"
@@ -355,13 +413,25 @@ textarea { resize:vertical; }
       <div class="col-md-4"><label class="lbl">Yayın Tarihi (Published)</label><input class="form-control form-control-sm" id="c-published" placeholder="gg.aa.yyyy"></div>
     </div>
     <div class="row g-2 mb-2">
-      <div class="col-md-6"><label class="lbl">Kısa Yazar (üst bilgi, örn: Yılmaz &amp; Kaya, 2026)</label><input class="form-control form-control-sm" id="c-author-short" placeholder="Yılmaz &amp; Kaya, 2026"></div>
-      <div class="col-md-6"><label class="lbl">İlgilenen Editör <span class="text-muted fw-normal" style="font-size:.72rem">(opsiyonel — kapakta anahtar kelimelerin altında görünür)</span></label><input class="form-control form-control-sm" id="c-editor" placeholder="Prof. Dr. Editör Adı"></div>
+      <div class="col-md-6"><label class="lbl">Kısa Yazar (üst bilgi, örn: Yılmaz &amp; Kaya, 2026)</label><input class="form-control form-control-sm" id="c-author-short" placeholder="Yılmaz &amp; Kaya, 2026"></div><div class="col-md-6"><label class="lbl" for="c-editor">Editör</label><input class="form-control form-control-sm" id="c-editor" placeholder="Editör adı (isteğe bağlı)"></div>
+    </div>
+    <div class="mb-2">
+      <label class="lbl">Etik Beyan / Ethics Statement</label>
+      <textarea class="form-control form-control-sm" id="c-ethics" rows="2" placeholder="Bu araştırma, ilgili etik kurul kararı doğrultusunda yürütülmüştür. / This study was conducted in accordance with the relevant ethics committee decision."></textarea>
     </div>
     <div class="mb-0">
-      <label class="lbl">Etik Beyan / Ethics Statement</label>
-      <textarea class="form-control form-control-sm" id="c-ethics" rows="2"
-        placeholder="Bu araştırma, ilgili etik kurul kararı doğrultusunda yürütülmüştür. / This study was conducted in accordance with the relevant ethics committee decision."></textarea>
+      <label class="lbl">Başlık Dipnotu / Title Footnote</label>
+      <textarea class="form-control form-control-sm" id="c-title-note" rows="2" placeholder="This study was carried out within the framework of ..."></textarea>
+      <div class="text-muted mt-1" style="font-size:.73rem">Doldurulduğunda başlık yıldızla (*) işaretlenir ve açıklama ilk sayfada etik beyanın hemen altında gösterilir.</div>
+    </div>
+    <div class="mt-2" style="max-width:390px">
+      <label class="lbl" for="c-first-page-fit">İlk sayfa yerleşimi</label>
+      <select class="form-select form-select-sm" id="c-first-page-fit">
+        <option value="auto" selected>Otomatik sığdır (önerilen)</option>
+        <option value="compact">Sıkı — boşlukları ve puntoları hafif azalt</option>
+        <option value="dense">Çok sıkı — uzun özet / çok yazarlı çalışma</option>
+      </select>
+      <div class="text-muted mt-1" style="font-size:.73rem">Otomatik mod yalnızca gerektiğinde ilk sayfa içeriğini orantılı olarak küçültür.</div>
     </div>
   </div>
 </div>
@@ -376,17 +446,6 @@ textarea { resize:vertical; }
     <i class="bi bi-chevron-down chevron"></i>
   </div>
   <div class="card-body" id="b-authors">
-    <datalist id="title-suggestions">
-      <option value="Prof. Dr.">
-      <option value="Doç. Dr.">
-      <option value="Dr. Öğr. Üyesi">
-      <option value="Dr.">
-      <option value="Öğr. Gör.">
-      <option value="Arş. Gör.">
-      <option value="Prof.">
-      <option value="Assoc. Prof.">
-      <option value="Asst. Prof.">
-    </datalist>
     <div id="authors-list"></div>
     <button class="add-btn mt-1" onclick="addAuthor()"><i class="bi bi-plus-circle me-1"></i>Yazar Ekle</button>
   </div>
@@ -420,7 +479,7 @@ textarea { resize:vertical; }
   </div>
   <div class="card-body" id="b-sections">
     <div id="sections-list"></div>
-    <button class="add-btn mt-1" onclick="addSection()"><i class="bi bi-plus-circle me-1"></i>Bölüm Ekle</button>
+    <button class="add-btn mt-1" onclick="addNewSection()"><i class="bi bi-plus-circle me-1"></i>Bölüm Ekle</button>
   </div>
 </div>
 
@@ -434,9 +493,19 @@ textarea { resize:vertical; }
     <i class="bi bi-chevron-down chevron"></i>
   </div>
   <div class="card-body" id="b-ft">
-    <p class="text-muted mb-2" style="font-size:.82rem">Şekiller yüklenebilir, tablolar pipe-ayrımlı metin olarak girilebilir.</p>
+    <p class="text-muted mb-2" style="font-size:.82rem">Şekilleri yükleyin; Word veya Excel tablolarını doğrudan yapıştırın ya da hücreleri elle düzenleyin. Her öğe için LaTeX ortamı oluşturulur.</p>
     <div id="ft-list"></div>
-    <button class="add-btn mt-1" onclick="addFT()"><i class="bi bi-plus-circle me-1"></i>Şekil / Tablo Ekle</button>
+    <div class="table-entry-actions mt-2" aria-label="Şekil ve tablo ekleme seçenekleri">
+      <button type="button" class="table-entry-option figure" onclick="addFT({type:'figure'})">
+        <i class="bi bi-image"></i><span><strong>Şekil Ekle</strong><small>PNG, JPG veya PDF yükleyin</small></span>
+      </button>
+      <button type="button" class="table-entry-option paste" onclick="addWordPasteTable()">
+        <i class="bi bi-clipboard-plus"></i><span><strong>Word’den Tablo Yapıştır</strong><small>Kaynak hücre ve biçim düzenini otomatik aktarın</small></span>
+      </button>
+      <button type="button" class="table-entry-option blank" onclick="addBlankTable()">
+        <i class="bi bi-file-earmark-plus"></i><span><strong>Boş Tablo Oluştur</strong><small>Word sayfası üzerinde tabloyu elle düzenleyin</small></span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -451,9 +520,8 @@ textarea { resize:vertical; }
   <div class="card-body" id="b-extra">
     <div class="mb-3">
       <div class="form-check mb-1">
-        <input class="form-check-input" type="checkbox" id="ack-on"
-               onchange="document.getElementById('ack-body').style.display=this.checked?'':'none'">
-        <label class="form-check-label" for="ack-on" style="font-size:.88rem;font-weight:600">Teşekkür / Acknowledgements</label>
+        <input class="form-check-input" type="checkbox" id="ack-on" onchange="document.getElementById('ack-body').style.display=this.checked?'':'none'">
+        <label class="form-check-label" for="ack-on" style="font-size:.88rem; font-weight:600">Teşekkür / Acknowledgements</label>
       </div>
       <div id="ack-body" style="display:none">
         <textarea class="form-control form-control-sm" id="ex-ack" rows="2" placeholder="Teşekkür metni..."></textarea>
@@ -461,12 +529,13 @@ textarea { resize:vertical; }
     </div>
     <div class="mb-2">
       <label class="lbl">Araştırmacı Katkı Oranı / Author Contributions</label>
-      <textarea class="form-control form-control-sm" id="ex-contrib" rows="3">Kavramsal çerçeve / Conceptualization: ; Yöntem / Methodology: ; Veri toplama / Data collection: ; Analiz / Analysis: ; Yazım / Writing: ; Gözden geçirme / Review &amp; Editing:</textarea>
+      <textarea class="form-control form-control-sm" id="ex-contrib" rows="3" placeholder="Conceptualization: …; Methodology: …; Writing: …"></textarea>
     </div>
     <div class="mb-0">
       <label class="lbl">Çıkar Çatışması / Conflict of Interest</label>
-      <textarea class="form-control form-control-sm" id="ex-conflict" rows="2">Yazarlar herhangi bir çıkar çatışması olmadığını beyan eder. / The authors declare no conflict of interest.</textarea>
+      <textarea class="form-control form-control-sm" id="ex-conflict" rows="2" placeholder="The authors declare no conflict of interest."></textarea>
     </div>
+    <div class="text-muted mt-2" style="font-size:.76rem">Word dosyasında bulunmayan ve boş bırakılan beyanlar çıktıya eklenmez. İngilizce makalelerde başlıklar yalnızca İngilizce oluşturulur.</div>
   </div>
 </div>
 
@@ -489,11 +558,17 @@ textarea { resize:vertical; }
 <!-- GENERATE                                                 -->
 <!-- ─────────────────────────────────────────────────────── -->
 <div class="text-center my-4">
+  <div class="d-flex justify-content-center gap-2 mb-3">
+    <button type="button" class="btn btn-outline-secondary" onclick="saveProject()">Makale JSON yedeği al</button>
+    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('project-file').click()">Makale yedeği aç</button>
+    <input id="project-file" type="file" accept=".json" hidden onchange="loadProject(this.files[0])">
+  </div>
   <button id="btn-gen" class="btn btn-jgttr btn-lg px-5 py-3" onclick="doGenerate()">
     <i class="bi bi-gear-fill me-2"></i>LaTeX Oluştur &amp; ZIP İndir
   </button>
 </div>
 
+<!-- Result -->
 <div id="result-panel" class="card mb-4">
   <div class="card-header" style="background:#198754;border-radius:12px 12px 0 0;color:#fff;font-weight:600">
     <i class="bi bi-check-circle-fill me-2"></i>Tamamlandı — ZIP hazır
@@ -516,7 +591,13 @@ textarea { resize:vertical; }
 
 <div id="err-panel" class="alert alert-danger" style="display:none"></div>
 
-</div><!-- /container -->
+</div><!-- /article-editor -->
+</section>
+</main>
+<footer class="site-footer container shell-width"><div><b>AI-ditor Plus</b> · Alparslan Güvenç</div><p>Akademik dergi editörlerinin işlerini kolaylaştırmak için, kâr amacı güdülmeden geliştirilmiştir. <a href="/license" target="_blank" rel="noopener">MIT lisansıyla açık kaynak.</a></p><small>Yazılım lisansı, derginizin veya makalenizin yayın lisansından bağımsızdır.</small></footer>
+
+<div id="app-toast" class="app-toast" role="status" aria-live="polite"></div>
+<div id="section-order-status" class="visually-hidden" aria-live="polite"></div>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -527,153 +608,183 @@ function toggleSec(id, hdr) {
   const hidden = body.style.display === 'none';
   body.style.display = hidden ? '' : 'none';
   hdr.classList.toggle('collapsed', !hidden);
-}
-function toggleJS(hdr) {
-  const body = document.getElementById('js-body');
-  const hidden = body.style.display === 'none';
-  body.style.display = hidden ? '' : 'none';
-  hdr.classList.toggle('collapsed', !hidden);
+  hdr.setAttribute('aria-expanded', String(hidden));
 }
 
 // ═══════════════════════════════════════════════════
-// JOURNAL SETTINGS
+// WORD (.DOCX) IMPORT
 // ═══════════════════════════════════════════════════
-function _getLogoFile() {
-  // Her zaman doğrudan DOM'dan oku — ayrı state tutma
-  const inp = document.getElementById('logo-inp');
-  return (inp && inp.files && inp.files[0]) ? inp.files[0] : null;
+let docxImporting = false;
+
+function articleFormHasContent() {
+  const ids = ['c-tr-title','c-en-title','a-tr-abs','a-en-abs','refs'];
+  if (ids.some(id => document.getElementById(id).value.trim())) return true;
+  if ([...document.querySelectorAll('#sections-list [data-f="content"]')]
+      .some(field => field.value.trim())) return true;
+  return document.querySelectorAll('#ft-list .ft-block').length > 0;
 }
 
-function _stemFromFilename(filename) {
-  const dot = filename.lastIndexOf('.');
-  const raw = dot > 0 ? filename.substring(0, dot) : filename;
-  return raw.replace(/[^a-zA-Z0-9_\-]/g, '_') || 'journal_logo';
+function setDocxImportStatus(kind, html) {
+  const status = document.getElementById('docx-import-status');
+  status.className = 'docx-import-status ' + kind;
+  status.innerHTML = html;
 }
 
-function onLogoSelect(inp) {
-  if(inp.files[0]) {
-    document.getElementById('logo-label').textContent = inp.files[0].name;
+function docxImportErrorMessage(error) {
+  if (window.location.protocol === 'file:') {
+    return 'Bu sayfa doğrudan HTML dosyası olarak açılmış. Word aktarımı için güncel AI-ditor Plus uygulamasını çalıştırın.';
+  }
+  if (error instanceof TypeError && /fetch|network|load/i.test(error.message || '')) {
+    return 'Yerel AI-ditor Plus servisine ulaşılamadı. Uygulamayı tamamen kapatıp güncel AI-ditor Plus sürümünü yeniden açın.';
+  }
+  return error.message || 'Word dosyası içe aktarılamadı.';
+}
+
+async function fetchImportedFigure(importKey, item, uid) {
+  const response = await aiditorFetch(`/import_docx/${encodeURIComponent(importKey)}/image/${item.import_image_index}`);
+  if (!response.ok) throw new Error(`Görsel alınamadı: ${item.filename || item.import_image_index}`);
+  const blob = await response.blob();
+  const filename = item.filename || `figure_${item.number || uid}.png`;
+  const file = new File([blob], filename, {type:item.mimetype || blob.type || 'application/octet-stream'});
+  figFiles[uid] = file;
+  showFigPreview(uid, file);
+}
+
+async function applyDocxImport(data, importKey, filename, notify = true) {
+  document.getElementById('result-panel').style.display = 'none';
+  document.getElementById('err-panel').style.display = 'none';
+  const cover = data.cover || {};
+  document.getElementById('c-tr-title').value = cover.tr_title || '';
+  document.getElementById('c-en-title').value = cover.en_title || '';
+  if (cover.article_type) document.getElementById('c-article-type').value = cover.article_type;
+
+  const abstract = data.abstract || {};
+  document.getElementById('a-tr-abs').value = abstract.tr_abs || '';
+  document.getElementById('a-tr-kw').value = abstract.tr_kw || '';
+  document.getElementById('a-en-abs').value = abstract.en_abs || '';
+  document.getElementById('a-en-kw').value = abstract.en_kw || '';
+  document.getElementById('refs').value = data.references || '';
+
+  const extra = data.extra || {};
+  document.getElementById('ex-contrib').value = extra.contrib || '';
+  document.getElementById('ex-conflict').value = extra.conflict || '';
+  document.getElementById('ex-ack').value = extra.ack || '';
+  document.getElementById('ack-on').checked = Boolean(extra.ack);
+  document.getElementById('ack-body').style.display = extra.ack ? '' : 'none';
+
+  document.getElementById('sections-list').innerHTML = '';
+  // The manuscript is authoritative during DOCX import. Do not re-create
+  // template sections that are absent from the Word file.
+  const importedSections = Array.isArray(data.sections) ? data.sections : [];
+  const sectionIds = new Map();
+  importedSections.forEach((section, index) => sectionIds.set(String(section.id ?? index), String(addSection(section))));
+  badge('badge-sections', importedSections.length, 'bölüm');
+  updateSectionDropdowns();
+
+  document.querySelectorAll('#ft-list .ft-block').forEach(block => removeFT(block.id));
+  const imageFailures = [];
+  for (const item of (data.figtables || [])) {
+    const uid = addFT({...item, section_id:sectionIds.get(String(item.section_id))});
+    const block = document.getElementById('ft-' + uid);
+    if (item.placement && block) block.dataset.placement = item.placement;
+    if (item.type === 'figure' && Number.isInteger(item.import_image_index)) {
+      try {
+        await fetchImportedFigure(importKey, item, uid);
+      } catch (error) {
+        imageFailures.push(error.message);
+      }
+    }
+  }
+
+  const stats = data.stats || {};
+  const summary = [
+    `${stats.sections || 0} bölüm`, `${stats.tables || 0} tablo`,
+    `${stats.figures || 0} görsel`, `${stats.references || 0} kaynak`,
+  ].join(' · ');
+  const warnings = [...(data.warnings || []), ...imageFailures];
+  const warningHtml = warnings.length
+    ? `<ul class="mb-0 mt-2 ps-3">${warnings.map(warning => `<li>${esc(warning)}</li>`).join('')}</ul>`
+    : '';
+  setDocxImportStatus(
+    'success',
+    `<i class="bi bi-check-circle-fill me-1"></i><strong>${esc(filename)}</strong> içe aktarıldı — ${summary}.${warningHtml}`,
+  );
+  if (notify) showToast('Word makalesi alanlara aktarıldı. LaTeX oluşturmadan önce bilgileri kontrol edin.');
+}
+
+async function handleDocxFile(file) {
+  if (docxImporting || !file) return;
+  if (document.getElementById('btn-gen').disabled) { showToast('Çıktı üretiminin tamamlanmasını bekleyin.'); return; }
+  if (!file.name.toLowerCase().endsWith('.docx')) {
+    setDocxImportStatus('error', '<i class="bi bi-exclamation-triangle-fill me-1"></i>Yalnızca .docx biçimi desteklenir.');
+    return;
+  }
+  if (file.size > 32 * 1024 * 1024) {
+    setDocxImportStatus('error', '<i class="bi bi-exclamation-triangle-fill me-1"></i>Word dosyası 32 MB sınırını aşıyor.');
+    return;
+  }
+  if (window.location.protocol === 'file:') {
+    setDocxImportStatus('error', `<i class="bi bi-exclamation-triangle-fill me-1"></i>${esc(docxImportErrorMessage(new Error()))}`);
+    return;
+  }
+  if (articleFormHasContent() && !window.confirm('Mevcut makale metni, bölümler ve tablo/şekiller Word dosyasındaki içerikle değiştirilecek. Devam edilsin mi?')) {
+    return;
+  }
+
+  docxImporting = true;
+  document.getElementById('btn-gen').disabled = true;
+  setDocxImportStatus('loading', '<span class="spinner-border spinner-border-sm me-2"></span>Word dosyası çözümleniyor…');
+  try {
+    const formData = new FormData();
+    formData.append('article', file, file.name);
+    const response = await aiditorFetch('/import_docx', {method:'POST', body:formData});
+    if (response.status === 404) {
+      throw new Error('Çalışan AI-ditor Plus uygulaması Word aktarımını içermeyen eski bir sürüm. Güncel uygulamayı açın.');
+    }
+    const contentType = response.headers.get('Content-Type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error('Word aktarım servisi geçerli bir yanıt vermedi. Güncel AI-ditor Plus uygulamasını yeniden açın.');
+    }
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || 'Word dosyası içe aktarılamadı.');
+    if (window.articleLibrary && !await articleLibrary.beforeReplacement()) return;
+    await applyDocxImport(result.data, result.import_key, file.name);
+    window.articleLibrary?.imported();
+  } catch (error) {
+    setDocxImportStatus('error', `<i class="bi bi-exclamation-triangle-fill me-1"></i>${esc(docxImportErrorMessage(error))}`);
+  } finally {
+    docxImporting = false;
+    document.getElementById('btn-gen').disabled = false;
+    document.getElementById('docx-file-input').value = '';
   }
 }
 
-function _getCcbyFile() {
-  const inp = document.getElementById('ccby-inp');
-  return (inp && inp.files && inp.files[0]) ? inp.files[0] : null;
-}
-
-function onCcbySelect(inp) {
-  if(inp.files[0]) {
-    document.getElementById('ccby-label').textContent = inp.files[0].name;
+const docxDropZone = document.getElementById('docx-drop-zone');
+const docxFileInput = document.getElementById('docx-file-input');
+docxDropZone.addEventListener('keydown', event => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    docxFileInput.click();
   }
-}
-
-function collectJournalSettings() {
-  const lf          = _getLogoFile();
-  const profileName = document.getElementById('js-profile-name').value.trim();
-  const resolvedStem = lf
-    ? _stemFromFilename(lf.name)
-    : (profileName ? profileName + '_logo' : 'journal_logo');
-
-  const ccf = _getCcbyFile();
-  const ccStem = ccf ? _stemFromFilename(ccf.name) : 'ccby';
-
-  return {
-    journal_name_tr: document.getElementById('js-name-tr').value.trim(),
-    journal_name_en: document.getElementById('js-name-en').value.trim(),
-    issn_print:      document.getElementById('js-issn-print').value.trim(),
-    issn_online:     document.getElementById('js-issn-online').value.trim(),
-    journal_url:     document.getElementById('js-url').value.trim(),
-    font:            document.getElementById('js-font').value,
-    body_size:       document.getElementById('js-body-size').value,
-    accent_color:    document.getElementById('js-accent-color').value,
-    logo_stem:       resolvedStem,
-    // yeni opsiyonlar
-    english_only:        document.getElementById('js-english-only').checked,
-    corresponding_marker: document.getElementById('js-corr-marker').value || '*',
-    logo_height_cm:      parseFloat(document.getElementById('js-logo-height').value) || 2.3,
-    cc_logo_stem:        ccStem,
-    doi_position:        document.getElementById('js-doi-position').value || 'bottom',
-  };
-}
-
-function applyJournalSettings(s) {
-  document.getElementById('js-name-tr').value     = s.journal_name_tr || '';
-  document.getElementById('js-name-en').value     = s.journal_name_en || '';
-  document.getElementById('js-issn-print').value  = s.issn_print      || '';
-  document.getElementById('js-issn-online').value = s.issn_online     || '';
-  document.getElementById('js-url').value         = s.journal_url     || '';
-  document.getElementById('js-font').value        = s.font            || 'texgyrepagella';
-  document.getElementById('js-body-size').value   = s.body_size       || '10';
-  document.getElementById('js-accent-color').value= s.accent_color    || '#833C0B';
-  document.getElementById('js-english-only').checked = !!s.english_only;
-  document.getElementById('js-corr-marker').value    = s.corresponding_marker || '*';
-  document.getElementById('js-logo-height').value    = s.logo_height_cm || 2.3;
-  document.getElementById('js-doi-position').value   = s.doi_position    || 'bottom';
-  if(s.logo_filename) {
-    document.getElementById('logo-label').textContent = s.logo_filename + ' (kayıtlı)';
-  }
-}
-
-// ── Profile management ──────────────────────────────────────
-
-async function refreshProfiles() {
-  try {
-    const res = await fetch('/list_profiles');
-    const names = await res.json();
-    const sel = document.getElementById('js-profile-select');
-    const cur = sel.value;
-    sel.innerHTML = '<option value="">— Profil seçin —</option>' +
-      names.map(n => `<option value="${esc(n)}"${n===cur?' selected':''}>${esc(n)}</option>`).join('');
-  } catch(e) { /* ignore */ }
-}
-
-async function saveProfile() {
-  const name = document.getElementById('js-profile-name').value.trim();
-  if(!name) { alert('Lütfen bir profil adı girin.'); return; }
-
-  const settings = collectJournalSettings();
-  const fd = new FormData();
-  fd.append('name', name);
-  fd.append('settings', JSON.stringify(settings));
-  const _lf = _getLogoFile(); if(_lf) fd.append('logo', _lf, _lf.name);
-
-  try {
-    const res = await fetch('/save_profile', { method:'POST', body:fd });
-    const r   = await res.json();
-    if(!r.ok) throw new Error(r.error);
-    await refreshProfiles();
-    document.getElementById('js-profile-select').value = name;
-    alert('Profil kaydedildi: ' + name);
-  } catch(e) { alert('Kayıt hatası: ' + e.message); }
-}
-
-async function loadSelectedProfile() {
-  const name = document.getElementById('js-profile-select').value;
-  if(!name) { alert('Lütfen bir profil seçin.'); return; }
-  try {
-    const res = await fetch('/load_profile/' + encodeURIComponent(name));
-    const r   = await res.json();
-    if(!r.ok) throw new Error(r.error);
-    document.getElementById('js-profile-name').value = name;
-    applyJournalSettings(r.settings);
-  } catch(e) { alert('Yükleme hatası: ' + e.message); }
-}
-
-async function deleteSelectedProfile() {
-  const name = document.getElementById('js-profile-select').value;
-  if(!name) { alert('Lütfen bir profil seçin.'); return; }
-  if(!confirm(name + ' profilini silmek istediğinizden emin misiniz?')) return;
-  try {
-    await fetch('/delete_profile/' + encodeURIComponent(name), { method:'DELETE' });
-    await refreshProfiles();
-  } catch(e) { alert('Silme hatası: ' + e.message); }
-}
+});
+docxDropZone.addEventListener('dragover', event => {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'copy';
+  docxDropZone.classList.add('over');
+});
+docxDropZone.addEventListener('dragleave', () => docxDropZone.classList.remove('over'));
+docxDropZone.addEventListener('drop', event => {
+  event.preventDefault();
+  docxDropZone.classList.remove('over');
+  handleDocxFile(event.dataTransfer.files[0]);
+});
+docxFileInput.addEventListener('change', () => handleDocxFile(docxFileInput.files[0]));
 
 // ═══════════════════════════════════════════════════
 // COUNTERS & HELPERS
 // ═══════════════════════════════════════════════════
 let aIdx = 0, sIdx = 0, ftIdx = 0;
-const figFiles = {};
+const figFiles = {};   // uid → File
 
 function badge(id, n, label) {
   document.getElementById(id).textContent = n + ' ' + label;
@@ -698,8 +809,19 @@ function addAuthor(d = {}) {
     </div>
     <div class="row g-2">
       <div class="col-md-3">
-        <label class="lbl">Ünvan <span class="text-muted fw-normal" style="font-size:.72rem">(opsiyonel)</span></label>
-        <input class="form-control form-control-sm" data-f="title" placeholder="Prof. Dr." value="${esc(d.title||'')}" list="title-suggestions">
+        <label class="lbl">Ünvan</label>
+        <input class="form-control form-control-sm" data-f="title" placeholder="Prof. Dr." list="title-list-${uid}" value="${esc(d.title||'')}">
+        <datalist id="title-list-${uid}">
+          <option value="Prof. Dr.">
+          <option value="Doç. Dr.">
+          <option value="Dr. Öğr. Üyesi">
+          <option value="Dr.">
+          <option value="Arş. Gör. Dr.">
+          <option value="Arş. Gör.">
+          <option value="Öğr. Gör. Dr.">
+          <option value="Öğr. Gör.">
+          <option value="Prof.">
+        </datalist>
       </div>
       <div class="col-md-4">
         <label class="lbl">Ad Soyad</label>
@@ -742,7 +864,7 @@ function refreshAuthorNums() {
 
 function collectAuthors() {
   return [...document.querySelectorAll('#authors-list .author-row')].map(r => ({
-    title:         r.querySelector('[data-f="title"]')?.value.trim() || '',
+    title:         r.querySelector('[data-f="title"]').value.trim(),
     name:          r.querySelector('[data-f="name"]').value.trim(),
     affiliation:   r.querySelector('[data-f="affiliation"]').value.trim(),
     orcid:         r.querySelector('[data-f="orcid"]').value.trim(),
@@ -768,9 +890,13 @@ function addSection(d = {}) {
   const div = document.createElement('div');
   div.className = 'sec-block';
   div.id = 's-' + uid;
+  div.dataset.sectionUid = String(uid);
   div.innerHTML = `
     <div class="sec-block-hdr">
-      <span class="drag-handle"><i class="bi bi-grip-vertical"></i></span>
+      <button type="button" class="drag-handle" title="Tut ve sürükleyerek sırala"
+              aria-label="Bölümü sürükleyerek sırala">
+        <i class="bi bi-grip-vertical" aria-hidden="true"></i>
+      </button>
       <input class="form-control form-control-sm" data-f="name"
              value="${esc(d.name || 'Yeni Bölüm')}"
              style="max-width:320px;font-weight:600"
@@ -781,18 +907,31 @@ function addSection(d = {}) {
         <option value="3" ${lvl==='3'?'selected':''}>Alt-Alt (\\subsubsection)</option>
       </select>
       <div class="ms-auto d-flex gap-1">
-        <button class="btn btn-sm btn-outline-secondary btn-icon" onclick="moveEl('s-${uid}',-1)" title="Yukarı"><i class="bi bi-arrow-up"></i></button>
-        <button class="btn btn-sm btn-outline-secondary btn-icon" onclick="moveEl('s-${uid}',1)" title="Aşağı"><i class="bi bi-arrow-down"></i></button>
-        <button class="btn btn-sm btn-outline-danger btn-icon" onclick="removeSection('s-${uid}')"><i class="bi bi-trash3"></i></button>
+        <button class="btn btn-sm btn-outline-danger btn-icon" title="Bölümü sil"
+                aria-label="Bölümü sil" onclick="removeSection('s-${uid}')"><i class="bi bi-trash3"></i></button>
       </div>
     </div>
     <div class="sec-block-body">
       <textarea class="form-control" data-f="content" rows="7"
                 placeholder="Bölüm içeriğini buraya yazın...">${esc(d.content || '')}</textarea>
+      <div class="paste-note"><i class="bi bi-clipboard-check"></i><span>Word'den metin ve tabloları birlikte buraya yapıştırabilirsiniz; tablolar metindeki sırasına göre otomatik eklenir.</span></div>
     </div>`;
   list.appendChild(div);
+  initSectionDrag(div);
+  div.querySelector('[data-f="content"]').addEventListener('paste', e => handleSectionPaste(e, uid));
   badge('badge-sections', document.querySelectorAll('#sections-list .sec-block').length, 'bölüm');
   updateSectionDropdowns();
+  return uid;
+}
+
+function addNewSection() {
+  const uid = addSection({name:'Yeni Bölüm', level:'1', content:''});
+  const block = document.getElementById('s-' + uid);
+  block?.scrollIntoView({behavior:'smooth', block:'center'});
+  const nameInput = block?.querySelector('[data-f="name"]');
+  nameInput?.focus();
+  nameInput?.select();
+  showToast('Yeni bölüm eklendi. Adını ve düzeyini belirleyebilirsiniz.');
 }
 
 function removeSection(id) {
@@ -803,20 +942,604 @@ function removeSection(id) {
 
 function collectSections() {
   return [...document.querySelectorAll('#sections-list .sec-block')].map(b => ({
+    id: b.dataset.sectionUid,
     name:    b.querySelector('[data-f="name"]').value.trim(),
     level:   b.querySelector('[data-f="level"]').value,
     content: b.querySelector('[data-f="content"]').value.trim(),
   }));
 }
 
+function sectionNameForUid(uid) {
+  return document.querySelector(`#s-${uid} [data-f="name"]`)?.value.trim() || 'Bölüm';
+}
+
+function clearDropIndicators() {
+  document.querySelectorAll('#sections-list .sec-block').forEach(el =>
+    el.classList.remove('drop-before', 'drop-after'));
+}
+
+function animateSectionLayout(beforeRects) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('#sections-list .sec-block').forEach(el => {
+    const before = beforeRects.get(el.id);
+    if (!before) return;
+    const after = el.getBoundingClientRect();
+    const dy = before.top - after.top;
+    if (Math.abs(dy) < 1) return;
+    el.animate(
+      [{ transform:`translateY(${dy}px)` }, { transform:'translateY(0)' }],
+      { duration:240, easing:'cubic-bezier(.2,.8,.2,1)' }
+    );
+  });
+}
+
+function announceSectionOrder(el) {
+  const blocks = [...document.querySelectorAll('#sections-list .sec-block')];
+  const position = blocks.indexOf(el) + 1;
+  const name = el.querySelector('[data-f="name"]')?.value.trim() || 'Bölüm';
+  document.getElementById('section-order-status').textContent = `${name}, ${position}. sıraya taşındı.`;
+}
+
+function initSectionDrag(block) {
+  const handle = block.querySelector('.drag-handle');
+  block.draggable = true;
+  block.addEventListener('pointerdown', e => {
+    block.draggable = Boolean(e.target.closest('.drag-handle'));
+  });
+  block.addEventListener('pointerup', () => { block.draggable = true; });
+  handle.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+    e.preventDefault();
+    moveEl(block.id, e.key === 'ArrowUp' ? -1 : 1);
+    handle.focus();
+  });
+
+  block.addEventListener('dragstart', e => {
+    block.classList.add('is-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', block.id);
+  });
+  block.addEventListener('dragend', () => {
+    block.draggable = true;
+    block.classList.remove('is-dragging');
+    clearDropIndicators();
+  });
+}
+
+document.getElementById('sections-list').addEventListener('dragover', e => {
+  const dragging = document.querySelector('#sections-list .is-dragging');
+  const target = e.target.closest('#sections-list .sec-block');
+  if (!dragging || !target || target === dragging) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  clearDropIndicators();
+  const rect = target.getBoundingClientRect();
+  target.classList.add(e.clientY < rect.top + rect.height / 2 ? 'drop-before' : 'drop-after');
+});
+
+document.getElementById('sections-list').addEventListener('drop', e => {
+  const dragging = document.querySelector('#sections-list .is-dragging');
+  const target = e.target.closest('#sections-list .sec-block');
+  if (!dragging || !target || target === dragging) return;
+  e.preventDefault();
+  const beforeRects = new Map([...document.querySelectorAll('#sections-list .sec-block')]
+    .map(el => [el.id, el.getBoundingClientRect()]));
+  if (target.classList.contains('drop-before')) target.before(dragging);
+  else target.after(dragging);
+  clearDropIndicators();
+  animateSectionLayout(beforeRects);
+  updateSectionDropdowns();
+  announceSectionOrder(dragging);
+});
+
+// Update section name dropdowns inside each figure/table
 function updateSectionDropdowns() {
-  const names = [...document.querySelectorAll('#sections-list .sec-block')]
-    .map(b => b.querySelector('[data-f="name"]').value.trim() || 'Bölüm');
+  const sections = [...document.querySelectorAll('#sections-list .sec-block')]
+    .map(b => ({uid:b.dataset.sectionUid, name:b.querySelector('[data-f="name"]').value.trim() || 'Bölüm'}));
   document.querySelectorAll('.ft-sec-sel').forEach(sel => {
     const cur = sel.value;
+    const block = sel.closest('.ft-block');
+    const curUid = block?.dataset.sectionUid || '';
     sel.innerHTML = '<option value="">— Gövde sonunda / End of body —</option>' +
-      names.map(n => `<option value="${n}"${n===cur?' selected':''}>${n}</option>`).join('');
+      sections.map((section, index) => `<option value="${section.uid}" data-section-uid="${section.uid}">${index + 1}. ${esc(section.name)}</option>`).join('');
+    const linkedSection = sections.find(section => section.uid === curUid);
+    sel.value = linkedSection?.uid || cur;
+    if (!sel.value && block) delete block.dataset.sectionUid;
   });
+}
+
+// ═══════════════════════════════════════════════════
+// TABLE EDITOR HELPERS
+// ═══════════════════════════════════════════════════
+const tableMeta = {};
+
+function emptyTblModel(rowCount = 3, colCount = 3) {
+  return {
+    rows: Array.from({length:rowCount}, () => Array.from({length:colCount}, () => ({text:''}))),
+    column_widths: Array.from({length:colCount}, () => 1 / colCount),
+    header_rows: 1,
+    grid_borders: true,
+  };
+}
+
+function parseTblData(str) {
+  if (!str || !str.trim()) return emptyTblModel();
+  const rows = str.split('\n').filter(l => l.trim());
+  if (!rows.length) return emptyTblModel();
+  const parsed = rows.map(l => l.split('|').map(c => c.trim()));
+  const ncols = modelColumnCount({rows:parsed.map(row => row.map(text => ({text})))});
+  const normalized = parsed.map(r => {
+    while (r.length < ncols) r.push('');
+    return r.map(text => ({text}));
+  });
+  return {
+    rows:normalized,
+    column_widths:Array.from({length:ncols}, () => 1 / ncols),
+    header_rows:1,
+    grid_borders:true,
+  };
+}
+
+function normalizeHexColor(value) {
+  const raw = String(value || '').trim().toLowerCase();
+  if (!raw || ['transparent','none','auto','inherit','initial'].includes(raw)) return '';
+  const shortHex = raw.match(/^#([0-9a-f]{3})$/i);
+  if (shortHex) return shortHex[1].split('').map(ch => ch + ch).join('').toUpperCase();
+  const fullHex = raw.match(/^#([0-9a-f]{6})$/i);
+  if (fullHex) return fullHex[1].toUpperCase();
+  const bareHex = raw.match(/^([0-9a-f]{6})$/i);
+  if (bareHex) return bareHex[1].toUpperCase();
+  const rgb = raw.match(/^rgba?\(\s*(\d+)\D+(\d+)\D+(\d+)/i);
+  if (rgb) return rgb.slice(1,4).map(value => Math.max(0,Math.min(255,Number(value))).toString(16).padStart(2,'0')).join('').toUpperCase();
+  return '';
+}
+
+function normalizeTblModel(source) {
+  if (typeof source === 'string') return parseTblData(source);
+  if (Array.isArray(source)) {
+    source = {rows:source, header_rows:1, grid_borders:true};
+  }
+  if (!source || !Array.isArray(source.rows) || !source.rows.length) return emptyTblModel();
+  const sourceRows = source.rows.map(row => row.map(cell => typeof cell === 'string' ? {text:cell} : cell));
+  modelColumnCount({rows:sourceRows});
+  const model = {
+    rows: sourceRows.map(row => row.map(cell => ({
+      text:String(cell?.text ?? ''),
+      colspan:Math.max(1, Number(cell?.colspan)||1),
+      rowspan:Math.max(1, Number(cell?.rowspan)||1),
+      bold:Boolean(cell?.bold), italic:Boolean(cell?.italic),
+      underline:Boolean(cell?.underline),
+      align:['left','center','right'].includes(cell?.align) ? cell.align : 'left',
+      bgcolor:normalizeHexColor(cell?.bgcolor),
+      textcolor:normalizeHexColor(cell?.textcolor),
+    }))),
+    column_widths:Array.isArray(source.column_widths) ? source.column_widths.map(Number) : [],
+    header_rows:Math.max(0, Number(source.header_rows)||0),
+    grid_borders:Boolean(source.grid_borders),
+  };
+  const ncols = modelColumnCount(model);
+  if (model.column_widths.length !== ncols || model.column_widths.some(v => !Number.isFinite(v) || v <= 0)) {
+    model.column_widths = Array.from({length:ncols}, () => 1/ncols);
+  } else {
+    const sum = model.column_widths.reduce((a,b) => a+b, 0);
+    model.column_widths = model.column_widths.map(v => v/sum);
+  }
+  return model;
+}
+
+function modelColumnCount(model) {
+  const active = [];
+  let maxCols = 1;
+  if (!Array.isArray(model.rows) || model.rows.length > 500) throw new Error('Tablo en fazla 500 satır içerebilir.');
+  (model.rows || []).forEach(row => {
+    if (!Array.isArray(row) || row.length > 100) throw new Error('Tablo satır yapısı geçersiz.');
+    let col = 0;
+    row.forEach(cell => {
+      while ((active[col] || 0) > 0) col++;
+      const colspan = Number(cell?.colspan ?? 1);
+      const rowspan = Number(cell?.rowspan ?? 1);
+      if (!cell || !Number.isInteger(colspan) || colspan < 1 || colspan > 50 ||
+          !Number.isInteger(rowspan) || rowspan < 1 || rowspan > 100) {
+        throw new Error('Geçersiz hücre birleşimi: en fazla 50 sütun ve 100 satır birleştirilebilir.');
+      }
+      if (col + colspan > 50) throw new Error('Tablo 50 sütundan geniş; daha dar tablolara ayırın.');
+      for (let i=0; i<colspan; i++) active[col+i] = Math.max(active[col+i]||0, rowspan);
+      col += colspan;
+    });
+    maxCols = Math.max(maxCols, col, active.length);
+    for (let i=0; i<active.length; i++) active[i] = Math.max(0, (active[i]||0)-1);
+  });
+  return maxCols;
+}
+
+function createTblEditorCell(uid, cell = {}, rowIndex = 0, cellIndex = 0) {
+  const td = document.createElement('td');
+  td.colSpan = Math.max(1, Number(cell.colspan)||1);
+  td.rowSpan = Math.max(1, Number(cell.rowspan)||1);
+  td.dataset.bold = String(Boolean(cell.bold));
+  td.dataset.italic = String(Boolean(cell.italic));
+  td.dataset.underline = String(Boolean(cell.underline));
+  td.dataset.align = ['left','center','right'].includes(cell.align) ? cell.align : 'left';
+  td.dataset.bgcolor = normalizeHexColor(cell.bgcolor);
+  td.dataset.textcolor = normalizeHexColor(cell.textcolor);
+  td.dataset.placeholder = rowIndex === 0 ? `Başlık ${cellIndex + 1}` : 'Veri';
+  td.contentEditable = 'true';
+  td.setAttribute('role','textbox');
+  td.setAttribute('aria-label', `${rowIndex + 1}. satır ${cellIndex + 1}. hücre`);
+  td.innerText = String(cell.text ?? '');
+  td.style.textAlign = td.dataset.align;
+  if (td.dataset.bgcolor) td.style.backgroundColor = '#' + td.dataset.bgcolor;
+  if (td.dataset.textcolor) td.style.color = '#' + td.dataset.textcolor;
+  td.addEventListener('focus', () => selectTblCell(uid, td));
+  td.addEventListener('click', () => selectTblCell(uid, td));
+  td.addEventListener('keydown', event => {
+    if (event.key !== 'Tab') return;
+    event.preventDefault();
+    const cells = [...document.querySelectorAll(`#tgrid-${uid} td`)];
+    const index = cells.indexOf(td);
+    const next = cells[index + (event.shiftKey ? -1 : 1)];
+    (next || cells[event.shiftKey ? cells.length - 1 : 0])?.focus();
+  });
+  return td;
+}
+
+function buildTblEditor(uid, source) {
+  const tbl = document.getElementById('tgrid-' + uid);
+  if (!tbl) return;
+  const model = normalizeTblModel(source);
+  tableMeta[uid] = {
+    column_widths:[...model.column_widths],
+    header_rows:model.header_rows,
+    grid_borders:Boolean(model.grid_borders),
+  };
+  tbl.innerHTML = '';
+  model.rows.forEach((row, ri) => {
+    const tr = document.createElement('tr');
+    if (ri < model.header_rows) tr.classList.add('tbl-header-row');
+    row.forEach((cell, ci) => {
+      tr.appendChild(createTblEditorCell(uid, cell, ri, ci));
+    });
+    tbl.appendChild(tr);
+  });
+  const firstCell = tbl.querySelector('td');
+  if (firstCell) selectTblCell(uid, firstCell);
+}
+
+function selectTblCell(uid, cell) {
+  document.querySelectorAll(`#tgrid-${uid} td.active-cell`).forEach(td => td.classList.remove('active-cell'));
+  cell?.classList.add('active-cell');
+}
+
+function selectedTblCell(uid) {
+  return document.querySelector(`#tgrid-${uid} td.active-cell`) || document.querySelector(`#tgrid-${uid} td`);
+}
+
+function formatTblCell(uid, action, value = '') {
+  const cell = selectedTblCell(uid);
+  if (!cell) return;
+  if (['bold','italic','underline'].includes(action)) {
+    cell.dataset[action] = String(cell.dataset[action] !== 'true');
+  } else if (action === 'align') {
+    cell.dataset.align = ['left','center','right'].includes(value) ? value : 'left';
+    cell.style.textAlign = cell.dataset.align;
+  } else if (action === 'header') {
+    const rowIndex = cell.parentElement.rowIndex;
+    tableMeta[uid].header_rows = rowIndex + 1;
+    [...cell.closest('table').rows].forEach((row, index) => row.classList.toggle('tbl-header-row', index <= rowIndex));
+  } else if (action === 'clear') {
+    Object.assign(cell.dataset, {bold:'false',italic:'false',underline:'false',align:'left',bgcolor:'',textcolor:''});
+    cell.style.cssText = 'text-align:left';
+  }
+  cell.focus();
+}
+
+function setTblCellColor(uid, kind, input) {
+  const cell = selectedTblCell(uid);
+  if (!cell) return;
+  const color = normalizeHexColor(input.value);
+  if (kind === 'background') {
+    cell.dataset.bgcolor = color;
+    cell.style.backgroundColor = color ? '#' + color : '';
+  } else {
+    cell.dataset.textcolor = color;
+    cell.style.color = color ? '#' + color : '';
+  }
+  cell.focus();
+}
+
+function mergeTblRight(uid) {
+  const cell = selectedTblCell(uid);
+  const next = cell?.nextElementSibling;
+  if (!cell || !next || cell.rowSpan !== next.rowSpan) {
+    showToast('Birleştirmek için aynı satırdaki uygun bir hücreyi seçin.');
+    return;
+  }
+  const joined = [cell.innerText.trim(), next.innerText.trim()].filter(Boolean).join('\n');
+  cell.colSpan += next.colSpan;
+  cell.innerText = joined;
+  next.remove();
+  cell.focus();
+}
+
+function splitTblCell(uid) {
+  const cell = selectedTblCell(uid);
+  if (!cell || cell.colSpan <= 1 || cell.rowSpan > 1) {
+    showToast('Yalnızca yatay birleştirilmiş hücreler bölünebilir.');
+    return;
+  }
+  cell.colSpan -= 1;
+  const sibling = createTblEditorCell(uid, {}, cell.parentElement.rowIndex, cell.cellIndex + 1);
+  cell.after(sibling);
+  sibling.focus();
+}
+
+function addTblRow(uid) {
+  const tbl = document.getElementById('tgrid-' + uid);
+  if (!tbl || !tbl.rows.length) return;
+  if (tbl.rows.length >= 500) { showToast('Tablo en fazla 500 satır içerebilir.'); return; }
+  const ncols = Math.max(1, tableMeta[uid]?.column_widths?.length || tbl.rows[0].cells.length);
+  const tr = document.createElement('tr');
+  for (let i = 0; i < ncols; i++) {
+    tr.appendChild(createTblEditorCell(uid, {}, tbl.rows.length, i));
+  }
+  tbl.appendChild(tr);
+}
+
+function delTblRow(uid) {
+  const tbl = document.getElementById('tgrid-' + uid);
+  if (tbl && tbl.rows.length > 1) {
+    tbl.deleteRow(-1);
+    [...tbl.rows].forEach((row, index) => [...row.cells].forEach(cell => {
+      cell.rowSpan = Math.min(cell.rowSpan, tbl.rows.length - index);
+    }));
+    tableMeta[uid].header_rows = Math.min(tableMeta[uid].header_rows, tbl.rows.length);
+  }
+}
+
+function addTblCol(uid) {
+  const tbl = document.getElementById('tgrid-' + uid);
+  if (!tbl) return;
+  const currentCount = modelColumnCount(getTblModel(uid));
+  if (currentCount >= 50) { showToast('Tablo en fazla 50 sütun içerebilir.'); return; }
+  [...tbl.rows].forEach((tr, ri) => {
+    tr.appendChild(createTblEditorCell(uid, {}, ri, tr.cells.length));
+  });
+  const ncols = currentCount + 1;
+  tableMeta[uid].column_widths = Array.from({length:ncols}, () => 1/ncols);
+}
+
+function delTblCol(uid) {
+  const tbl = document.getElementById('tgrid-' + uid);
+  if (!tbl) return;
+  const count = modelColumnCount(getTblModel(uid));
+  if (count <= 1) return;
+  const active = [];
+  [...tbl.rows].forEach(tr => {
+    let col = 0;
+    [...tr.cells].forEach(cell => {
+      while ((active[col] || 0) > 0) col++;
+      const span = cell.colSpan;
+      for (let i = 0; i < span; i++) active[col + i] = Math.max(active[col + i] || 0, cell.rowSpan);
+      if (col <= count - 1 && col + span > count - 1) {
+        if (span > 1) cell.colSpan -= 1;
+        else cell.remove();
+      }
+      col += span;
+    });
+    for (let i = 0; i < active.length; i++) active[i] = Math.max(0, active[i] - 1);
+  });
+  const ncols = count - 1;
+  tableMeta[uid].column_widths = Array.from({length:ncols}, () => 1/ncols);
+}
+
+function getTblData(uid) {
+  const tbl = document.getElementById('tgrid-' + uid);
+  if (!tbl || !tbl.rows.length) return '';
+  return [...tbl.rows].map(tr =>
+    [...tr.cells].map(td => td.innerText.trim()).join(' | ')
+  ).join('\n');
+}
+
+function getTblModel(uid) {
+  const tbl = document.getElementById('tgrid-' + uid);
+  const meta = tableMeta[uid] || {column_widths:[], header_rows:1};
+  if (!tbl || !tbl.rows.length) return emptyTblModel();
+  return {
+    rows:[...tbl.rows].map(tr => [...tr.cells].map(td => ({
+      text:td.innerText.trim(),
+      colspan:td.colSpan || 1, rowspan:td.rowSpan || 1,
+      bold:td.dataset.bold === 'true', italic:td.dataset.italic === 'true',
+      underline:td.dataset.underline === 'true',
+      align:td.dataset.align || 'left',
+      bgcolor:normalizeHexColor(td.dataset.bgcolor),
+      textcolor:normalizeHexColor(td.dataset.textcolor),
+    }))),
+    column_widths:[...meta.column_widths],
+    header_rows:meta.header_rows,
+    grid_borders:Boolean(meta.grid_borders),
+  };
+}
+
+function blockText(node) {
+  const parts = [];
+  const walk = current => {
+    if (current.nodeType === Node.TEXT_NODE) { parts.push(current.nodeValue || ''); return; }
+    if (current.nodeType !== Node.ELEMENT_NODE) return;
+    if (current.tagName === 'BR') { parts.push('\n'); return; }
+    const isBlock = ['P','DIV','LI'].includes(current.tagName);
+    if (isBlock && parts.length && !parts[parts.length-1].endsWith('\n')) parts.push('\n');
+    [...current.childNodes].forEach(walk);
+    if (isBlock) parts.push('\n');
+  };
+  walk(node);
+  return parts.join('').replace(/\u00a0/g,' ').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+function cssLength(value) {
+  const match = String(value || '').match(/([0-9]+(?:\.[0-9]+)?)/);
+  return match ? Number(match[1]) : 0;
+}
+
+function inlineStyleValue(element, property) {
+  const own = element?.style?.getPropertyValue(property) || '';
+  if (own) return own;
+  for (const child of [...(element?.querySelectorAll('[style]') || [])]) {
+    const value = child.style.getPropertyValue(property);
+    if (value) return value;
+  }
+  return '';
+}
+
+function clipboardTableModel(table) {
+  const rows = [...table.rows].map(row => [...row.cells].map(cell => {
+    const styled = cell.querySelector('[style*="text-align"]');
+    const rawAlign = (cell.getAttribute('align') || cell.style.textAlign || styled?.style.textAlign || '').toLowerCase();
+    const align = rawAlign.includes('center') ? 'center' : rawAlign.includes('right') ? 'right' : 'left';
+    const weight = `${cell.style.fontWeight} ${cell.getAttribute('style') || ''}`;
+    const styledBold = [...cell.querySelectorAll('[style*="font-weight"]')]
+      .some(el => /font-weight\s*:\s*(bold|[6-9]00)/i.test(el.getAttribute('style') || ''));
+    const styledItalic = [...cell.querySelectorAll('[style*="font-style"]')]
+      .some(el => /font-style\s*:\s*italic/i.test(el.getAttribute('style') || ''));
+    const bold = Boolean(cell.querySelector('b,strong')) || styledBold || /font-weight\s*:\s*(bold|[6-9]00)/i.test(weight);
+    const italic = Boolean(cell.querySelector('i,em')) || styledItalic || /font-style\s*:\s*italic/i.test(cell.getAttribute('style') || '');
+    const underline = Boolean(cell.querySelector('u')) || /underline/i.test(inlineStyleValue(cell,'text-decoration'));
+    const bgcolor = normalizeHexColor(cell.getAttribute('bgcolor') || inlineStyleValue(cell,'background-color') || inlineStyleValue(cell,'background'));
+    const textcolor = normalizeHexColor(cell.getAttribute('color') || inlineStyleValue(cell,'color'));
+    return {
+      text:blockText(cell), colspan:Math.max(1, cell.colSpan||1), rowspan:Math.max(1, cell.rowSpan||1),
+      bold, italic, underline, align, bgcolor, textcolor,
+      _width:cssLength(cell.style.width || cell.getAttribute('width')),
+    };
+  }));
+  const provisional = {rows, column_widths:[], header_rows:0};
+  const ncols = modelColumnCount(provisional);
+  const widths = Array.from({length:ncols}, () => 0);
+  const specificity = Array.from({length:ncols}, () => 0);
+  const colWidths = [...table.querySelectorAll('colgroup > col')].slice(0, ncols)
+    .map(col => cssLength(col.style.width || col.getAttribute('width')));
+  if (colWidths.length === ncols && colWidths.every(width => width > 0)) {
+    colWidths.forEach((width, index) => { widths[index] = width; specificity[index] = 2; });
+  } else {
+    const active = [];
+    rows.forEach(row => {
+      let logicalCol = 0;
+      row.forEach(cell => {
+        while ((active[logicalCol] || 0) > 0) logicalCol++;
+        const span = Math.max(1, cell.colspan||1);
+        const rowSpan = Math.max(1, cell.rowspan||1);
+        const unit = cell._width > 0 ? cell._width/span : 0;
+        const score = 1/span;
+        for (let i=0; i<span && logicalCol+i<ncols; i++) {
+          if (unit > 0 && score >= specificity[logicalCol+i]) {
+            widths[logicalCol+i] = unit;
+            specificity[logicalCol+i] = score;
+          }
+          active[logicalCol+i] = Math.max(active[logicalCol+i]||0, rowSpan);
+        }
+        logicalCol += span;
+      });
+      for (let i=0; i<active.length; i++) active[i] = Math.max(0, (active[i]||0)-1);
+    });
+  }
+  const widthSum = widths.reduce((a,b)=>a+b,0);
+  const fallbackWidth = widthSum > 0 ? widthSum / widths.filter(width => width > 0).length : 1;
+  const completedWidths = widths.map(width => width || fallbackWidth);
+  const completedSum = completedWidths.reduce((a,b) => a+b, 0);
+  const columnWidths = completedWidths.map(width => width/completedSum);
+  rows.forEach(row => row.forEach(cell => delete cell._width));
+  let leadingHeaderRows = 0;
+  for (const row of [...table.rows]) {
+    if ([...row.cells].length && [...row.cells].every(cell => cell.tagName === 'TH')) leadingHeaderRows++;
+    else break;
+  }
+  const explicitHeaders = table.tHead?.rows.length || leadingHeaderRows;
+  const firstCells = rows[0] || [];
+  const inferredHeader = firstCells.length && firstCells.filter(c => c.bold).length >= Math.ceil(firstCells.length/2) ? 1 : 0;
+  const borderText = [table.getAttribute('border') || '', table.getAttribute('style') || '',
+    ...[...table.querySelectorAll('td,th')].map(cell => cell.getAttribute('style') || '')].join(' ');
+  const gridBorders = table.getAttribute('border') !== '0' && /(?:^|;)\s*border(?:-(?:top|right|bottom|left))?\s*:\s*(?!0|none)/i.test(borderText)
+    || Number(table.getAttribute('border') || 0) > 0;
+  return {rows, column_widths:columnWidths, header_rows:explicitHeaders || inferredHeader, grid_borders:gridBorders};
+}
+
+function plainTextTableModel(text) {
+  const rows = text.replace(/\r/g,'').split('\n').filter(row => row.length)
+    .map(row => row.split('\t').map(value => ({text:value.trim()})));
+  if (!rows.length) return null;
+  const ncols = modelColumnCount({rows});
+  rows.forEach(row => { while (row.length < ncols) row.push({text:''}); });
+  return {rows, column_widths:Array.from({length:ncols}, () => 1/ncols), header_rows:1, grid_borders:true};
+}
+
+function tableModelFromClipboard(dataTransfer) {
+  const html = dataTransfer.getData('text/html');
+  if (html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const table = doc.querySelector('table');
+    if (table) return clipboardTableModel(table);
+  }
+  const text = dataTransfer.getData('text/plain');
+  if (text.includes('\t')) return plainTextTableModel(text);
+  return null;
+}
+
+function handleTablePaste(event, uid) {
+  event.preventDefault();
+  const status = document.getElementById('tpaste-' + uid);
+  let model;
+  try { model = tableModelFromClipboard(event.clipboardData); }
+  catch (error) {
+    if (status) status.textContent = error.message;
+    showToast(error.message);
+    return;
+  }
+  if (!model) {
+    const cell = event.target.closest('td[contenteditable]');
+    const text = event.clipboardData.getData('text/plain');
+    if (cell && text) {
+      // A normal text paste edits this cell; it must never empty the table.
+      cell.focus();
+      const selection = window.getSelection();
+      const range = selection.rangeCount ? selection.getRangeAt(0) : document.createRange();
+      if (!cell.contains(range.commonAncestorContainer)) { range.selectNodeContents(cell); range.collapse(false); }
+      range.deleteContents();
+      const node = document.createTextNode(text); range.insertNode(node);
+      range.setStartAfter(node); range.collapse(true);
+      selection.removeAllRanges(); selection.addRange(range);
+      cell.dispatchEvent(new Event('input', {bubbles:true}));
+      return;
+    }
+    if (status) status.textContent = 'Panoda tablo bulunamadı. Word’de tablonun tamamını seçerek yeniden kopyalayın.';
+    showToast('Yapıştırılan içerikte tablo bulunamadı.');
+    return;
+  }
+  showTableEditor(uid, model);
+  if (status) status.textContent = `${model.rows.length} satır ve ${modelColumnCount(model)} sütun aktarıldı.`;
+  showToast('Word tablosu birleşimler, renkler, vurgu, hizalama ve sütun oranlarıyla aktarıldı.');
+}
+
+function showTableEditor(uid, model) {
+  buildTblEditor(uid, model);
+  const block = document.getElementById('ft-' + uid);
+  block?.querySelector('.word-paste-stage')?.setAttribute('style','display:none');
+  const editorStage = block?.querySelector('.word-editor-stage');
+  if (editorStage) editorStage.style.display = '';
+}
+
+function focusAddedBlock(uid, selector) {
+  const block = document.getElementById('ft-' + uid);
+  block?.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(() => block?.querySelector(selector)?.focus(), 260);
+}
+
+function addWordPasteTable() {
+  const uid = addFT({type:'table',table_mode:'paste'});
+  focusAddedBlock(uid,'.word-paste-canvas');
+}
+
+function addBlankTable() {
+  const uid = addFT({type:'table',table_mode:'blank',tbl_model:emptyTblModel()});
+  focusAddedBlock(uid,'.tbl-editor td');
 }
 
 // ═══════════════════════════════════════════════════
@@ -825,11 +1548,17 @@ function updateSectionDropdowns() {
 function addFT(d = {}) {
   const uid = ftIdx++;
   const list = document.getElementById('ft-list');
-  const n = list.children.length + 1;
   const type = d.type || 'figure';
+  const n = Math.max(0, ...[...list.children].filter(b => b.querySelector('[data-f="type"]').value === type)
+    .map(b => Number(b.querySelector('[data-f="number"]').value) || 0)) + 1;
+  const tableMode = d.table_mode || (d.tbl_model ? 'imported' : 'blank');
+  const hasInitialTable = type === 'table' && (tableMode !== 'paste' || Boolean(d.tbl_model) || Boolean(d.tbl_data));
+  const tableSourceLabel = tableMode === 'paste' ? 'Word’den yapıştırma' : tableMode === 'blank' ? 'Boş Word sayfası' : 'Word dosyasından aktarıldı';
+  const figureWidth = String(d.fig_width || '90');
   const div = document.createElement('div');
   div.className = 'ft-block';
   div.id = 'ft-' + uid;
+  div.dataset.tableMode = tableMode;
   div.innerHTML = `
     <div class="ft-hdr">
       <select class="form-select form-select-sm" data-f="type" style="max-width:110px"
@@ -838,14 +1567,18 @@ function addFT(d = {}) {
         <option value="table"${type==='table'?' selected':''}>📊 Tablo</option>
       </select>
       <span style="font-size:.8rem;color:#666">No:</span>
-      <input class="form-control form-control-sm" data-f="number" value="${n}" style="max-width:50px">
+      <input class="form-control form-control-sm" data-f="number" value="${esc(d.number || n)}" style="max-width:50px">
       <button class="btn btn-sm btn-outline-danger btn-icon ms-auto" onclick="removeFT('ft-${uid}')"><i class="bi bi-trash3"></i></button>
     </div>
     <div class="p-3" id="ft-b-${uid}">
+
+      <!-- Başlıklar -->
       <div class="row g-2 mb-3">
         <div class="col-md-6"><label class="lbl">Türkçe Başlık</label><input class="form-control form-control-sm" data-f="tr_cap" placeholder="Türkçe açıklama" value="${esc(d.tr_cap||'')}"></div>
         <div class="col-md-6"><label class="lbl">English Caption</label><input class="form-control form-control-sm" data-f="en_cap" placeholder="English caption" value="${esc(d.en_cap||'')}"></div>
       </div>
+
+      <!-- Yerleştirme -->
       <div class="p-2 mb-3 rounded" style="background:#f0f4f8;border:1px solid #d5dfe8">
         <div class="lbl mb-2" style="color:#1a56db">📍 Yerleştirme</div>
         <div class="row g-2">
@@ -856,7 +1589,12 @@ function addFT(d = {}) {
             </select>
           </div>
           <div class="col-md-8">
-            <label class="lbl">Hangi paragraftan sonra? <span class="text-muted fw-normal" style="font-size:.75rem">— paragrafın birkaç kelimesini yazın</span></label>
+            <label class="lbl">
+              Hangi paragraftan sonra?
+              <span class="text-muted fw-normal" style="font-size:.75rem">
+                — paragrafın birkaç kelimesini yazın
+              </span>
+            </label>
             <input class="form-control form-control-sm" data-f="after_para"
                    placeholder="örn: Bu çalışmada nicel yöntemler kullanılmıştır"
                    value="${esc(d.after_para||'')}">
@@ -867,47 +1605,140 @@ function addFT(d = {}) {
           <span>Bu alan yalnızca konum tespiti için kullanılır — makale metnine eklenmez. Paragraf bulunamazsa bölüm sonuna yerleştirilir.</span>
         </div>
       </div>
+
+      <!-- Şekil / Tablo içeriği -->
       <div class="ft-fig-part"${type!=='figure'?' style="display:none"':''}>
+        <div class="row g-2 mb-2 align-items-end">
+          <div class="col-md-4">
+            <label class="lbl">Çıktı Genişliği</label>
+            <select class="form-select form-select-sm" data-f="fig_width">
+              <option value="100"${figureWidth==='100'?' selected':''}>%100 — Tam genişlik</option>
+              <option value="90"${figureWidth==='90'?' selected':''}>%90 — Önerilen</option>
+              <option value="85"${figureWidth==='85'?' selected':''}>%85</option>
+              <option value="80"${figureWidth==='80'?' selected':''}>%80</option>
+              <option value="70"${figureWidth==='70'?' selected':''}>%70 — Kompakt</option>
+            </select>
+          </div>
+          <div class="col-md-8 text-muted" style="font-size:.75rem">Şekil seçilen paragrafın hemen ardından sabitlenir; oranı korunur ve sayfa yüksekliğini aşarsa otomatik küçültülür.</div>
+        </div>
         <label class="lbl">Şekil Dosyası</label>
         <div class="fig-drop" id="fdrop-${uid}" onclick="document.getElementById('finp-${uid}').click()">
           <i class="bi bi-image" style="font-size:1.6rem;color:#bbb"></i>
           <div style="font-size:.83rem;color:#999;margin-top:4px">Şekil dosyasını sürükleyin veya tıklayın</div>
-          <div style="font-size:.72rem;color:#ccc">PNG, JPG, PDF, EPS</div>
+          <div style="font-size:.72rem;color:#ccc">PNG, JPG, PDF</div>
         </div>
-        <input type="file" id="finp-${uid}" accept="image/*,.pdf,.eps" style="display:none"
+        <input type="file" id="finp-${uid}" accept=".png,.jpg,.jpeg,.pdf" style="display:none"
                onchange="onFigSelect(this,${uid})">
         <div id="fpreview-${uid}"></div>
       </div>
       <div class="ft-tbl-part"${type!=='table'?' style="display:none"':''}>
-        <label class="lbl">Tablo Verisi <small class="text-muted fw-normal">(| ile sütunları ayırın — ilk satır başlık)</small></label>
-        <textarea class="form-control form-control-sm" data-f="tbl_data" rows="6"
-                  style="font-family:monospace;font-size:.79rem"
-                  placeholder="Sütun 1 | Sütun 2 | Sütun 3&#10;Veri A   | Veri B   | Veri C">${esc(d.tbl_data||'')}</textarea>
+        <div class="d-flex align-items-center justify-content-between gap-2 mb-2 flex-wrap">
+          <span class="table-source-chip"><i class="bi bi-file-earmark-word"></i>${tableSourceLabel}</span>
+          <span class="paste-status" id="tpaste-${uid}" role="status" aria-live="polite"></span>
+        </div>
+        <div class="word-paste-stage"${hasInitialTable?' style="display:none"':''}>
+          <div class="word-paste-canvas" contenteditable="true" role="textbox" tabindex="0"
+               aria-label="Word tablosunu buraya yapıştırın">
+            <div contenteditable="false">
+              <span class="paste-hero-icon"><i class="bi bi-clipboard-plus"></i></span>
+              <strong>Word tablosunu buraya yapıştırın</strong>
+              <div class="text-muted mt-1" style="font-size:.76rem">Word’de tablonun tamamını seçin, kopyalayın ve bu beyaz sayfaya yapıştırın.</div>
+              <span class="paste-shortcut">⌘ V · Hücre birleşimleri ve biçimler korunur</span>
+            </div>
+          </div>
+        </div>
+        <div class="word-editor-stage"${hasInitialTable?'':' style="display:none"'}>
+          <div class="tbl-toolbar" aria-label="Tablo düzenleme araçları">
+            <div class="tbl-toolbar-group">
+              <button type="button" class="btn btn-light" onclick="formatTblCell(${uid},'bold')" title="Kalın"><i class="bi bi-type-bold"></i></button>
+              <button type="button" class="btn btn-light" onclick="formatTblCell(${uid},'italic')" title="İtalik"><i class="bi bi-type-italic"></i></button>
+              <button type="button" class="btn btn-light" onclick="formatTblCell(${uid},'underline')" title="Altı çizili"><i class="bi bi-type-underline"></i></button>
+            </div>
+            <div class="tbl-toolbar-group">
+              <button type="button" class="btn btn-light" onclick="formatTblCell(${uid},'align','left')" title="Sola hizala"><i class="bi bi-text-left"></i></button>
+              <button type="button" class="btn btn-light" onclick="formatTblCell(${uid},'align','center')" title="Ortala"><i class="bi bi-text-center"></i></button>
+              <button type="button" class="btn btn-light" onclick="formatTblCell(${uid},'align','right')" title="Sağa hizala"><i class="bi bi-text-right"></i></button>
+            </div>
+            <label class="btn btn-light mb-0" title="Hücre rengi"><i class="bi bi-paint-bucket"></i><input type="color" value="#ffffff" class="visually-hidden" onchange="setTblCellColor(${uid},'background',this)"></label>
+            <label class="btn btn-light mb-0" title="Yazı rengi"><i class="bi bi-palette"></i><input type="color" value="#202a31" class="visually-hidden" onchange="setTblCellColor(${uid},'text',this)"></label>
+            <button type="button" class="btn btn-outline-secondary" onclick="formatTblCell(${uid},'header')"><i class="bi bi-layout-three-columns"></i> Başlık satırı</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="mergeTblRight(${uid})"><i class="bi bi-union"></i> Sağla birleştir</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="splitTblCell(${uid})"><i class="bi bi-distribute-horizontal"></i> Hücreyi böl</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="addTblRow(${uid})"><i class="bi bi-plus-lg"></i> Satır</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="addTblCol(${uid})"><i class="bi bi-plus-lg"></i> Sütun</button>
+            <button type="button" class="btn btn-outline-danger" onclick="delTblRow(${uid})"><i class="bi bi-dash-lg"></i> Satır</button>
+            <button type="button" class="btn btn-outline-danger" onclick="delTblCol(${uid})"><i class="bi bi-dash-lg"></i> Sütun</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="formatTblCell(${uid},'clear')"><i class="bi bi-eraser"></i> Biçimi temizle</button>
+          </div>
+          <div class="word-page-shell">
+            <div class="word-page">
+              <div class="tbl-editor-wrap"><table class="tbl-editor" id="tgrid-${uid}"></table></div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap mt-2">
+            <div class="paste-note flex-grow-1 mt-0"><i class="bi bi-pencil-square"></i><span>Hücreye tıklayıp Word’deki gibi yazın. İsterseniz başka bir Word tablosunu bu sayfanın üzerine yeniden yapıştırabilirsiniz.</span></div>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <div><label class="lbl mb-0 me-1" style="font-size:.72rem">Punto:</label><select class="form-select form-select-sm d-inline-block" data-f="tbl_fontsize" style="width:auto;font-size:.75rem"><option value="">9pt (standart)</option><option value="10">10pt</option><option value="9.5">9.5pt</option><option value="9">9pt</option><option value="8.5">8.5pt</option><option value="8">8pt</option><option value="7.5">7.5pt</option></select></div>
+              <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-f="split_table" id="spt-${uid}"><label class="form-check-label" for="spt-${uid}" style="font-size:.77rem">Sayfaya böl</label></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>`;
   list.appendChild(div);
+  if (type === 'table') {
+    if (hasInitialTable) buildTblEditor(uid, d.tbl_model || parseTblData(d.tbl_data || ''));
+    if (d.tbl_fontsize) {
+      div.querySelector('[data-f="tbl_fontsize"]').value = d.tbl_fontsize;
+    }
+    if (d.split_table) {
+      div.querySelector('[data-f="split_table"]').checked = true;
+    }
+  }
 
+  // Drag-and-drop for figure zone
   const dz = div.querySelector('.fig-drop');
   dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
   dz.addEventListener('dragleave', () => dz.classList.remove('over'));
   dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); const f=e.dataTransfer.files[0]; if(f){figFiles[uid]=f; showFigPreview(uid,f);} });
 
+  div.querySelector('.tbl-editor').addEventListener('paste', e => handleTablePaste(e, uid));
+  div.querySelector('.word-paste-canvas').addEventListener('paste', e => handleTablePaste(e, uid));
+  div.querySelector('.ft-sec-sel').addEventListener('change', e => {
+    div.dataset.sectionUid = e.target.selectedOptions[0]?.dataset.sectionUid || '';
+  });
+
   badge('badge-ft', document.querySelectorAll('#ft-list .ft-block').length, 'öğe');
   updateSectionDropdowns();
+  if (d.section || d.section_id !== undefined) {
+    const sectionSelect = div.querySelector('[data-f="section"]');
+    const matching = [...document.querySelectorAll('#sections-list .sec-block')]
+      .find(b => b.querySelector('[data-f="name"]').value === d.section);
+    sectionSelect.value = String(d.section_id ?? matching?.dataset.sectionUid ?? '');
+    div.dataset.sectionUid = sectionSelect.selectedOptions[0]?.dataset.sectionUid || '';
+  }
+  div.dataset.placement = d.placement || '';
+  div.dataset.floatPlacement = d.float_placement || '';
+  return uid;
 }
 
 function removeFT(id) {
   const uid = id.replace('ft-','');
   delete figFiles[uid];
+  delete tableMeta[uid];
   document.getElementById(id)?.remove();
   badge('badge-ft', document.querySelectorAll('#ft-list .ft-block').length, 'öğe');
 }
 
 function switchFT(sel, bodyId) {
   const body = document.getElementById(bodyId);
-  const isFig = sel.value === 'figure';
-  body.querySelector('.ft-fig-part').style.display = isFig ? '' : 'none';
-  body.querySelector('.ft-tbl-part').style.display = isFig ? 'none' : '';
+  const uid  = parseInt(bodyId.replace('ft-b-',''));
+  body.querySelector('.ft-fig-part').style.display = sel.value==='figure' ? '' : 'none';
+  body.querySelector('.ft-tbl-part').style.display = sel.value==='table'  ? '' : 'none';
+  if (sel.value === 'table') {
+    const tbl = document.getElementById('tgrid-' + uid);
+    if (tbl && tbl.rows.length === 0) showTableEditor(uid, emptyTblModel());
+  }
 }
 
 function onFigSelect(inp, uid) {
@@ -916,11 +1747,14 @@ function onFigSelect(inp, uid) {
 
 function showFigPreview(uid, file) {
   const dz = document.getElementById('fdrop-'+uid);
-  dz.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i><strong style="font-size:.83rem">${file.name}</strong>`;
+  if (!dz) return;
+  dz.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i><strong style="font-size:.83rem">${esc(file.name)}</strong>`;
+  document.getElementById('fpreview-'+uid).replaceChildren();
   if(file.type.startsWith('image/')){
     const reader=new FileReader();
     reader.onload=e=>{
       const prev=document.getElementById('fpreview-'+uid);
+      if (!prev || figFiles[uid] !== file) return;
       prev.innerHTML='';
       const img=document.createElement('img'); img.src=e.target.result; img.className='fig-preview'; prev.appendChild(img);
     };
@@ -934,40 +1768,120 @@ function collectFTs() {
     const type = b.querySelector('[data-f="type"]').value;
     return {
       type,
-      number:     b.querySelector('[data-f="number"]').value.trim(),
-      tr_cap:     b.querySelector('[data-f="tr_cap"]').value.trim(),
-      en_cap:     b.querySelector('[data-f="en_cap"]').value.trim(),
-      section:    b.querySelector('[data-f="section"]').value,
+      number:    b.querySelector('[data-f="number"]').value.trim(),
+      tr_cap:    b.querySelector('[data-f="tr_cap"]').value.trim(),
+      en_cap:    b.querySelector('[data-f="en_cap"]').value.trim(),
+      section:   b.dataset.sectionUid ? sectionNameForUid(b.dataset.sectionUid) : '',
+      section_id: b.dataset.sectionUid || null,
+      float_placement: b.dataset.floatPlacement || '',
       after_para: b.querySelector('[data-f="after_para"]')?.value.trim() || '',
-      tbl_data:   type==='table' ? (b.querySelector('[data-f="tbl_data"]')?.value.trim()||'') : '',
-      file_key:   type==='figure' ? String(uid) : '',
+      tbl_data:     type==='table' ? getTblData(uid) : '',
+      tbl_model:    type==='table' ? getTblModel(uid) : null,
+      table_mode:   type==='table' ? (b.dataset.tableMode || 'blank') : '',
+      tbl_fontsize: type==='table' ? (b.querySelector('[data-f="tbl_fontsize"]')?.value||'') : '',
+      split_table:  type==='table' ? (b.querySelector('[data-f="split_table"]')?.checked||false) : false,
+      fig_width:     type==='figure' ? (b.querySelector('[data-f="fig_width"]')?.value||'90') : '',
+      placement: b.dataset.placement || '',
+      file_key:  type==='figure' ? String(uid) : '',
     };
   });
 }
 
+function richClipboardItems(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const items = [];
+  const paragraphTags = new Set(['P','H1','H2','H3','H4','H5','H6','LI']);
+  const visit = node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      if (node.textContent.trim()) items.push({type:'text',text:node.textContent.trim()});
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    if (['SCRIPT','STYLE','META','LINK'].includes(node.tagName)) return;
+    if (node.tagName === 'TABLE') {
+      items.push({type:'table', model:clipboardTableModel(node)});
+      return;
+    }
+    if (paragraphTags.has(node.tagName) && !node.querySelector('table')) {
+      const text = blockText(node);
+      if (text) items.push({type:'text', text});
+      return;
+    }
+    [...node.childNodes].forEach(visit);
+  };
+  [...doc.body.childNodes].forEach(visit);
+  return items;
+}
+
+function lastParagraph(text) {
+  const paragraphs = String(text || '').split(/\n\s*\n|\n/).map(p => p.trim()).filter(Boolean);
+  return paragraphs.length ? paragraphs[paragraphs.length-1] : '';
+}
+
+function handleSectionPaste(event, uid) {
+  const html = event.clipboardData.getData('text/html');
+  if (!html || !/<table[\s>]/i.test(html)) return;
+  let items;
+  try { items = richClipboardItems(html); }
+  catch (error) { event.preventDefault(); showToast(error.message); return; }
+  const tables = items.filter(item => item.type === 'table');
+  if (!tables.length) return;
+  event.preventDefault();
+
+  const textarea = event.currentTarget;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const before = textarea.value.slice(0, start);
+  const after = textarea.value.slice(end);
+  const insertedParagraphs = [];
+  let anchor = lastParagraph(before);
+  const section = sectionNameForUid(uid);
+
+  items.forEach(item => {
+    if (item.type === 'text') {
+      insertedParagraphs.push(item.text);
+      anchor = lastParagraph(item.text) || anchor;
+      return;
+    }
+    const tableUid = addFT({
+      type:'table', section, after_para:anchor, tbl_model:item.model,
+    });
+    const block = document.getElementById('ft-' + tableUid);
+    if (block) block.dataset.sectionUid = String(uid);
+    if (!anchor && block) block.dataset.placement = 'section_start';
+  });
+
+  const inserted = insertedParagraphs.join('\n\n');
+  const prefix = before && inserted && !before.endsWith('\n') ? '\n\n' : '';
+  const suffix = after && inserted && !after.startsWith('\n') ? '\n\n' : '';
+  textarea.value = before + prefix + inserted + suffix + after;
+  const caret = (before + prefix + inserted).length;
+  textarea.setSelectionRange(caret, caret);
+  textarea.dispatchEvent(new Event('input', {bubbles:true}));
+
+  showToast(`${tables.length} tablo, “${section}” bölümünde metindeki konumlarına yerleştirildi.`);
+}
+
 // ═══════════════════════════════════════════════════
-// MOVE UP / DOWN
+// MOVE UP / DOWN (generic)
 // ═══════════════════════════════════════════════════
 function moveEl(id, dir) {
   const el = document.getElementById(id);
   if(!el) return;
+  const beforeRects = new Map([...document.querySelectorAll('#sections-list .sec-block')]
+    .map(block => [block.id, block.getBoundingClientRect()]));
   if(dir===-1 && el.previousElementSibling) el.parentNode.insertBefore(el, el.previousElementSibling);
   else if(dir===1 && el.nextElementSibling)  el.parentNode.insertBefore(el.nextElementSibling, el);
+  animateSectionLayout(beforeRects);
   updateSectionDropdowns();
+  announceSectionOrder(el);
 }
 
 // ═══════════════════════════════════════════════════
 // GENERATE
 // ═══════════════════════════════════════════════════
-async function doGenerate() {
-  const btn = document.getElementById('btn-gen');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Oluşturuluyor...';
-  document.getElementById('result-panel').style.display = 'none';
-  document.getElementById('err-panel').style.display = 'none';
-
-  try {
-    const payload = {
+function collectFormData() {
+    return {
       cover: {
         tr_title:     document.getElementById('c-tr-title').value.trim(),
         en_title:     document.getElementById('c-en-title').value.trim(),
@@ -983,8 +1897,10 @@ async function doGenerate() {
         accepted:     document.getElementById('c-accepted').value.trim() || 'xx.xx.xxxx',
         published:    document.getElementById('c-published').value.trim() || 'xx.xx.xxxx',
         author_short: document.getElementById('c-author-short').value.trim(),
-        editor:       document.getElementById('c-editor').value.trim(),
+        editor: document.getElementById('c-editor').value.trim(),
         ethics:       document.getElementById('c-ethics').value.trim(),
+        title_note:   document.getElementById('c-title-note').value.trim(),
+        first_page_fit: document.getElementById('c-first-page-fit').value,
       },
       authors:  collectAuthors(),
       abstract: {
@@ -993,8 +1909,8 @@ async function doGenerate() {
         en_abs: document.getElementById('a-en-abs').value.trim(),
         en_kw:  document.getElementById('a-en-kw').value.trim(),
       },
-      sections:   collectSections(),
-      figtables:  collectFTs(),
+      sections: collectSections(),
+      figtables: collectFTs(),
       extra: {
         ack:      document.getElementById('ack-on').checked ? document.getElementById('ex-ack').value.trim() : '',
         contrib:  document.getElementById('ex-contrib').value.trim(),
@@ -1002,30 +1918,38 @@ async function doGenerate() {
       },
       references: document.getElementById('refs').value.trim(),
     };
+}
 
-    const journalSettings = collectJournalSettings();
+async function doGenerate() {
+  if (docxImporting) return;
+  const btn = document.getElementById('btn-gen');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Oluşturuluyor...';
+  document.getElementById('result-panel').style.display = 'none';
+  document.getElementById('err-panel').style.display = 'none';
+  try {
+    if (location.protocol === 'file:') throw new Error('HTML dosyası yerine AI-ditor Plus Başlat.command dosyasını çalıştırın ve http://127.0.0.1:5152 adresini açın.');
+    const payload = collectFormData();
+    if (!payload.cover.tr_title && !payload.cover.en_title) throw new Error('En az bir makale başlığı girin.');
 
     const fd = new FormData();
     fd.append('data', JSON.stringify(payload));
-    fd.append('journal_settings', JSON.stringify(journalSettings));
+    if (!await journalWorkspace.flush()) throw new Error('Dergi ayarları kaydedilemedi. Önce kayıt durumunu kontrol edin.');
+    fd.append('journal_settings', JSON.stringify(collectJournalSettings()));
 
     // Attach figure files
-    for(const [uid, file] of Object.entries(figFiles)){
+    for(const item of payload.figtables.filter(item => item.type === 'figure')){
+      const uid = item.file_key;
+      const file = figFiles[uid];
+      if (!file) throw new Error(`Şekil ${item.number} için dosya seçin.`);
       const ext = file.name.split('.').pop().toLowerCase();
       fd.append('fig_' + uid, file, 'fig_' + uid + '.' + ext);
     }
 
-    // Attach logo file
-    const _logoFile = _getLogoFile();
-    if(_logoFile) fd.append('logo_upload', _logoFile, _logoFile.name);
-
-    // Attach CC-BY logo override (opsiyonel)
-    const _ccbyFile = _getCcbyFile();
-    if(_ccbyFile) fd.append('ccby_upload', _ccbyFile, _ccbyFile.name);
-
-    const resp = await fetch('/process_form', { method:'POST', body:fd });
-    const res  = await resp.json();
-    if(!res.ok) throw new Error(res.error || 'Bilinmeyen hata');
+    const resp = await aiditorFetch('/process_form', { method:'POST', body:fd });
+    if (!resp.headers.get('Content-Type')?.includes('application/json')) throw new Error('Uygulama servisi geçersiz yanıt verdi. Güncel uygulamayı yeniden başlatın.');
+    const res = await resp.json();
+    if(!resp.ok || !res.ok) throw new Error(res.error || 'Bilinmeyen hata');
 
     document.getElementById('dl-link').href = '/download/' + res.key;
     document.getElementById('result-panel').style.display = 'block';
@@ -1033,8 +1957,9 @@ async function doGenerate() {
 
   } catch(err) {
     const ep = document.getElementById('err-panel');
-    ep.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>Hata: ' + err.message;
+    ep.textContent = 'Hata: ' + docxImportErrorMessage(err);
     ep.style.display = 'block';
+    ep.scrollIntoView({behavior:'smooth', block:'center'});
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-gear-fill me-2"></i>LaTeX Oluştur &amp; ZIP İndir';
@@ -1048,113 +1973,42 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+let toastTimer;
+function showToast(message) {
+  const toast = document.getElementById('app-toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3600);
+}
+
 // ═══════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   addAuthor();
   DEFAULT_SECS.forEach(s => addSection(s));
-  refreshProfiles();
+  document.querySelectorAll('.sec-hdr').forEach(header => {
+    header.tabIndex = 0;
+    header.setAttribute('role', 'button');
+    const bodyId = header.getAttribute('onclick')?.match(/toggleSec\('([^']+)'/)?.[1];
+    if (bodyId) { header.setAttribute('aria-controls', bodyId); header.setAttribute('aria-expanded', document.getElementById(bodyId).style.display !== 'none'); }
+    header.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); header.click(); }
+    });
+  });
+  if (location.protocol === 'file:') {
+    const notice = document.createElement('div');
+    notice.style.cssText = 'padding:24px;background:#fff3cd;color:#333;font:18px system-ui;position:sticky;top:0;z-index:9999';
+    notice.append('Bu HTML dosyası tek başına çalışmaz. “AI-ditor Plus Başlat.command” dosyasını açın, ardından ');
+    const link = document.createElement('a');
+    link.href = 'http://127.0.0.1:5152'; link.textContent = 'yerel uygulamaya geçin';
+    notice.append(link); document.body.prepend(notice);
+  }
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- ── Overleaf Rehberi ── -->
-<div class="container pb-5" style="max-width:960px">
-<div class="card" style="border:2px solid #0070C0;border-radius:14px;overflow:hidden">
-
-  <div style="background:#0070C0;color:#fff;padding:13px 20px;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
-      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-      <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-    </svg>
-    Overleaf'e Nasıl Yüklerim?
-  </div>
-
-  <div style="padding:20px 24px;background:#f0f7ff">
-
-    <!-- Adımlar -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px">
-
-      <!-- 1 -->
-      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #0070C0">
-        <div style="font-size:1.3rem;font-weight:800;color:#0070C0;margin-bottom:4px">1</div>
-        <div style="font-weight:600;margin-bottom:4px">ZIP'i İndirin</div>
-        <div style="font-size:.82rem;color:#555">
-          "ZIP İndir" butonuna tıklayın ve dosyayı bilgisayarınıza kaydedin.
-          ZIP içinde <code>main.tex</code>, logo ve şekil dosyaları bulunur.
-        </div>
-      </div>
-
-      <!-- 2 -->
-      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #0070C0">
-        <div style="font-size:1.3rem;font-weight:800;color:#0070C0;margin-bottom:4px">2</div>
-        <div style="font-weight:600;margin-bottom:4px">Overleaf'e Gidin</div>
-        <div style="font-size:.82rem;color:#555">
-          <a href="https://www.overleaf.com" target="_blank" rel="noopener" style="color:#0070C0;font-weight:600">overleaf.com</a>
-          adresine gidin. Oturum açın veya ücretsiz hesap oluşturun.
-        </div>
-      </div>
-
-      <!-- 3 -->
-      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #0070C0">
-        <div style="font-size:1.3rem;font-weight:800;color:#0070C0;margin-bottom:4px">3</div>
-        <div style="font-weight:600;margin-bottom:4px">Proje Oluşturun</div>
-        <div style="font-size:.82rem;color:#555">
-          Sol üstten <strong>New Project</strong> →
-          <strong>Upload Project</strong> seçin.
-          İndirdiğiniz ZIP dosyasını seçin ve yükleyin.
-        </div>
-      </div>
-
-      <!-- 4 -->
-      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #e67e00">
-        <div style="font-size:1.3rem;font-weight:800;color:#e67e00;margin-bottom:4px">4</div>
-        <div style="font-weight:600;margin-bottom:4px">XeLaTeX Seçin <span style="font-size:.75rem;color:#e67e00">⚠ Kritik</span></div>
-        <div style="font-size:.82rem;color:#555">
-          Sol üstte <strong>Menu</strong> butonuna tıklayın.
-          Açılan panelde <strong>Compiler</strong> altından
-          <strong style="color:#e67e00">XeLaTeX</strong>'i seçin.
-          (Varsayılan pdfLaTeX çalışmaz.)
-        </div>
-      </div>
-
-      <!-- 5 -->
-      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #198754">
-        <div style="font-size:1.3rem;font-weight:800;color:#198754;margin-bottom:4px">5</div>
-        <div style="font-weight:600;margin-bottom:4px">Derleyin</div>
-        <div style="font-size:.82rem;color:#555">
-          <strong>Recompile</strong> butonuna tıklayın.
-          Birkaç saniye sonra sağ panelde PDF görünür.
-          İstediğiniz değişiklikleri yapıp tekrar derleyebilirsiniz.
-        </div>
-      </div>
-
-      <!-- 6 -->
-      <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #198754">
-        <div style="font-size:1.3rem;font-weight:800;color:#198754;margin-bottom:4px">6</div>
-        <div style="font-weight:600;margin-bottom:4px">PDF İndirin</div>
-        <div style="font-size:.82rem;color:#555">
-          Sağ üstteki <strong>Download PDF</strong> butonuyla
-          hazır PDF'i bilgisayarınıza indirin.
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Uyarı notu -->
-    <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:11px 15px;font-size:.82rem;color:#6d4c00;display:flex;gap:10px;align-items:flex-start">
-      <span style="font-size:1.1rem;line-height:1.3">⚠️</span>
-      <span>
-        <strong>Önemli:</strong> Derleyici olarak mutlaka <strong>XeLaTeX</strong> seçilmelidir.
-        Türkçe karakterler, özel fontlar ve orcidlink paketi yalnızca XeLaTeX ile doğru çalışır.
-        Overleaf varsayılan olarak pdfLaTeX kullanır — bunu değiştirmezseniz derleme hatası alırsınız.
-      </span>
-    </div>
-
-  </div>
-</div>
-</div>
-
+<script src="/static/workspace.js"></script>
+<script src="/static/projects.js"></script>
+<script src="/static/library.js"></script>
 </body>
 </html>

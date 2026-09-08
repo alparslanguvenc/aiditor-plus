@@ -1,63 +1,20 @@
 #!/usr/bin/env bash
-# ============================================================
-# build_mac.sh — AI-ditor Plus macOS DMG builder
-# Run from the Journal_Formatter directory:
-#   chmod +x build_mac.sh && ./build_mac.sh
-# ============================================================
-set -e
-
+# Run inside a virtual environment installed from requirements-dev.txt.
+set -euo pipefail
+cd "$(dirname "$0")"
+PYTHON="${AIDITOR_PYTHON:-python3}"
 APP_NAME="AI-ditor Plus"
-SPEC_FILE="aiditor_plus.spec"
-ICON_SRC="aiditor_plus_icon.png"
-ICNS_FILE="icon_plus.icns"
-DMG_NAME="AIditorPlus_Installer.dmg"
-VOLUME_NAME="AI-ditor Plus"
-
-echo "=== AI-ditor Plus macOS Builder ==="
-
-# ── 1. Install / upgrade PyInstaller ──────────────────────
-pip install --upgrade pyinstaller pillow
-
-# ── 2. Rebuild .icns if source PNG exists ─────────────────
-if [ -f "$ICON_SRC" ]; then
-  echo "Building icon..."
-  ICONSET_DIR="icon_plus.iconset"
-  mkdir -p "$ICONSET_DIR"
-  for SIZE in 16 32 64 128 256 512; do
-    sips -z $SIZE $SIZE "$ICON_SRC" --out "$ICONSET_DIR/icon_${SIZE}x${SIZE}.png" > /dev/null 2>&1
-    DOUBLE=$((SIZE * 2))
-    sips -z $DOUBLE $DOUBLE "$ICON_SRC" --out "$ICONSET_DIR/icon_${SIZE}x${SIZE}@2x.png" > /dev/null 2>&1
-  done
-  iconutil -c icns "$ICONSET_DIR" -o "$ICNS_FILE"
-  rm -rf "$ICONSET_DIR"
-  echo "Icon built: $ICNS_FILE"
-fi
-
-# ── 3. Clean previous build ───────────────────────────────
-rm -rf build/ dist/
-
-# ── 4. Run PyInstaller ────────────────────────────────────
-pyinstaller "$SPEC_FILE" --noconfirm
-
-# ── 5. Check output ───────────────────────────────────────
-APP_PATH="dist/${APP_NAME}.app"
-if [ ! -d "$APP_PATH" ]; then
-  echo "ERROR: $APP_PATH not found. Build failed."
-  exit 1
-fi
-echo "App bundle created: $APP_PATH"
-
-# ── 6. Create DMG ─────────────────────────────────────────
-echo "Creating DMG..."
-rm -f "dist/${DMG_NAME}"
-hdiutil create \
-  -volname "$VOLUME_NAME" \
-  -srcfolder "$APP_PATH" \
-  -ov -format UDZO \
-  "dist/${DMG_NAME}"
-
-echo ""
-echo "=== BUILD COMPLETE ==="
-echo "DMG: dist/${DMG_NAME}"
-echo ""
-echo "To distribute: send only 'dist/${DMG_NAME}' to authorized users."
+TEMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/aiditor-build.XXXXXX")"
+trap 'rm -rf "$TEMP_ROOT"' EXIT
+"$PYTHON" -c "import flask, docx, PIL, webview, PyInstaller"
+"$PYTHON" -m unittest discover -s tests -q
+"$PYTHON" -m PyInstaller aiditor_plus.spec --noconfirm --workpath "$TEMP_ROOT/work" --distpath dist
+codesign --force --deep --sign - "dist/$APP_NAME.app"
+codesign --verify --deep --strict "dist/$APP_NAME.app"
+mkdir -p "$TEMP_ROOT/dmg"
+ditto "dist/$APP_NAME.app" "$TEMP_ROOT/dmg/$APP_NAME.app"
+ln -s /Applications "$TEMP_ROOT/dmg/Applications"
+hdiutil create -volname "$APP_NAME 2.0.0" -srcfolder "$TEMP_ROOT/dmg" -ov -format UDZO "dist/AIditorPlus_Installer.dmg"
+hdiutil verify "dist/AIditorPlus_Installer.dmg"
+"$PYTHON" -c "from pathlib import Path; import hashlib; p=Path('dist/AIditorPlus_Installer.dmg'); Path('dist/SHA256SUMS.txt').write_text(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n')"
+echo "Ready: dist/AIditorPlus_Installer.dmg"

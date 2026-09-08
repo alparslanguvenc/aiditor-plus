@@ -1,0 +1,28 @@
+.article-library { background:var(--paper); border:1px solid var(--line); border-left:4px solid var(--teal); border-radius:16px; padding:22px; margin-bottom:24px; box-shadow:0 8px 26px rgba(21,52,73,.06); }
+.library-topline,.library-controls,.save-bar { display:flex; align-items:center; gap:12px; }
+.library-topline { justify-content:space-between; margin-bottom:16px; }
+.library-eyebrow { font-size:.63rem; letter-spacing:.14em; font-weight:700; color:var(--teal-dark); }
+.article-library h2 { font-family:'Iowan Old Style',Georgia,serif; font-size:1.5rem; margin:3px 0 0; }
+.library-controls input { min-width:0; flex:1; }
+.library-controls button { flex-shrink:0; }
+.article-list { display:grid; gap:7px; max-height:234px; overflow:auto; margin:14px 0; }
+.article-list p { color:var(--muted); font-size:.84rem; margin:8px 0; }
+.article-record { width:100%; text-align:left; border:1px solid var(--line); border-radius:9px; background:#fff; padding:10px 13px; display:grid; gap:4px; color:var(--ink); }
+.article-record:hover { border-color:var(--teal); background:#f5fbf8; }
+.article-record[aria-current="true"] { border-color:var(--teal); background:#eaf7f4; box-shadow:inset 3px 0 var(--teal); }
+.article-record strong { font-size:.86rem; overflow-wrap:anywhere; }
+.article-record small { color:var(--muted); font-size:.73rem; overflow-wrap:anywhere; }
+.article-record:focus-visible { outline:3px solid var(--saffron); outline-offset:2px; }
+.save-bar { flex-wrap:wrap; border-top:1px solid var(--line); padding-top:12px; font-size:.8rem; }
+#autosave-status { flex:1; min-width:180px; color:var(--teal-dark); }
+#autosave-status::before { content:'●'; margin-right:7px; font-size:.65rem; }
+#autosave-status[data-state="error"] { color:#b32e20; font-weight:600; }
+#autosave-status[data-state="saving"],#autosave-status[data-state="pending"] { color:#956312; }
+.library-hint { color:var(--muted); font-size:.73rem; margin:9px 0 0; }
+@media (max-width:575px) {
+  .article-library { padding:16px; }
+  .library-topline { align-items:flex-start; }
+  .library-topline .btn { font-size:.77rem; flex-shrink:0; }
+  .library-controls { flex-wrap:wrap; }
+  .library-controls input { flex-basis:100%; }
+}

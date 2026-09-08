@@ -1,0 +1,4 @@
+-r requirements-desktop.txt
+pyinstaller>=6,<7
+playwright>=1.56,<2
+pdfplumber>=0.11,<1

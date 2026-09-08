@@ -1,6 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 # PyInstaller 6.x uyumlu — macOS .app bundle
 import os
+from PyInstaller.utils.hooks import collect_data_files
 BASE = os.path.dirname(os.path.abspath(SPEC))
 
 a = Analysis(
@@ -9,12 +10,13 @@ a = Analysis(
     binaries=[],
     datas=[
         (os.path.join(BASE, 'templates'), 'templates'),
+        (os.path.join(BASE, 'static'), 'static'),
+        (os.path.join(BASE, 'LICENSE'), '.'),
         (os.path.join(BASE, 'aiditor_plus_icon.png'), '.'),
-        (os.path.join(BASE, 'JGTTR.png'), '.'),
-        (os.path.join(BASE, 'ccby.png'), '.'),
         (os.path.join(BASE, 'formatter.py'), '.'),
-    ],
+    ] + collect_data_files('webview'),
     hiddenimports=[
+        'webview', 'webview.platforms.cocoa', 'desktop', 'sqlite3', 'account_store', 'journal_templates',
         'flask', 'flask.templating',
         'werkzeug', 'werkzeug.routing', 'werkzeug.serving',
         'werkzeug.exceptions', 'werkzeug.utils',
@@ -33,28 +35,29 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
+    exclude_binaries=True,
     name='AI-ditor Plus',
     debug=False,
     strip=False,
     upx=False,
     console=False,
-    argv_emulation=True,
+    argv_emulation=False,
     icon=os.path.join(BASE, 'icon_plus.icns'),
 )
 
+collection = COLLECT(exe, a.binaries, a.datas, strip=False, upx=False, name='AI-ditor Plus')
+
 app = BUNDLE(
-    exe,
+    collection,
     name='AI-ditor Plus.app',
     icon=os.path.join(BASE, 'icon_plus.icns'),
     bundle_identifier='com.aiditorplus.app',
     info_plist={
         'CFBundleName':               'AI-ditor Plus',
         'CFBundleDisplayName':        'AI-ditor Plus',
-        'CFBundleVersion':            '1.1.0',
-        'CFBundleShortVersionString': '1.1',
+        'CFBundleVersion':            '2.0.0',
+        'CFBundleShortVersionString': '2.0.0',
         'NSHighResolutionCapable':    True,
         'LSMinimumSystemVersion':     '11.0',
     },

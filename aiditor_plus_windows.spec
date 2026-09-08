@@ -1,6 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 # PyInstaller 6.x uyumlu — Windows EXE
 import os
+from PyInstaller.utils.hooks import collect_data_files
 BASE = os.path.dirname(os.path.abspath(SPEC))
 
 a = Analysis(
@@ -9,12 +10,13 @@ a = Analysis(
     binaries=[],
     datas=[
         (os.path.join(BASE, 'templates'), 'templates'),
+        (os.path.join(BASE, 'static'), 'static'),
+        (os.path.join(BASE, 'LICENSE'), '.'),
         (os.path.join(BASE, 'aiditor_plus_icon.png'), '.'),
-        (os.path.join(BASE, 'JGTTR.png'), '.'),
-        (os.path.join(BASE, 'ccby.png'), '.'),
         (os.path.join(BASE, 'formatter.py'), '.'),
-    ],
+    ] + collect_data_files('webview'),
     hiddenimports=[
+        'webview', 'webview.platforms.edgechromium', 'desktop', 'sqlite3', 'account_store', 'journal_templates',
         'flask', 'flask.templating',
         'werkzeug', 'werkzeug.routing', 'werkzeug.serving',
         'werkzeug.exceptions', 'werkzeug.utils',

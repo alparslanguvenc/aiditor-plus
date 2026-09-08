@@ -47,3 +47,12 @@ profiles/
 *.exe
 *.msi
 release/
+
+# Account databases and temporary validation output
+*.sqlite3*
+*.db
+*.secret
+session.key
+.qa/
+*.log
+baseline.patch

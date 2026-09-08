@@ -1,116 +1,89 @@
 # AI-ditor Plus
 
-**AI-ditor Plus**, akademik dergi makalelerini kolayca LaTeX formatına dönüştüren bir masaüstü uygulamasıdır. Dergi bilgilerini, yazar detaylarını, bölümleri, şekil ve tabloları form arayüzü üzerinden girebilir; tek tıkla Overleaf'e hazır ZIP dosyası oluşturabilirsiniz.
+**Her dergi için kendi düzeni, kaldığınız yerden devam eden bir çalışma alanı.**
 
-> Geliştirici: **Alparslan Güvenç**
-> [![LinkedIn](https://img.shields.io/badge/LinkedIn-Alparslan%20Güvenç-0077B5?logo=linkedin)](https://linkedin.com/in/alparslan-güvenç)
+AI-ditor Plus, akademik dergi editörlerinin mizanpaj işlerini kolaylaştırmak için **kâr amacı güdülmeden** geliştirilmiş, **MIT lisanslı açık kaynak** bir masaüstü uygulamasıdır. Bir dergi hesabı oluşturun, örnek sayfa düzenlerinden birini seçin, derginizin kimliğini tanımlayın ve makalelerinizi aynı ön ayarlarla hazırlayın.
 
----
+Geliştirici: **Alparslan Güvenç** · [MIT lisansı](LICENSE) · [Sürüm notları](CHANGELOG.md)
 
-## ⬇️ İndir
+## İndirme
 
-[![macOS](https://img.shields.io/badge/macOS-DMG%20İndir-000000?logo=apple&logoColor=white&style=for-the-badge)](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Installer.dmg)
-[![Windows](https://img.shields.io/badge/Windows-EXE%20İndir-0078D6?logo=windows&logoColor=white&style=for-the-badge)](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Setup.exe)
+- [macOS kurulumu](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Installer.dmg)
+- [Windows kurulumu](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Setup.exe)
+- [Tüm sürümler ve dosya doğrulama özetleri](https://github.com/alparslanguvenc/aiditor-plus/releases)
 
-Ya da [tüm sürümleri](https://github.com/alparslanguvenc/aiditor-plus/releases) görüntüleyin.
+macOS'ta DMG içindeki **AI-ditor Plus** uygulamasını **Applications** klasörüne sürükleyin. Windows'ta kurulum dosyasını çalıştırın. Uygulama kendi Python ortamını içerir; kaynak koddan çalıştırmıyorsanız Python kurulumu gerekmez. Windows masaüstü penceresi Microsoft Edge WebView2 kullanır. macOS uygulaması Apple noter onayına sahip değildir; ilk açılışta Sistem Ayarları → Gizlilik ve Güvenlik bölümünden izin vermenizi isteyebilir.
 
----
+## 2.0 ile gelenler
 
-## Özellikler
+- **Dergi hesabı:** Kullanıcı adı ve parola ile giriş; her hesapta ayrı dergi ayarları, logolar ve makale taslakları.
+- **Dört başlangıç düzeni:** Klasik akademik, çağdaş editoryal, ortalanmış kapak ve yalın araştırma. Görsel sayfa örneklerinden seçim yapıp daha sonra özelleştirebilirsiniz.
+- **Kalıcı dergi kimliği:** Türkçe/İngilizce ad, ISSN/e-ISSN, web adresi, logo ve logo boyutu, vurgu rengi, yazı tipi, punto, DOI konumu, sorumlu yazar işareti ve dipnot düzeni.
+- **Makale arşivi ve otomatik kayıt:** Yarım kalan taslaklar diske kaydedilir. Aynı makale iki pencerede değişirse sessizce üzerine yazılmaz; ayrı kopya olarak koruyabilirsiniz.
+- **Word içe aktarma:** `.docx` içindeki bölümler, paragraflar, tablolar ve desteklenen görseller kaynak sırasıyla düzenleyiciye taşınır.
+- **Zengin tablo düzenleme:** Word/Excel'den yapıştırma, birleşik hücreler, hizalama, kalın/italik yazı, renkler ve uzun tablolar. Eski düz metin tabloları da desteklenir.
+- **Bölümleri taşıma:** Sürükle bırak veya klavye ile sıralama; şekil ve tablo bağlantıları bölüm adı değişince kaybolmaz.
+- **Kapak sığdırma:** Otomatik, sıkı ve yoğun seçenekleri; ilk sayfada makale bilgileri ve dipnot alanının birlikte düzenlenmesi.
+- **Taşınabilir yedekler:** Dergi ön ayarları/logoları ve makale projeleri için JSON aktarımı. Eski Plus profillerini hesaba açıkça içe aktarabilirsiniz.
+- **Overleaf çıktısı:** `main.tex`, gerekli görseller ve kullanım açıklaması içeren ZIP.
 
-- Dergi adı, ISSN/e-ISSN, URL ve logo özelleştirme
-- Profil kaydetme — aynı dergi bilgilerini tekrar girmeden kullanma
-- Çoklu yazar desteği (ünvan, kurum, e-posta, ORCID)
-- Bölüm, alt bölüm ve alt-alt bölüm ekleme
-- Şekil ve tablo ekleme (sürükle-bırak)
-- Yazı tipi seçimi (Palatino, Times New Roman, Century, Calibri, Sans Serif)
-- ISSN/e-ISSN koşullu gösterim — yalnızca girilen alanlar çıktıya yansır
-- Overleaf'e hazır ZIP çıktısı (`main.tex` + logo + şekiller)
-- Adım adım Overleaf yükleme rehberi
+![Dergi hesabı giriş ekranı](docs/images/login.png)
 
----
+![Özelleştirilebilir dergi tasarımları](docs/images/journal-settings.png)
 
-## Kurulum
+## İlk kullanım
 
-### macOS
+1. **Hesap oluştur** sekmesinden dergi adını, kullanıcı adını ve parolayı belirleyin.
+2. **Dergi ayarları** bölümündeki dört örnekten birini seçin. Seçimden sonra adı, logo, renk, tipografi ve dipnot alanlarını düzenleyin.
+3. Kayıt göstergesinde ayarların kaydedildiğini görün. Sonraki girişinizde bu ayarlar geri gelir.
+4. Yeni makale açın veya Word belgenizi içe aktarın. Makaleye özgü yazar, tarih, cilt/sayı, başlık, özet, etik beyan ve kaynakça bilgilerini kontrol edin.
+5. **ZIP oluştur** ile çıktıyı indirin. Overleaf'te **New Project → Upload Project** yoluyla yükleyin ve derleyiciyi **XeLaTeX** seçin.
 
-1. Yukarıdaki **macOS DMG İndir** butonuna tıklayın.
-2. İndirilen DMG dosyasını açın.
-3. **AI-ditor Plus** simgesini **Applications** klasörüne sürükleyin.
-4. Applications'tan uygulamayı açın.
+Word aktarımı düzenleme başlangıcıdır; resim olarak çizilmiş tablolar, Word şekilleri ve metin kutuları her belgede doğrudan çıkarılamayabilir. İçeriği, başlıkları, tablo sırasını ve görselleri çıktı öncesinde kontrol edin. Eksik etik beyan veya makale lisansı uygulama tarafından kendiliğinden doldurulmaz.
 
-> **⚠️ İlk açılışta güvenlik uyarısı alırsanız:**
-> Uygulamaya **sağ tıklayın → "Aç" → "Aç"** seçin.
-> Ya da: **Sistem Ayarları → Gizlilik ve Güvenlik → "Yine de Aç"**
+## Hesaplar ve veriler nerede?
 
-### Windows
+Hesaplar **bu bilgisayardaki AI-ditor Plus kurulumuna aittir**. E-posta doğrulaması, bulut hesabı, cihazlar arasında otomatik eşitleme veya internet üzerinden ortak düzenleme bulunmaz. Amaç dergi ön ayarlarını ve makale taslaklarını düzenli biçimde saklamaktır. Uygulama yalnızca yerel bilgisayar adresinde çalışır.
 
-1. Yukarıdaki **Windows EXE İndir** butonuna tıklayın.
-2. İndirilen `AIditorPlus_Setup.exe` dosyasını çalıştırın.
-3. Kurulum sihirbazını takip edin.
-4. Masaüstündeki kısayoldan uygulamayı açın.
+Veriler uygulama paketinin dışında tutulduğu için sürüm güncellemesi dergi ayarlarını silmez:
 
----
+| Sistem | Varsayılan veri klasörü |
+| --- | --- |
+| macOS | `~/Library/Application Support/AI-ditor Plus/` |
+| Windows | `%LOCALAPPDATA%/AI-ditor Plus/` |
+| Linux | `$XDG_DATA_HOME/aiditor-plus/` veya `~/.local/share/aiditor-plus/` |
 
-## Kullanım
+Başka bilgisayara geçerken dergi ön ayarlarını ve makale projelerini JSON olarak dışa aktarın, yeni kurulumda hesap oluşturup dosyaları içe aktarın. Tam yerel yedek için uygulama kapalıyken veri klasörünün tamamını kopyalayın. Parolalar açık metin olarak saklanmaz; bu yerel hesap sistemi işletim sistemi düzeyindeki disk erişiminin yerine geçmez. Eski `~/.aiditor_plus/profiles/` dosyaları otomatik silinmez.
 
-### 1. Dergi Bilgilerini Girin
+**JGTTR Formatter bağımsız bir uygulamadır.** AI-ditor Plus farklı veri klasörü, uygulama kimliği ve çalışma alanı kullanır.
 
-Uygulamayı açtığınızda tarayıcıda bir arayüz görünür. **Dergi Ayarları** bölümünden:
-- Dergi adını (Türkçe / İngilizce) girin
-- ISSN ve/veya e-ISSN ekleyin (ikisi de opsiyoneldir)
-- Dergi URL'sini girin
-- Dergi logosunu yükleyin (PNG önerilir)
-- Yazı tipini seçin
+## Kaynak koddan çalıştırma
 
-Sık kullandığınız dergi bilgilerini **"Profil Kaydet"** ile kaydedebilir, sonraki kullanımlarda tek tıkla yükleyebilirsiniz.
+Python 3.11 veya üzeri:
 
-### 2. Makale Bilgilerini Girin
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-desktop.txt
+python app.py
+```
 
-**Makale Bilgileri** bölümünden:
-- Makale başlığını (Türkçe / İngilizce) girin
-- Anahtar kelimeler ve özeti ekleyin
-- Cilt, sayı, sayfa, yıl bilgilerini doldurun
+Windows'ta ortamı `.venv\Scripts\activate` ile etkinleştirin. Sadece tarayıcıda kullanmak için `python app.py --browser`; tarayıcıyı otomatik açmadan başlatmak için `python app.py --no-browser --port 5051` kullanın. Meşgul bir bağlantı noktasındaki başka süreçler sonlandırılmaz.
 
-### 3. Yazarları Ekleyin
+Test verilerini kişisel verilerden ayırmak için `AIDITOR_DATA_DIR` ortam değişkenine ayrı bir klasör verin.
 
-**Yazar Ekle** butonu ile her yazar için:
-- Ünvan (Prof. Dr., Doç. Dr., vb.)
-- Ad Soyad
-- Kurum / Üniversite
-- E-posta ve ORCID numarası
+```sh
+python -m pip install -r requirements-dev.txt
+python -m unittest discover -s tests -q
+python -m playwright install chromium
+python tests/browser_workflow.py
+python tests/browser_races.py
+```
 
-### 4. Bölümleri Oluşturun
+macOS paketi: `bash build_mac.sh` · Windows paketi: `build_windows.bat` (Inno Setup gerektirir). GitHub Actions, değişikliklerde testleri; sürüm etiketlerinde macOS ve Windows paketlerini çalıştırır. Sürüm dosyaları her iki paket ve kontroller başarılı olduğunda yayımlanır.
 
-**Bölüm Ekle** butonu ile makalenizin bölümlerini oluşturun:
-- Ana bölüm (`\section`), alt bölüm (`\subsection`) veya alt-alt bölüm (`\subsubsection`) seçin
-- Bölüm metnini girin
-- Şekil veya tablo eklemek için ilgili butona tıklayın
+## Lisans ve amaç
 
-### 5. Kaynakları Ekleyin
+Bu proje akademik dergi editörlerinin işlerini kolaylaştırmak amacıyla, **kâr amacı güdülmeden** geliştirilmiştir. Yazılım **MIT lisansıyla** yayımlanır. Bu geliştirme amacı MIT'nin verdiği kullanım, değiştirme ve dağıtım haklarına ek bir kısıtlama getirmez. Yazılım lisansı, hazırladığınız makalelerin veya derginizin yayın lisansını belirlemez; makale lisansı ve lisans görseli dergi tarafından seçilir.
 
-**Kaynaklar** bölümüne APA formatında referanslarınızı girin.
-
-### 6. ZIP Oluşturun ve Overleaf'e Yükleyin
-
-**ZIP İndir** butonuna tıklayın. İndirilen ZIP dosyasını Overleaf'e yüklemek için:
-
-1. [overleaf.com](https://overleaf.com) → **New Project** → **Upload Project**
-2. İndirilen ZIP dosyasını seçin.
-3. Proje yüklendikten sonra: **Menu** → **Compiler** → **XeLaTeX** seçin.
-4. **Recompile** butonuna tıklayın.
-
-> ⚠️ Derleyici olarak mutlaka **XeLaTeX** seçilmelidir. pdfLaTeX ile derleme başarısız olur.
-
----
-
-## Gereksinimler
-
-- Python veya başka bir yazılım kurmanıza **gerek yoktur** — her şey uygulama içinde gömülüdür.
-- Overleaf üzerinde derleme için ücretsiz bir [Overleaf hesabı](https://overleaf.com) yeterlidir.
-
----
-
-## Lisans
-
-[MIT License](LICENSE) — Telif hakkı © 2025 Alparslan Güvenç
+Copyright © 2025–2026 Alparslan Güvenç.
