@@ -21,9 +21,12 @@ from werkzeug.utils import secure_filename
 
 from account_store import AccountStore, DuplicateUsername, RevisionConflict, check_id, data_directory
 from journal_templates import TEMPLATES, default_settings, normalize_settings
+from citation_links import citation_report
+from page_furniture import TOKENS, RUNNING_DEFAULTS
+from docx_export import generate_docx_from_form, DOCX_MIME
 from formatter import generate_latex_from_form, extract_form_data_from_docx, _normalize_table_model
 
-APP_VERSION = '2.0.3'
+APP_VERSION = '2.1.0'
 
 
 def resource_path(relative_path):
@@ -36,6 +39,7 @@ app.config.update(MAX_CONTENT_LENGTH=32 * 1024 * 1024, SESSION_COOKIE_HTTPONLY=T
                   SESSION_REFRESH_EACH_REQUEST=False)
 app.secret_key = AccountStore().session_secret()
 _zip_store = {}
+_docx_export_store = {}
 _docx_import_store = {}
 _cache_lock = threading.RLock()
 
@@ -330,7 +334,7 @@ def local_requests_only():
         return jsonify(ok=False, error='Devam etmek için dergi hesabına giriş yapın.', code='login_required'), 401
     # Resource tags/download links cannot send custom headers; their cache owner
     # still has to match the authenticated account before any bytes are returned.
-    resource = request.path.startswith('/download/') or re.fullmatch(r'/import_docx/[^/]+/image/\d+', request.path)
+    resource = request.path.startswith(('/download/', '/download_docx/')) or re.fullmatch(r'/import_docx/[^/]+/image/\d+', request.path)
     if not resource and request.headers.get('X-Aiditor-Account') != user['id']:
         return jsonify(ok=False, error='Bu penceredeki dergi hesabı değişti. Sayfayı yenileyerek doğru hesapla devam edin.', code='account_changed'), 409
 
@@ -370,7 +374,7 @@ def storage_error(error):
 
 @app.route('/')
 def index():
-    return render_template('index.html', app_version=APP_VERSION)
+    return render_template('index.html', app_version=APP_VERSION, running_defaults=RUNNING_DEFAULTS, running_tokens=TOKENS)
 
 
 @app.route('/license')
@@ -511,8 +515,7 @@ def generation_assets(saved):
     return assets
 
 
-@app.route('/process_form', methods=['POST'])
-def process_form():
+def generation_inputs():
     data = parse_json(request.form.get('data'))
     validate_form(data)
     figures = read_figure_files()
@@ -522,6 +525,12 @@ def process_form():
     saved = account_store().journal(session['account_id'])
     settings = normalize_settings(parse_json(request.form.get('journal_settings'), saved['settings']))
     assets = generation_assets(saved['assets'])
+    return data, figures, settings, assets
+
+
+@app.route('/process_form', methods=['POST'])
+def process_form():
+    data, figures, settings, assets = generation_inputs()
     # Controlled names prevent uploaded figures from colliding with journal assets.
     settings['logo_stem'], settings['cc_logo_stem'] = 'journal_logo', 'journal_license'
     try:
@@ -543,12 +552,35 @@ def process_form():
             ).encode('utf-8'))
         key = str(uuid.uuid4())
         cache_put(_zip_store, key, session['account_id'], buf.getvalue())
-        return jsonify(ok=True, key=key)
+        return jsonify(ok=True, key=key, citations=citation_report(data, settings['link_citations']))
     except (ValueError, HTTPException):
         raise
     except Exception:
         app.logger.exception('Article generation failed')
         return jsonify(ok=False, error='Çıktı oluşturulamadı; form ve tablo alanlarını kontrol edin.'), 500
+
+
+@app.route('/process_docx', methods=['POST'])
+def process_docx():
+    data, figures, settings, assets = generation_inputs()
+    try:
+        blob = generate_docx_from_form(data, figures, settings, assets)
+        key = str(uuid.uuid4())
+        cache_put(_docx_export_store, key, session['account_id'], blob)
+        return jsonify(ok=True, key=key, citations=citation_report(data, settings['link_citations']))
+    except (ValueError, HTTPException):
+        raise
+    except Exception:
+        app.logger.exception('Word generation failed')
+        return jsonify(ok=False, error='Word çıktısı oluşturulamadı. Makale ve görsel alanlarını kontrol edin.'), 500
+
+
+@app.route('/download_docx/<key>')
+def download_docx(key):
+    blob = cache_get(_docx_export_store, key)
+    if blob is None:
+        return jsonify(ok=False, error='Word dosyası bulunamadı; çıktıyı bu dergi hesabında yeniden oluşturun.'), 404
+    return send_file(io.BytesIO(blob), mimetype=DOCX_MIME, as_attachment=True, download_name='aiditor_article.docx')
 
 
 @app.route('/download/<key>')

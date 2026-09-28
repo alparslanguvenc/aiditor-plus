@@ -22,6 +22,7 @@ ASSET = {'name': 'journal.png', 'data': 'data:image/png;base64,' + base64.b64enc
 def make_setup(tmp_path):
     application.app.config.update(TESTING=True, AIDITOR_DATA_DIR=tmp_path, SECRET_KEY=AccountStore(tmp_path).session_secret())
     application._zip_store.clear()
+    application._docx_export_store.clear()
     application._docx_import_store.clear()
     return (application.app, tmp_path)
 

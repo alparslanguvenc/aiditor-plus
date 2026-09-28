@@ -51,6 +51,16 @@ def main():
                 with zipfile.ZipFile(zip_path) as archive:
                     assert archive.testzip() is None
                     assert 'Native close recovery' in archive.read('main.tex').decode()
+                from docx import Document
+                word_path = Path(directory) / 'native-article.docx'
+                window.create_file_dialog = lambda *args, **kwargs: [str(word_path)]
+                window.evaluate_js("(async()=>{await doGenerate('docx');document.getElementById('dl-docx').click();})()")
+                deadline=time.monotonic()+30
+                while time.monotonic()<deadline:
+                    if window.evaluate_js("document.getElementById('docx-download-status').textContent") == 'Word dosyası kaydedildi.':break
+                    time.sleep(.1)
+                else:raise AssertionError(window.evaluate_js("document.getElementById('docx-download-status').textContent + document.getElementById('err-panel').textContent"))
+                assert Document(word_path).core_properties.title=='Native close recovery'
                 from webview.platforms.cocoa import BrowserView
                 from PyObjCTools import AppHelper
                 AppHelper.callAfter(BrowserView.instances[window.uid].window.performClose_, None)
@@ -65,7 +75,7 @@ def main():
         assert user
         assert store.journal(user['id'])['settings']['footer_text']=='Pencere kapanırken korunan dergi notu'
         assert store.articles(user['id'])[0]['title']=='Native close recovery'
-        print('PASS: native WebKit login, authenticated ZIP button/bridge/disk/CRC, autosave and close')
+        print('PASS: native WebKit login, authenticated ZIP and DOCX buttons/bridge/disk/CRC, autosave and close')
 
 
 if __name__=='__main__':main()

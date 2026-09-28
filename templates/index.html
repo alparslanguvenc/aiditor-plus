@@ -280,7 +280,7 @@ textarea { resize:vertical; }
 <a class="skip-link" href="#main-workspace">Çalışma alanına geç</a>
 <nav class="navbar navbar-dark">
  <div class="container shell-width">
-  <a class="brand-lockup" href="/" aria-label="AI-ditor Plus ana sayfa"><img src="/static/brand.svg" alt="" width="42" height="42"><span><span class="navbar-brand">AI-ditor <b>Plus</b><small>2.0</small></span><span class="brand-subtitle">Derginize ait bir çalışma alanı.</span></span></a>
+  <a class="brand-lockup" href="/" aria-label="AI-ditor Plus ana sayfa"><img src="/static/brand.svg" alt="" width="42" height="42"><span><span class="navbar-brand">AI-ditor <b>Plus</b><small>{{ app_version }}</small></span><span class="brand-subtitle">Derginize ait bir çalışma alanı.</span></span></a>
   <div id="account-controls" hidden><span id="account-name"></span><button type="button" id="logout-button" class="btn btn-sm btn-outline-light">Çıkış yap</button></div>
  </div>
 </nav>
@@ -305,7 +305,7 @@ textarea { resize:vertical; }
  <section id="journal-pane" role="tabpanel" aria-labelledby="journal-tab" hidden>
   <div class="setup-heading"><div><span class="eyebrow">01 / BAŞLANGIÇ DÜZENİ</span><h2>Bir sayfa düzeniyle başlayın</h2><p>Örnek bir görünüm seçin, ardından tüm ayrıntıları derginize göre düzenleyin. Dergi adı ve yüklediğiniz logolar korunur.</p></div></div>
   <div id="template-gallery" class="template-gallery" role="group" aria-label="Örnek ilk sayfa düzenleri"></div>
-  <p class="preview-note">Bu görseller yerleşimi gösterir. Makalenizin son sayfa görünümünü oluşturulan LaTeX dosyasını derleyerek kontrol edin.</p>
+  <p class="preview-note">Bu görseller yerleşimi gösterir. Son görünümü Word belgesinde veya derlenen PDF üzerinde kontrol edin.</p>
   <div class="setup-grid"><form id="journal-form" class="journal-form"><div class="settings-section"><span class="eyebrow">02 / DERGİ KİMLİĞİ</span><h2>Size ait ayrıntılar</h2><div class="row g-3">
    <div class="col-md-6"><label for="js-name-tr">Dergi adı · Türkçe</label><input id="js-name-tr" class="form-control" maxlength="250" placeholder="Derginizin Türkçe adı"></div><div class="col-md-6"><label for="js-name-en">Dergi adı · İngilizce</label><input id="js-name-en" class="form-control" maxlength="250" placeholder="Journal name in English"></div>
    <div class="col-md-3"><label for="js-issn-print">Basılı ISSN</label><input id="js-issn-print" class="form-control" placeholder="0000-0000"></div><div class="col-md-3"><label for="js-issn-online">Elektronik ISSN</label><input id="js-issn-online" class="form-control" placeholder="0000-0000"></div><div class="col-md-6"><label for="js-url">Dergi web adresi</label><input id="js-url" type="url" class="form-control" placeholder="https://derginiz.org"></div>
@@ -315,12 +315,31 @@ textarea { resize:vertical; }
   <div class="settings-section"><span class="eyebrow">03 / SAYFA TASARIMI</span><h2>Yerleşim ve tipografi</h2><div class="row g-3">
    <div class="col-md-6"><label for="js-font">Yazı tipi</label><select id="js-font" class="form-select"><option>Palatino Linotype</option><option>Times New Roman</option><option>Century</option><option>Calibri</option><option>Sans Serif</option><option>Latin Modern</option></select><small>Çıktıda Overleaf uyumlu yazı tipi eşdeğerleri kullanılır.</small></div>
    <div class="col-md-3"><label for="js-body-size">Gövde puntosu</label><select id="js-body-size" class="form-select"><option value="10">10 punto</option><option value="11">11 punto</option><option value="12">12 punto</option></select></div><div class="col-md-3"><label for="js-accent-color">Vurgu rengi</label><input id="js-accent-color" type="color" class="form-control form-control-color" value="#176B6A"></div>
-   <div class="col-md-6"><label for="js-header-layout">Üst bilgi yerleşimi</label><select id="js-header-layout" class="form-select"><option value="classic">Klasik · logo ve çift dil</option><option value="contemporary">Çağdaş · vurgu bandı</option><option value="centered">Ortalanmış · simetrik başlık</option><option value="minimal">Sade · yalın üst bilgi</option></select></div>
+   <div class="col-md-6"><label for="js-header-layout">Kapak üst yerleşimi</label><select id="js-header-layout" class="form-select"><option value="classic">Klasik · logo ve çift dil</option><option value="contemporary">Çağdaş · vurgu bandı</option><option value="centered">Ortalanmış · simetrik başlık</option><option value="minimal">Sade · yalın üst bilgi</option></select></div>
    <div class="col-md-6"><label for="js-first-page-fit">Varsayılan ilk sayfa yerleşimi</label><select id="js-first-page-fit" class="form-select"><option value="auto">Otomatik sığdır</option><option value="compact">Sıkı yerleşim</option><option value="dense">Çok sıkı yerleşim</option></select><small>Yeni makalelere uygulanır; her makalede ayrıca değiştirilebilir.</small></div>
    <div class="col-md-4"><label for="js-logo-height">Logo yüksekliği · cm</label><input id="js-logo-height" type="number" min="0.5" max="3.5" step="0.1" class="form-control" value="2.3"></div><div class="col-md-4"><label for="js-corr-marker">Sorumlu yazar işareti</label><select id="js-corr-marker" class="form-select"><option value="*">* Yıldız</option><option value="†">† Hançer</option><option value="‡">‡ Çift hançer</option><option value="§">§ Paragraf</option><option value="¶">¶ Pilcrow</option><option value="#"># Kare</option><option value="★">★ Dolu yıldız</option><option value="✉">✉ Mektup</option></select></div><div class="col-md-4"><label for="js-doi-position">DOI konumu</label><select id="js-doi-position" class="form-select"><option value="bottom">İlk sayfanın altında</option><option value="top">Üst bilgi alanında</option></select></div>
    <div class="col-12"><label class="check-label"><input type="checkbox" id="js-english-only" class="form-check-input"> Yalnızca İngilizce kapak ve etiketler kullan</label></div>
   </div></div>
-  <div class="settings-section"><span class="eyebrow">04 / DİPNOT VE LİSANS</span><h2>Sayfanın altındaki bilgiler</h2><div class="row g-3"><div class="col-md-5"><label for="js-footer-layout">Alt bilgi düzeni</label><select id="js-footer-layout" class="form-select"><option value="full">Ayrıntılı · tüm bilgiler</option><option value="compact">Kısa · daha az boşluk</option><option value="minimal">Sade · temel bilgiler</option></select></div><div class="col-md-7"><label for="js-footer-text">Derginin sabit dipnot / lisans metni</label><textarea id="js-footer-text" class="form-control" rows="3" maxlength="2000" placeholder="Derginizin yayın ve lisans bilgisi…"></textarea></div></div><small>Makale başlık dipnotu ve etik beyanı, ilgili makalenin kapak alanında girilir.</small></div>
+  <div class="settings-section"><span class="eyebrow">04 / DİPNOT VE LİSANS</span><h2>Sayfanın altındaki bilgiler</h2><div class="row g-3"><div class="col-md-5"><label for="js-footer-layout">Kapak dipnot düzeni</label><select id="js-footer-layout" class="form-select"><option value="full">Ayrıntılı · tüm bilgiler</option><option value="compact">Kısa · daha az boşluk</option><option value="minimal">Sade · temel bilgiler</option></select></div><div class="col-md-7"><label for="js-footer-text">Derginin sabit dipnot / lisans metni</label><textarea id="js-footer-text" class="form-control" rows="3" maxlength="2000" placeholder="Derginizin yayın ve lisans bilgisi…"></textarea></div></div><small>Makale başlık dipnotu ve etik beyanı, ilgili makalenin kapak alanında girilir.</small></div>
+
+<div class="settings-section running-settings"><span class="eyebrow">05 / SAYFA ÜST VE ALT BİLGİLERİ</span><h2>Her sayfaya ait ayrıntılar</h2>
+<p>Bu ayarlar Word ve LaTeX çıktılarında kullanılır. Tek/çift seçimi, makalenin başlangıç sayfa numarasına göre uygulanır. Kapaktaki yazar, etik beyan ve lisans bilgileri ayrıca korunur.</p>
+{% for kind, label in [('header','Üst bilgi'), ('footer','Alt bilgi')] %}
+<fieldset class="running-group" data-running-kind="{{kind}}"><legend>{{label}}</legend><div class="row g-3">
+<div class="col-md-6"><label for="js-{{kind}}_mode">Sayfalarda kullanım</label><select class="form-select" id="js-{{kind}}_mode" data-journal-setting="{{kind}}_mode"><option value="standard">Mevcut düzen</option><option value="same">Tüm sayfalarda aynı</option><option value="odd_even">Tek ve çift sayfalarda farklı</option><option value="none">Gizle</option></select></div>
+<div class="col-md-6"><label for="js-{{kind}}_first_mode">İlk sayfa</label><select class="form-select" id="js-{{kind}}_first_mode" data-journal-setting="{{kind}}_first_mode"><option value="none">İlk sayfada gösterme</option><option value="inherit">Sayfa düzenini uygula</option><option value="custom">İlk sayfaya özel</option></select></div>
+{% for suffix, title in [('', 'Ortak / tek sayfa'), ('_even','Çift sayfa'), ('_first','İlk sayfa')] %}
+<div class="col-12 running-fields" data-running-variant="{{suffix}}"><h4>{{title}}</h4><div class="row g-2">
+{% for slot, position in [('left','Sol'), ('center','Orta'), ('right','Sağ')] %}
+<div class="col-md-4"><label for="js-{{kind}}{{suffix}}_{{slot}}">{{position}}</label><textarea rows="2" maxlength="180" class="form-control" id="js-{{kind}}{{suffix}}_{{slot}}" data-journal-setting="{{kind}}{{suffix}}_{{slot}}" data-running-slot></textarea></div>
+{% endfor %}</div></div>{% endfor %}
+<div class="col-md-6"><label for="js-{{kind}}_font_size">Yazı boyutu</label><select class="form-select" id="js-{{kind}}_font_size" data-journal-setting="{{kind}}_font_size">{% for size in ['7','8','9','10'] %}<option value="{{size}}">{{size}} punto</option>{% endfor %}</select></div>
+<div class="col-md-6"><label for="js-{{kind}}_rule">Ayırıcı çizgi</label><select class="form-select" id="js-{{kind}}_rule" data-journal-setting="{{kind}}_rule"><option value="none">Çizgisiz</option><option value="line">İnce çizgi</option></select></div>
+</div></fieldset>{% endfor %}
+<p class="mt-3 mb-2">Bir metin alanını seçip otomatik bilgi ekleyin:</p><div class="running-tokens">{% for token,label in running_tokens.items() %}<button class="btn btn-sm btn-outline-secondary" type="button" data-running-token="{{token}}">{{label}}</button>{% endfor %}</div><small id="running-token-status" role="status">Örneğin {dergi} — {yil}, Cilt {cilt} · Sayfa {sayfa}. En çok 180 karakter ve 3 satır.</small>
+<div class="running-previews" id="running-previews" aria-label="Sayfa üst ve alt bilgi taslakları"></div><small>Taslaklar temsili sayfa numaralarıyla gösterilir. Gerçek çıktı makalenin bilgilerini kullanır. Çift sayıdan başlayan belgelerde LibreOffice tek/çift düzenini farklı yorumlayabilir; son kontrolü Word veya LaTeX PDF üzerinde yapın.</small>
+</div>
+<div class="settings-section"><span class="eyebrow">06 / ATIF BAĞLANTILARI</span><h2>Metinden kaynakçaya</h2><label><input type="checkbox" class="form-check-input" id="js-link-citations" checked> Metin içi atıfları kaynakçadaki ilgili kayda bağla</label><p class="mt-2">APA yazar–yıl biçiminde tekil olarak eşleşen atıflar Word ve PDF içinde tıklanabilir olur. Örneğin (Yılmaz, 2020), Kaya ve Demir (2021), Smith et al. (2022). Belirsiz eşleşmeler bağlantısız bırakılır. Kaynakçada DOI veya web adresi varsa oradan yayına ulaşılır. Kaynak doğrulaması yapmaz; kaynakları düzeltmez.</p></div>
   <div class="journal-savebar"><div><span id="journal-save-status" role="status" aria-live="polite">Ayarlar yükleniyor…</span><small>Değişiklikler otomatik kaydedilir.</small></div><button type="submit" class="btn btn-jgttr" id="save-journal">Ayarları kaydet</button><button type="button" id="journal-reload" class="btn btn-outline-secondary" hidden>Sunucudaki ayarları yükle</button></div>
   </form>
   <aside class="setup-aside"><div class="preview-card"><span class="eyebrow">CANLI TASARIM TASLAĞI</span><div id="live-preview"></div><p>Dergi kimliğiniz ve görsel tercihleriniz burada görünür.</p></div><div class="portable-card"><h3>Ayarlarınız taşınabilir.</h3><p>Dergi adı, düzen, dipnot ve logoları tek dosyada yedekleyin.</p><button type="button" id="export-preset" class="btn btn-outline-secondary w-100">Dergi ayarlarını yedekle</button><button type="button" id="import-preset-button" class="btn btn-link w-100">Dergi ayarlarını içe aktar</button><input type="file" id="import-preset" accept=".json" hidden><small>Makale JSON yedeği, Makaleler alanından alınır.</small></div></aside>
@@ -563,6 +582,7 @@ textarea { resize:vertical; }
     <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('project-file').click()">Makale yedeği aç</button>
     <input id="project-file" type="file" accept=".json" hidden onchange="loadProject(this.files[0])">
   </div>
+  <button id="btn-docx" class="btn btn-outline-primary btn-lg px-4 py-3 me-2 mb-2" onclick="doGenerate('docx')"><i class="bi bi-file-earmark-word me-2"></i>Word (.docx) oluştur</button>
   <button id="btn-gen" class="btn btn-jgttr btn-lg px-5 py-3" onclick="doGenerate()">
     <i class="bi bi-gear-fill me-2"></i>LaTeX Oluştur &amp; ZIP İndir
   </button>
@@ -571,14 +591,18 @@ textarea { resize:vertical; }
 <!-- Result -->
 <div id="result-panel" class="card mb-4">
   <div class="card-header" style="background:#198754;border-radius:12px 12px 0 0;color:#fff;font-weight:600">
-    <i class="bi bi-check-circle-fill me-2"></i>Tamamlandı — ZIP hazır
+    <i class="bi bi-check-circle-fill me-2"></i><span id="result-title">Tamamlandı — ZIP hazır</span>
   </div>
   <div class="card-body text-center py-4">
     <button id="dl-link" type="button" class="btn btn-success btn-lg px-4" onclick="downloadArticleZip()">
       <i class="bi bi-download me-2"></i>ZIP İndir
     </button>
+    <button id="dl-docx" type="button" class="btn btn-success btn-lg px-4" onclick="downloadArticleDocx()" hidden>Word (.docx) indir</button>
+    <p id="docx-download-status" class="mt-3 mb-0" role="status" aria-live="polite"></p>
+    <p id="citation-result" class="mt-3 mb-0"></p>
+    <p id="word-next-steps" class="mt-3" hidden>Word belgesini açıp doğrudan düzenleyebilirsiniz. Yazı tipi ve Word sürümüne göre satır ve sayfa sonları değişebilir. Bağlantıları açmak için Word ayarınıza göre ⌘/Ctrl tuşuyla tıklamanız gerekebilir.</p>
     <p id="zip-download-status" class="mt-3 mb-0" role="status" aria-live="polite"></p>
-    <div class="mt-4 p-3 text-start" style="background:#fffde7;border-radius:8px;font-size:.83rem;color:#555">
+    <div id="latex-next-steps" class="mt-4 p-3 text-start" style="background:#fffde7;border-radius:8px;font-size:.83rem;color:#555">
       <strong>Sonraki adımlar:</strong>
       <ol class="mb-0 mt-1">
         <li>ZIP dosyasını indirin.</li>
@@ -1921,10 +1945,11 @@ function collectFormData() {
     };
 }
 
-async function doGenerate() {
-  if (docxImporting) return;
+async function doGenerate(kind = 'zip') {
+  if (docxImporting || document.getElementById('btn-gen').disabled) return;
   const btn = document.getElementById('btn-gen');
   btn.disabled = true;
+  document.getElementById('btn-docx').disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Oluşturuluyor...';
   document.getElementById('result-panel').style.display = 'none';
   document.getElementById('err-panel').style.display = 'none';
@@ -1947,12 +1972,21 @@ async function doGenerate() {
       fd.append('fig_' + uid, file, 'fig_' + uid + '.' + ext);
     }
 
-    const resp = await aiditorFetch('/process_form', { method:'POST', body:fd });
+    const resp = await aiditorFetch(kind === 'docx' ? '/process_docx' : '/process_form', { method:'POST', body:fd });
     if (!resp.headers.get('Content-Type')?.includes('application/json')) throw new Error('Uygulama servisi geçersiz yanıt verdi. Güncel uygulamayı yeniden başlatın.');
     const res = await resp.json();
     if(!resp.ok || !res.ok) throw new Error(res.error || 'Bilinmeyen hata');
 
-    document.getElementById('dl-link').dataset.downloadUrl = '/download/' + res.key;
+    const word = kind === 'docx';
+    document.getElementById(word ? 'dl-docx' : 'dl-link').dataset.downloadUrl = (word ? '/download_docx/' : '/download/') + res.key;
+    document.getElementById('dl-link').hidden = word;
+    document.getElementById('dl-docx').hidden = !word;
+    document.getElementById('latex-next-steps').hidden = word;
+    document.getElementById('word-next-steps').hidden = !word;
+    document.getElementById('result-title').textContent = word ? 'Tamamlandı — Word belgesi hazır' : 'Tamamlandı — ZIP hazır';
+    document.getElementById('docx-download-status').textContent = '';
+    const report = res.citations;
+    document.getElementById('citation-result').textContent = report?.enabled ? `${report.linked_in_body} metin içi atıf kaynakçaya bağlandı. ${report.ambiguous_references} belirsiz, ${report.unrecognized_references} tanınmayan kaynak kaydı. Bağlantısız atıfları son kontrolde gözden geçirin.` : 'Atıf bağlantıları kapalı.';
     document.getElementById('zip-download-status').textContent = '';
     document.getElementById('result-panel').style.display = 'block';
     document.getElementById('result-panel').scrollIntoView({ behavior:'smooth' });
@@ -1964,6 +1998,7 @@ async function doGenerate() {
     ep.scrollIntoView({behavior:'smooth', block:'center'});
   } finally {
     btn.disabled = false;
+    document.getElementById('btn-docx').disabled = false;
     btn.innerHTML = '<i class="bi bi-gear-fill me-2"></i>LaTeX Oluştur &amp; ZIP İndir';
   }
 }
@@ -2009,6 +2044,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+<script>window.runningDefaults = {{ running_defaults | tojson }};</script>
+<script src="/static/page-settings.js"></script>
 <script src="/static/workspace.js"></script>
 <script src="/static/downloads.js"></script>
 <script src="/static/projects.js"></script>

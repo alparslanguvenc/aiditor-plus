@@ -1,5 +1,15 @@
 # Sürüm geçmişi
 
+## 2.1.0 — 2026-09-28
+
+Dört dergi düzeniyle doğrudan düzenlenebilir Word (.docx) çıktısı eklendi. Metinler, başlıklar, birleşik hücreli tablolar, kaynakça ve üst/alt bilgiler Word nesneleri olarak üretilir. PNG/JPG ve PDF görseller desteklenir; PDF görsellerin ilk sayfası Word'e görüntü olarak eklenir. Oturumlu indirme ve doğrulanmış, atomik yerel dosya kaydı Word için de kullanılır.
+
+Üst ve alt bilgiler için ortak/tek/çift sayfa seçimi, ilk sayfaya özel içerik, sol/orta/sağ alanları, otomatik bilgi etiketleri, sayfa numarası, punto ve çizgi ayarları eklendi. Ayarlar hesapta ve JSON ön ayar yedeklerinde saklanır; LaTeX ve Word aynı tercihleri kullanır.
+
+APA yazar–yıl atıfları tekil eşleşmede kaynakça kaydına bağlanır. Word yer işaretleri ve PDF içi bağlantılar kullanılır; kaynakların kendi DOI/URL bağlantıları korunur. Belirsiz veya tanınmayan kaynaklar için eşleşme özeti gösterilir. Kaynak metni değiştirilmez. Dergi ayarlarında kapatılabilir.
+
+Yeni PDF görsel bileşeniyle macOS paketinin asgari sistem sürümü 13 oldu. Word ile LaTeX arasında yazı tipi, satır/sayfa sonu ve çok uzun kapak düzeni farklılıkları olabilir. Mevcut hesap, makale ve LaTeX/ZIP akışı korunur. JGTTR Formatter değiştirilmez.
+
 ## 2.0.3 — 2026-09-28
 
 Mac masaüstü uygulamasında ZIP indirilirken oturum bilgisinin kaybolması ve giriş hatasının `.zip` uzantısıyla kaydedilmesi düzeltildi. İndirme açık oturum üzerinden yapılır; içerik türü ve ZIP imzası kontrol edilir. Masaüstünde arşiv bütünlüğü doğrulanır ve işletim sisteminin kaydetme penceresiyle dosyaya yazılır. İptal veya yazma hatasında önceki dosya korunur. Hesaplar ve kayıtlı dergi/makale verileri değişmez.

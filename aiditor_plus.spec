@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 # PyInstaller 6.x uyumlu — macOS .app bundle
 import os
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_data_files, copy_metadata
 BASE = os.path.dirname(os.path.abspath(SPEC))
 
 a = Analysis(
@@ -12,9 +12,10 @@ a = Analysis(
         (os.path.join(BASE, 'templates'), 'templates'),
         (os.path.join(BASE, 'static'), 'static'),
         (os.path.join(BASE, 'LICENSE'), '.'),
+        (os.path.join(BASE, 'THIRD_PARTY_NOTICES.md'), '.'),
         (os.path.join(BASE, 'aiditor_plus_icon.png'), '.'),
         (os.path.join(BASE, 'formatter.py'), '.'),
-    ] + collect_data_files('webview'),
+    ] + collect_data_files('webview') + collect_data_files('docx') + collect_data_files('pypdfium2') + collect_data_files('pypdfium2_raw') + copy_metadata('pypdfium2'),
     hiddenimports=[
         'webview', 'webview.platforms.cocoa', 'desktop', 'sqlite3', 'account_store', 'journal_templates',
         'flask', 'flask.templating',
@@ -27,6 +28,9 @@ a = Analysis(
     ],
     hookspath=[],
     excludes=['tkinter', 'matplotlib', 'numpy', 'pandas'],
+    # python-docx resolves header/footer XML through parts/../templates.
+    # Keep the physical package directories as well as the archived modules.
+    module_collection_mode={'docx': 'pyz+py'},
     noarchive=False,
 )
 
@@ -56,9 +60,9 @@ app = BUNDLE(
     info_plist={
         'CFBundleName':               'AI-ditor Plus',
         'CFBundleDisplayName':        'AI-ditor Plus',
-        'CFBundleVersion':            '2.0.3',
-        'CFBundleShortVersionString': '2.0.3',
+        'CFBundleVersion':            '2.1.0',
+        'CFBundleShortVersionString': '2.1.0',
         'NSHighResolutionCapable':    True,
-        'LSMinimumSystemVersion':     '11.0',
+        'LSMinimumSystemVersion':     '13.0',
     },
 )

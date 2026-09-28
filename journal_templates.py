@@ -5,6 +5,7 @@ The application itself is distributed under the MIT licence.
 """
 import math
 import re
+from page_furniture import RUNNING_DEFAULTS, normalize_running
 from urllib.parse import urlsplit
 
 
@@ -34,7 +35,7 @@ _DEFAULTS = {
     'english_only': False, 'doi_position': 'bottom', 'logo_stem': 'journal_logo',
     'cc_logo_stem': 'license_logo', 'footer_text': '', 'first_page_fit': 'auto',
     'template_id': 'classic', 'header_layout': 'classic', 'footer_layout': 'full',
-    'show_logo': True, 'show_cc_logo': True,
+    'show_logo': True, 'show_cc_logo': True, 'link_citations': True,
 }
 _FONT_ALIASES = {
     'palatino linotype': 'texgyrepagella', 'palatino': 'texgyrepagella',
@@ -47,7 +48,7 @@ _FONT_ALIASES = {
 
 
 def default_settings():
-    return dict(_DEFAULTS)
+    return {**_DEFAULTS, **RUNNING_DEFAULTS}
 
 
 def normalize_settings(raw):
@@ -84,7 +85,7 @@ def normalize_settings(raw):
     if font not in {'texgyrepagella', 'texgyretermes', 'texgyrebonum', 'texgyreheros', 'carlito', 'latinmodern'}:
         raise ValueError('Desteklenmeyen yazı tipi.')
     result['font_family'] = font
-    for key in ('english_only', 'show_logo', 'show_cc_logo'):
+    for key in ('english_only', 'show_logo', 'show_cc_logo', 'link_citations'):
         if not isinstance(result[key], bool):
             raise ValueError(f'{key} doğru/yanlış değeri olmalıdır.')
     for key, maximum in {'journal_name_tr': 250, 'journal_name_en': 250, 'issn_print': 30,
@@ -118,4 +119,5 @@ def normalize_settings(raw):
             raise ValueError('Logo dosyası için güvenli bir ad gereklidir.')
     if result['corresponding_marker'] not in {'*', '†', '‡', '§', '¶', '#', '★', '✉'}:
         raise ValueError('Desteklenmeyen sorumlu yazar işareti.')
+    result.update(normalize_running(raw))
     return result

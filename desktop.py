@@ -7,6 +7,8 @@ from pathlib import Path
 import tempfile
 import threading
 import zipfile
+import zlib
+from lxml.etree import XMLSyntaxError
 
 
 class ArticleDownloads:
@@ -17,6 +19,12 @@ class ArticleDownloads:
         self._lock = threading.Lock()
 
     def save_article_zip(self, encoded):
+        return self._save_package(encoded, 'zip')
+
+    def save_article_docx(self, encoded):
+        return self._save_package(encoded, 'docx')
+
+    def _save_package(self, encoded, kind):
         if not self._lock.acquire(blocking=False):
             return {'ok': False, 'error': 'Açık olan kaydetme penceresini tamamlayın.'}
         temporary = None
@@ -28,14 +36,21 @@ class ArticleDownloads:
                 with zipfile.ZipFile(io.BytesIO(blob)) as archive:
                     entries = archive.infolist()
                     if (len(entries) > 5000 or sum(item.file_size for item in entries) > 128 * 1024 * 1024
-                            or 'main.tex' not in archive.namelist() or archive.testzip() is not None):
+                            or archive.testzip() is not None):
                         raise ValueError
-            except (ValueError, binascii.Error, zipfile.BadZipFile, RuntimeError, NotImplementedError) as exc:
-                raise ValueError('Geçerli bir LaTeX ZIP dosyası alınamadı. Çıktıyı yeniden oluşturun.') from exc
+                    names = set(archive.namelist())
+                    required = {'main.tex'} if kind == 'zip' else {'[Content_Types].xml', '_rels/.rels', 'word/document.xml'}
+                    if not required.issubset(names):
+                        raise ValueError
+                    if kind == 'docx':
+                        from docx import Document
+                        Document(io.BytesIO(blob))
+            except (ValueError, binascii.Error, zipfile.BadZipFile, RuntimeError, NotImplementedError, KeyError, zlib.error, XMLSyntaxError) as exc:
+                raise ValueError('Geçerli bir çıktı dosyası alınamadı. Çıktıyı yeniden oluşturun.') from exc
             import webview
             selected = self._window.create_file_dialog(
-                webview.FileDialog.SAVE, save_filename='aiditor_article.zip',
-                file_types=('ZIP arşivi (*.zip)',),
+                webview.FileDialog.SAVE, save_filename='aiditor_article.' + kind,
+                file_types=(('Word belgesi (*.docx)' if kind == 'docx' else 'ZIP arşivi (*.zip)'),),
             )
             if not selected:
                 return {'ok': True, 'cancelled': True}

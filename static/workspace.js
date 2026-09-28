@@ -37,6 +37,7 @@ window.journalWorkspace = (() => {
     corresponding_marker:'js-corr-marker', logo_height_cm:'js-logo-height', doi_position:'js-doi-position',
     header_layout:'js-header-layout', footer_layout:'js-footer-layout', footer_text:'js-footer-text', first_page_fit:'js-first-page-fit',
   };
+  document.querySelectorAll('[data-journal-setting]').forEach(element => { fields[element.dataset.journalSetting] = element.id; });
   let settings = {}, assets = {logo:null,license:null}, templates = [], revision = 0;
   let ready = false, dirty = false, sequence = 0, inFlight = null, timer = null, conflict = false, authMode = 'login';
   let attempt = null, replacementAttempt = null, replacing = false, loading = false;
@@ -54,6 +55,7 @@ window.journalWorkspace = (() => {
   function collect() {
     const next = {...settings};
     for (const [key,id] of Object.entries(fields)) next[key] = byId(id).value;
+    next.link_citations = byId('js-link-citations').checked;
     next.english_only = byId('js-english-only').checked;
     next.logo_height_cm = Number(byId('js-logo-height').value) || 2.3;
     next.body_size = Number(byId('js-body-size').value) || 10;
@@ -64,12 +66,13 @@ window.journalWorkspace = (() => {
   window.collectJournalSettings = collect;
   function apply(next) {
     settings = {...next};
-    const values = {font_family:next.font_family || next.font || 'Palatino Linotype',body_size:10,accent_color:'#176B6A',
+    const values = {...window.runningDefaults, font_family:next.font_family || next.font || 'Palatino Linotype',body_size:10,accent_color:'#176B6A',
       logo_height_cm:2.3,corresponding_marker:'*',doi_position:'bottom',header_layout:next.template_id || 'classic',
       footer_layout:'full',first_page_fit:'auto',...next};
     const fontAliases = {texgyrepagella:'Palatino Linotype',texgyretermes:'Times New Roman',tgschola:'Century',texgyrebonum:'Century',latinmodern:'Latin Modern',carlito:'Calibri',texgyreheros:'Sans Serif'};
     values.font_family = fontAliases[values.font_family] || values.font_family;
     for (const [key,id] of Object.entries(fields)) byId(id).value = values[key] ?? '';
+    byId('js-link-citations').checked = next.link_citations !== false;
     byId('js-english-only').checked = !!next.english_only;
     updateAssets(); renderTemplates(); updatePreview();
   }
@@ -119,7 +122,7 @@ window.journalWorkspace = (() => {
     }
   }
   function updatePreview() {
-    const values=collect();byId('live-preview').replaceChildren(pageSketch(values.header_layout,values,assets.logo));
+    const values=collect();window.updateRunningPreview(values);byId('live-preview').replaceChildren(pageSketch(values.header_layout,values,assets.logo));
     byId('journal-heading').textContent=values.journal_name_tr || values.journal_name_en || aiditorAccount?.display_name || 'Derginiz';
     const layout=(templates.length ? templates : localTemplates).find(item=>item.id===values.template_id)?.name || 'Özel';
     byId('journal-summary').textContent=`${layout} düzen · ${values.font_family || 'Palatino Linotype'} · ${values.body_size || 10} punto. Dergi ayarlarınız yeni girişlerde korunur.`;

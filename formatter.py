@@ -2215,6 +2215,9 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
     fts      = data.get('figtables', [])
     extra    = data.get('extra', {})
     refs_raw = data.get('references', '')
+    from citation_links import CitationIndex
+    citation_refs = sorted([r.strip() for r in refs_raw.splitlines() if r.strip()], key=turkish_sort_key)
+    citations = CitationIndex(citation_refs, js['link_citations'])
 
     # ── Cover fields ──
     tr_title_raw = (cov.get('tr_title', '') or '').strip()
@@ -2333,7 +2336,7 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
                 raw_paras = [content]
 
             for para in raw_paras:
-                body_lines.append(_escape_with_breakable_urls(para))
+                body_lines.append(citations.latex(para, _escape_with_breakable_urls))
                 body_lines.append('')
 
                 # Check if any ft's anchor text is found in this paragraph
@@ -2414,7 +2417,7 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
         r'}' + '\n'
     )
     if refs_lines:
-        items = '\n'.join(r'\item ' + _escape_with_breakable_urls(r) for r in refs_lines)
+        items = '\n'.join(r'\item \hypertarget{aiditor_ref_' + str(i) + '}{}' + _escape_with_breakable_urls(r) for i, r in enumerate(refs_lines))
         refs_tex = _ref_env_open + items + '\n' + r'\end{list}'
     else:
         refs_tex = ''
@@ -2595,7 +2598,8 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
     if font_name == 'carlito':
         # Carlito has no small-cap face; uppercase labels remain readable.
         tex = tex.replace(r'\scshape', r'\upshape')
-    return tex
+    from latex_furniture import apply_running_latex
+    return apply_running_latex(tex, data, js, escape)
 
 
 def build_zip_form(tex_content: str, logo_src: str, figure_file_bytes: dict,
