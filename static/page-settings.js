@@ -20,7 +20,7 @@
       }
     }
     const holder = document.getElementById('running-previews'); holder.replaceChildren();
-    const samples = {dergi:values.journal_name_tr || values.journal_name_en || 'Dergi adı', dergi_en:values.journal_name_en || 'Journal name', baslik:'Örnek makale başlığı',kisa_baslik:'Örnek kısa başlık',yazarlar:'Örnek ve Smith',yil:'2026',cilt:'4',sayi:'2',doi:'10.xxxx/örnek',issn:values.issn_online || values.issn_print || 'ISSN'};
+    const samples = {dergi:values.journal_name_tr || values.journal_name_en || 'Dergi adı', dergi_en:values.journal_name_en || 'Journal name', baslik:'Örnek makale başlığı',kisa_baslik:'Örnek kısa başlık',yazarlar:'Örnek ve Smith',yil:'2026',cilt:'4',sayi:'2',sayfa_araligi:'1–15',doi:'10.xxxx/örnek',issn:values.issn_online || values.issn_print || 'ISSN'};
     for (const [variant, title, number] of [['first','İlk sayfa',1], ['even','Çift sayfa',2], ['odd','Tek sayfa',3]]) {
       const paper=document.createElement('div');paper.className='running-preview';
       const label=document.createElement('strong');label.textContent=title;paper.append(label);
@@ -35,6 +35,7 @@
         const line=document.createElement('div');line.className='running-preview-'+kind;
         if(values[kind+'_rule']==='line' && slots.some(Boolean))line.classList.add('with-rule');
         if(!slots[0] && !slots[2]) line.classList.add('center-only');
+        else if(values.template_id==='scholarly' && !slots[1] && slots[0])line.classList.add('wide-left');
         slots.forEach(text=>{const span=document.createElement('span');span.textContent=text.replace(/\{([a-z_]+)\}/g,(all,key)=>key==='sayfa' ? String(number) : samples[key] ?? all);line.append(span);});
         paper.append(line);
         if(kind==='header'){const body=document.createElement('div');body.className='running-preview-body';body.textContent='Makale metni';paper.append(body);}

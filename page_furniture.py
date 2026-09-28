@@ -5,7 +5,7 @@ import re
 TOKENS = {
     'dergi': 'Dergi adı', 'dergi_en': 'İngilizce dergi adı', 'baslik': 'Makale başlığı',
     'kisa_baslik': 'Kısa başlık', 'yazarlar': 'Kısa yazar bilgisi', 'yil': 'Yıl',
-    'cilt': 'Cilt', 'sayi': 'Sayı', 'sayfa': 'Sayfa numarası', 'doi': 'DOI', 'issn': 'ISSN',
+    'cilt': 'Cilt', 'sayi': 'Sayı', 'sayfa': 'Sayfa numarası', 'sayfa_araligi': 'Makalenin sayfa aralığı', 'doi': 'DOI', 'issn': 'ISSN',
 }
 TOKEN_RE = re.compile(r'\{([a-z_]+)\}')
 RUNNING_DEFAULTS = {}
@@ -54,6 +54,7 @@ def article_values(data: dict, settings: dict) -> dict:
     return {'dergi': journal or '', 'dergi_en': settings.get('journal_name_en', ''), 'baslik': title,
             'kisa_baslik': title if len(title) <= 100 else title[:97].rstrip() + '…', 'yazarlar': authors,
             'yil': cov.get('year', ''), 'cilt': cov.get('volume', ''), 'sayi': cov.get('issue', ''),
+            'sayfa_araligi': '–'.join(str(cov.get(key, '')).strip() for key in ('start_page', 'end_page') if str(cov.get(key, '')).strip()),
             'doi': cov.get('doi', ''), 'issn': settings.get('issn_online') or settings.get('issn_print', '')}
 
 
@@ -109,7 +110,9 @@ def block_height_cm(settings: dict, data: dict, kind: str) -> float:
         slots = running_slots(settings, data, kind, variant)
         only_center = not slots[0] and not slots[2]
         chars = (155 if only_center else 46) * 8 / size
-        for slot in slots:
+        for index, slot in enumerate(slots):
+            if settings.get('template_id') == 'scholarly':
+                chars = ((125, 1, 12)[index] if not slots[1] and slots[0] else (140 if only_center else 40)) * 8 / size
             expanded = ''.join('99999' if kind_ == 'page' else part for kind_, part in resolved_parts(slot, values))
             count = sum(max(1, math.ceil(len(line) / chars)) for line in expanded.split('\n'))
             lines = max(lines, count)

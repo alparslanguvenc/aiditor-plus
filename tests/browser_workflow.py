@@ -46,7 +46,7 @@ class Server:
                 try:
                     with urllib.request.urlopen(self.url+'/health',timeout=1) as response:
                         health=json.load(response)
-                    if health.get('app')=='AI-ditor Plus' and health.get('version')=='2.1.0':return self.url
+                    if health.get('app')=='AI-ditor Plus' and health.get('version')=='2.2.0':return self.url
                 except (OSError,ValueError):pass
             self.log.seek(0)
             content=self.log.read()
@@ -108,8 +108,8 @@ def run():
             page.screenshot(path=str(QA/'01-login.png'),full_page=True)
             assert 'MIT' in page.locator('footer').inner_text()
             login(page,url,'journal_alpha',True,'Bilim ve Toplum Dergisi')
-            expect(page.locator('.template-option')).to_have_count(4)
-            for template in ['classic','contemporary','centered','minimal']:
+            expect(page.locator('.template-option')).to_have_count(5)
+            for template in ['classic','contemporary','centered','minimal','scholarly']:
                 page.locator(f'[data-template-id="{template}"]').click()
                 preset_saved(page)
                 assert api(page,'/api/journal')['settings']['template_id']==template
@@ -291,7 +291,7 @@ def run():
             assert len(api(page,'/api/articles')['articles'])>=3
             assert not errors,errors
             browser.close()
-            print('PASS: accounts, four presets, logo, recovery, autosave, conflicts, rich paste, DOCX, ZIP, JSON, isolation, restart, mobile')
+            print('PASS: accounts, five presets, logo, recovery, autosave, conflicts, rich paste, DOCX, ZIP, JSON, isolation, restart, mobile')
         finally:server.stop()
 
 

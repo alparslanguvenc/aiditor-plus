@@ -46,6 +46,7 @@ window.journalWorkspace = (() => {
     {id:'classic', name:'Klasik', description:'Çift dilli kimlik, çizgili üst bilgi ve geleneksel akademik düzen.'},
     {id:'contemporary', name:'Çağdaş', description:'Belirgin renk bandı ve güçlü bir başlık hiyerarşisi.'},
     {id:'centered', name:'Ortalanmış', description:'Simetrik logo, merkezde dergi kimliği ve dengeli başlık.'},
+    {id:'scholarly', name:'Sosyal bilimler', description:'Gri künye, ayrı sayfada İngilizce özet ve değişen üst bilgiler.'},
     {id:'minimal', name:'Sade', description:'İnce çizgiler, yalın kimlik ve ferah bir sayfa.'},
   ];
   function status(message, state='saved') {
@@ -68,7 +69,7 @@ window.journalWorkspace = (() => {
     settings = {...next};
     const values = {...window.runningDefaults, font_family:next.font_family || next.font || 'Palatino Linotype',body_size:10,accent_color:'#176B6A',
       logo_height_cm:2.3,corresponding_marker:'*',doi_position:'bottom',header_layout:next.template_id || 'classic',
-      footer_layout:'full',first_page_fit:'auto',...next};
+      footer_layout:'full',first_page_fit:'auto',english_abstract_heading:'Abstract',...next};
     const fontAliases = {texgyrepagella:'Palatino Linotype',texgyretermes:'Times New Roman',tgschola:'Century',texgyrebonum:'Century',latinmodern:'Latin Modern',carlito:'Calibri',texgyreheros:'Sans Serif'};
     values.font_family = fontAliases[values.font_family] || values.font_family;
     for (const [key,id] of Object.entries(fields)) byId(id).value = values[key] ?? '';
@@ -83,7 +84,7 @@ window.journalWorkspace = (() => {
     }
   }
   function pageSketch(id, values = {}, imageAsset = null) {
-    const safeId = ['classic','contemporary','centered','minimal'].includes(id) ? id : 'classic';
+    const safeId = ['classic','contemporary','centered','minimal','scholarly'].includes(id) ? id : 'classic';
     const page=document.createElement('div'); page.className='mini-paper '+safeId; page.setAttribute('aria-hidden','true');
     if (/^#[0-9a-f]{6}$/i.test(values.accent_color || '')) page.style.setProperty('--page-accent',values.accent_color);
     if (values.font_family === 'Calibri' || values.font_family === 'Sans Serif') page.style.fontFamily='Arial,sans-serif';
@@ -97,7 +98,7 @@ window.journalWorkspace = (() => {
     const author=document.createElement('div');author.className='mini-authors';author.textContent='Yazar Adı · Yazar Adı';page.append(author);
     const rule=document.createElement('div');rule.className='mini-rule';page.append(rule);
     const abstracts=document.createElement('div');abstracts.className='mini-abstracts';
-    for (const heading of (values.english_only ? ['ABSTRACT','1. INTRODUCTION'] : ['ÖZET','ABSTRACT'])) {const group=document.createElement('div');const h=document.createElement('h5');h.textContent=heading;const lines=document.createElement('div');lines.className='mini-lines';group.append(h,lines);abstracts.append(group);}page.append(abstracts);
+    for (const heading of (safeId==='scholarly' ? [values.english_only ? (values.english_abstract_heading || 'Abstract') : 'ÖZ'] : values.english_only ? [(values.english_abstract_heading || 'ABSTRACT'),'1. INTRODUCTION'] : ['ÖZET',values.english_abstract_heading || 'ABSTRACT'])) {const group=document.createElement('div');const h=document.createElement('h5');h.textContent=heading;const lines=document.createElement('div');lines.className='mini-lines';group.append(h,lines);abstracts.append(group);}page.append(abstracts);
     const foot=document.createElement('div');foot.className='mini-foot';foot.textContent=values.footer_text || values.journal_url || 'Dergi bilgileri · Lisans ve yayın notları';page.append(foot);
     if (values.footer_layout === 'minimal') foot.style.borderTop='0';
     return page;
@@ -122,7 +123,7 @@ window.journalWorkspace = (() => {
     }
   }
   function updatePreview() {
-    const values=collect();window.updateRunningPreview(values);byId('live-preview').replaceChildren(pageSketch(values.header_layout,values,assets.logo));
+    const values=collect();byId('scholarly-layout-note').hidden=values.template_id!=='scholarly';window.updateRunningPreview(values);byId('live-preview').replaceChildren(pageSketch(values.header_layout,values,assets.logo));
     byId('journal-heading').textContent=values.journal_name_tr || values.journal_name_en || aiditorAccount?.display_name || 'Derginiz';
     const layout=(templates.length ? templates : localTemplates).find(item=>item.id===values.template_id)?.name || 'Özel';
     byId('journal-summary').textContent=`${layout} düzen · ${values.font_family || 'Palatino Linotype'} · ${values.body_size || 10} punto. Dergi ayarlarınız yeni girişlerde korunur.`;

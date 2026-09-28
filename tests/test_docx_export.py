@@ -58,7 +58,26 @@ class CitationTests(unittest.TestCase):
         self.assertEqual(citation_report(data)['linked_in_body'],2)
 
 class WordOutputTests(unittest.TestCase):
-    def test_four_editable_templates_preserve_content(self):
+    def test_cover_notes_are_bottom_anchored_and_do_not_repeat_on_body_pages(self):
+        for template in TEMPLATES:
+            with self.subTest(layout=template['id']):
+                data=sample_article()
+                settings={**template['settings'], 'footer_text':'Derginin sabit dipnotu',
+                          'footer_first_mode':'custom','footer_first_center':'Kapak {sayfa}'}
+                doc=Document(io.BytesIO(generate_docx_from_form(data,{},settings)))
+                main='\n'.join(p.text for p in doc.paragraphs)
+                footer=doc.sections[0].first_page_footer
+                notes='\n'.join(p.text for p in footer.paragraphs)
+                for text in ['Derginin sabit dipnotu',data['cover']['ethics'],data['cover']['title_note']]:
+                    self.assertIn(text,notes)
+                    self.assertNotIn(text,main)
+                self.assertIn('Kapak',footer.tables[0].cell(0,0).text)
+                self.assertEqual(len(doc.sections),2)
+                self.assertFalse(doc.sections[1].different_first_page_header_footer)
+                self.assertNotIn('Derginin sabit dipnotu',doc.sections[1].footer._element.xml)
+                self.assertNotIn('w:start=',doc.sections[1]._sectPr.xml)
+
+    def test_editable_templates_preserve_content(self):
         for template in TEMPLATES:
             with self.subTest(layout=template['id']):
                 data=sample_article();blob=generate_docx_from_form(data,{},template['settings'],{'logo':('logo.png',PNG)})

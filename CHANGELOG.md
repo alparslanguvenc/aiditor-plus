@@ -1,5 +1,13 @@
 # Sürüm geçmişi
 
+## 2.2.0 — 2026-09-28
+
+Word çıktılarında ilk sayfa dipnotları, etik beyan, başlık açıklaması ve dergi notları sayfanın altındaki gerçek alt bilgi alanına taşındı. Kısa özetlerde yukarı çıkma sorunu giderildi. Kullanıcının ilk sayfa alt bilgisi korunur; kapak notları sonraki sayfalarda tekrarlanmaz. Gövde ayrı Word bölümünde devam eder ve sayfa numarası sıfırlanmaz. Eski Word dosyalarını düzeltmek için uygulamadan yeniden çıktı alın.
+
+“Sosyal bilimler” adlı beşinci hazır şablon eklendi: logolu gri künye, güçlü ayraç, ortalanmış başlık, yazar altında kurum bilgileri, 2,5 cm yan kenar boşluğu, 1,5 satır aralığı ve ayrı sayfada İngilizce özet. “Extended Summary” başlığı özelleştirilebilir. Uzun İngilizce özetler kayıpsız devam eder; yalnız İngilizce makalelerde yinelenen özet oluşmaz. Word ve LaTeX desteklenir. Örnek sayfa ve varsayılan ayarlar herhangi bir gerçek dergi veya makalenin kimliğini içermez.
+
+Tek/çift üst bilgilerde geniş dergi adları için yerleşim ve `{sayfa_araligi}` etiketi eklendi. Yeni şablondaki tablo/görsel genişlikleri metin alanına uyarlandı. Hesaplar, makaleler, atıf bağlantıları ve diğer dört şablon korunur. JGTTR Formatter değiştirilmez.
+
 ## 2.1.0 — 2026-09-28
 
 Dört dergi düzeniyle doğrudan düzenlenebilir Word (.docx) çıktısı eklendi. Metinler, başlıklar, birleşik hücreli tablolar, kaynakça ve üst/alt bilgiler Word nesneleri olarak üretilir. PNG/JPG ve PDF görseller desteklenir; PDF görsellerin ilk sayfası Word'e görüntü olarak eklenir. Oturumlu indirme ve doğrulanmış, atomik yerel dosya kaydı Word için de kullanılır.

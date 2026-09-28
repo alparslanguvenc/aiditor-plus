@@ -26,6 +26,17 @@ TEMPLATES = [
      'description': 'Kompakt üst künye, soldan hizalı başlıklar ve sade dipnot alanı.',
      'settings': {'template_id': 'minimal', 'header_layout': 'minimal', 'footer_layout': 'minimal',
                   'font_family': 'latinmodern', 'accent_color': '#333F48', 'body_size': '10', 'logo_height_cm': 1.0}},
+    {'id': 'scholarly', 'name': 'Sosyal bilimler',
+     'description': 'Gri dergi künyesi, ortalanmış başlık, ayrı sayfada İngilizce özet ve tek/çift sayfa üst bilgileri.',
+     'settings': {'template_id': 'scholarly', 'header_layout': 'scholarly', 'footer_layout': 'full',
+                  'font_family': 'texgyretermes', 'accent_color': '#222222', 'body_size': '11',
+                  'logo_height_cm': 3.0, 'doi_position': 'top', 'english_abstract_heading': 'Extended Summary',
+                  'header_mode': 'odd_even', 'header_left': '{yazarlar}', 'header_center': '', 'header_right': '{sayfa}',
+                  'header_even_left': '{dergi} {yil} {cilt}({sayi}) {sayfa_araligi}',
+                  'header_even_center': '', 'header_even_right': '{sayfa}', 'header_font_size': '10', 'header_rule': 'line',
+                  'header_first_mode': 'custom', 'header_first_left': '',
+                  'header_first_center': '{dergi} {yil} {cilt}({sayi})', 'header_first_right': '',
+                  'footer_mode': 'none', 'footer_first_mode': 'none', 'footer_rule': 'none'}},
 ]
 
 _DEFAULTS = {
@@ -36,6 +47,7 @@ _DEFAULTS = {
     'cc_logo_stem': 'license_logo', 'footer_text': '', 'first_page_fit': 'auto',
     'template_id': 'classic', 'header_layout': 'classic', 'footer_layout': 'full',
     'show_logo': True, 'show_cc_logo': True, 'link_citations': True,
+    'english_abstract_heading': 'Abstract',
 }
 _FONT_ALIASES = {
     'palatino linotype': 'texgyrepagella', 'palatino': 'texgyrepagella',
@@ -69,8 +81,8 @@ def normalize_settings(raw):
     result = default_settings()
     result.update({k: v for k, v in incoming.items() if k in result})
     for key, choices in {
-        'template_id': {'classic', 'contemporary', 'centered', 'minimal'},
-        'header_layout': {'classic', 'contemporary', 'centered', 'minimal'},
+        'template_id': {template['id'] for template in TEMPLATES},
+        'header_layout': {template['id'] for template in TEMPLATES},
         'footer_layout': {'full', 'compact', 'minimal'},
         'doi_position': {'top', 'bottom'}, 'first_page_fit': {'auto', 'compact', 'dense'},
         'body_size': {'10', '11', '12'},
@@ -90,11 +102,13 @@ def normalize_settings(raw):
             raise ValueError(f'{key} doğru/yanlış değeri olmalıdır.')
     for key, maximum in {'journal_name_tr': 250, 'journal_name_en': 250, 'issn_print': 30,
                          'issn_online': 30, 'footer_text': 3000, 'journal_url': 500,
-                         'corresponding_marker': 4, 'logo_stem': 80, 'cc_logo_stem': 80}.items():
+                         'corresponding_marker': 4, 'logo_stem': 80, 'cc_logo_stem': 80,
+                         'english_abstract_heading': 80}.items():
         value = result[key]
         if not isinstance(value, str) or len(value) > maximum or any(ord(c) < 32 and c not in '\n\t' for c in value):
             raise ValueError(f'{key} alanı geçerli bir metin olmalıdır (en çok {maximum} karakter).')
         result[key] = value.strip()
+    result['english_abstract_heading'] = result['english_abstract_heading'] or 'Abstract'
     color = result['accent_color']
     if not isinstance(color, str) or not re.fullmatch(r'#[0-9a-fA-F]{6}', color):
         raise ValueError('Vurgu rengi #RRGGBB biçiminde olmalıdır.')

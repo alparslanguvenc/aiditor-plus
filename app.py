@@ -26,7 +26,7 @@ from page_furniture import TOKENS, RUNNING_DEFAULTS
 from docx_export import generate_docx_from_form, DOCX_MIME
 from formatter import generate_latex_from_form, extract_form_data_from_docx, _normalize_table_model
 
-APP_VERSION = '2.1.0'
+APP_VERSION = '2.2.0'
 
 
 def resource_path(relative_path):

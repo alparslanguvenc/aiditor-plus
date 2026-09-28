@@ -36,6 +36,7 @@ jobs:
       - run: python tests/browser_races.py
       - run: python tests/browser_downloads.py
       - run: python tests/browser_docx.py
+      - run: python tests/browser_scholarly.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -100,11 +101,11 @@ jobs:
           body: |
             Akademik dergi editörlerinin işlerini kolaylaştırmak için kâr amacı güdülmeden geliştirilen, MIT lisanslı açık kaynak uygulama.
 
-            Sade A monogramı ve turkuaz artı işaretiyle yenilenen lacivert/fildişi logo, arayüzde ve macOS/Windows uygulama simgelerinde ortak bir görsel kimlik sunar.
+            2.2.0: Word çıktısındaki ilk sayfa dipnotları artık özetin hemen ardından değil, sayfanın altında yer alır. Kapak notları sonraki sayfalarda tekrarlanmaz; özelleştirilmiş alt bilgi korunur. Önceden indirilen belgeleri uygulamadan yeniden oluşturun.
 
-            Dergi hesapları, kalıcı ön ayarlar ve logolar; dört özelleştirilebilir sayfa düzeni; Word/Excel tabloları; otomatik kaydedilen makale arşivi ve taşınabilir JSON yedekleri.
+            Beşinci hazır şablon “Sosyal bilimler”: logolu gri künye, ortalanmış başlık, 2,5 cm yan kenar boşluğu, 1,5 satır aralığı ve ayrı sayfada İngilizce özet. Özelleştirilebilir “Extended Summary” başlığı ve üst bilgilerde otomatik sayfa aralığı. Word ve LaTeX desteği.
 
-            2.1.0: Düzenlenebilir Word (.docx) çıktısı; ilk sayfa ve tek/çift sayfalar için özelleştirilebilir üst/alt bilgiler; APA yazar–yıl atıflarından kaynakçaya tıklanabilir bağlantılar. Mevcut dergi hesapları ve makaleler korunur. Word ile PDF arasında satır ve sayfa sonları değişebilir. Belirsiz atıflar bağlantısız bırakılır.
+            Dergi hesapları, kalıcı ön ayarlar, logolar, düzenlenebilir Word çıktısı, tek/çift sayfa üst ve alt bilgileri, atıftan kaynakçaya bağlantılar ve JSON yedekleri korunur. Word ile PDF arasında satır ve sayfa sonları değişebilir. MIT lisanslı ve kâr amacı gütmeyen akademik destek uygulamasıdır.
 
             Hesaplar bu bilgisayardaki kuruluma aittir. Bulut hesabı veya cihazlar arası otomatik eşitleme yoktur.
 

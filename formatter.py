@@ -1985,9 +1985,12 @@ def _cover_profile(data: dict, settings: dict) -> dict:
     }
     mode = requested
     if mode == 'auto':
+        abstract_values = list(abstract.values())
+        if settings['template_id'] == 'scholarly' and abstract.get('tr_abs') and not settings['english_only']:
+            abstract_values = [abstract.get('tr_abs', ''), abstract.get('tr_kw', '')]
         load = sum(len(str(v or '')) for v in [
             cov.get('tr_title'), cov.get('en_title'), cov.get('ethics'), cov.get('title_note'),
-            settings.get('footer_text'), *abstract.values(),
+            settings.get('footer_text'), *abstract_values,
         ]) + sum(len(str(a.get(k, ''))) for a in data.get('authors', []) for k in ('name', 'affiliation', 'email'))
         if load > 3800 or len(data.get('authors', [])) > 6:
             mode = 'dense'
@@ -2005,9 +2008,117 @@ def _optional_graphic(stem: str, options: str) -> str:
     return result
 
 
+def _scholarly_first_page(data: dict, js: dict, english_only: bool, has_tr: bool,
+                          has_en: bool, has_authors: bool) -> str:
+    """Journal-panel cover followed by a flowing, separately paginated English summary."""
+    cov = data.get('cover', {})
+    scale = float(_cover_profile(data, js)['abstract'][0]) / 9
+    primary, secondary = _journal_names_for_output(js, english_only)
+    if english_only:
+        primary, secondary = secondary or primary, ''
+    journal = ' / '.join(dict.fromkeys(name for name in (primary, secondary) if name))
+    details = []
+    for label, key in [('ISSN', 'issn_print'), ('e-ISSN', 'issn_online')]:
+        if js[key]:
+            details.append(label + ': ' + escape(js[key]))
+    if js['journal_url']:
+        details.append(_escape_with_breakable_urls(js['journal_url']))
+    doi = r'\href{https://doi.org/\JGTTRDOI}{https://doi.org/\JGTTRDOI}' if cov.get('doi') else ''
+    if doi and js['doi_position'] == 'top':
+        details.append(doi)
+    meta = []
+    for labels in ([('Year', 'Volume', 'Issue')] if english_only else [('Yıl', 'Cilt', 'Sayı'), ('Year', 'Volume', 'Issue')]):
+        values = [escape(label) + ': ' + escape(str(cov[key])) for label, key in zip(labels, ('year', 'volume', 'issue')) if cov.get(key)]
+        if values:
+            meta.append(r'\quad '.join(values) + r'\par')
+    logo = _optional_graphic(js['logo_stem'], f'height={js["logo_height_cm"]}cm,width=\\linewidth,keepaspectratio') if js['show_logo'] else ''
+    identity = (r'{\fontsize{15}{18}\selectfont\bfseries\itshape ' + escape(journal) + r'\par}\vspace{7pt}'
+                + r'{\fontsize{11}{14}\selectfont\itshape ' + '\n'.join(meta) + '}'
+                + r'\vspace{5pt}{\fontsize{9}{11}\selectfont ' + r'\par '.join(details) + r'\par}')
+    header = (r'\noindent\begin{minipage}[c]{0.19\textwidth}' + logo + r'\end{minipage}\hfill'
+              r'{\setlength{\fboxsep}{7pt}\colorbox{JGTTRgray!30}{'
+              r'\begin{minipage}[c]{\dimexpr0.79\textwidth-14pt\relax}\centering ' + identity
+              + r'\end{minipage}}}\par\vspace{4pt}\noindent\textcolor{JGTTRbrown}{\rule{\textwidth}{2pt}}\par\vspace{14pt}')
+    citation = ''
+    if cov.get('article_type'):
+        citation += r'\textbf{' + ('Article Type: ' if english_only else 'Makale Türü / Article Type: ') + r'}\textit{\JGTTRarticletype}\par'
+    if js['footer_layout'] != 'minimal':
+        citation += r'\textbf{' + ('Citation: ' if english_only else 'Atıf / Citation: ') + r'}\JGTTRapacitation\par'
+    # The English block follows on its own page only when a primary Turkish abstract exists.
+    separate_summary = has_tr and has_en and not english_only
+    english_cover = english_only or (has_en and not has_tr)
+    title_macro = 'JGTTRenglishtitle' if english_cover else 'JGTTRturkishtitle'
+    title = (r'{\centering' + rf'\fontsize{{{14 * scale:g}}}{{{23 * scale:g}}}\selectfont\bfseries '
+             + '\\' + title_macro + (r'\textsuperscript{*}' if cov.get('title_note') else '') + r'\par}\vspace{8pt}')
+    if not english_only and not has_en and cov.get('en_title') and cov['en_title'] != cov.get('tr_title'):
+        title += r'{\centering\fontsize{11}{14}\selectfont\itshape\JGTTRenglishtitle\par}\vspace{8pt}'
+    authors = r'{\fontsize{11}{14}\selectfont #1\par}\vspace{3pt}{\fontsize{9}{12}\selectfont\itshape\JGTTRaffiliations\par}\vspace{12pt}' if has_authors else ''
+
+    def abstract_block(language: str, label: str, keyword_label: str) -> str:
+        size = 10 * scale if language == 'turkish' or english_cover else 10
+        keywords = data.get('abstract', {}).get('tr_kw' if language == 'turkish' else 'en_kw')
+        keyword_block = (r'\vspace{5pt}{\fontsize{10}{15}\selectfont\hspace*{1.25cm}\textbf{\textit{' + escape(keyword_label) + ': }}'
+                         + '\\JGTTR' + language + r'keywords\par}') if keywords else ''
+        return (r'{\centering\fontsize{10}{12}\selectfont\bfseries ' + escape(label) + r'\par}\vspace{8pt}'
+                + '{' + rf'\fontsize{{{size:g}}}{{{size * 1.725:g}}}\selectfont\setlength{{\parindent}}{{1.25cm}}\indent\JGTTR' + language + r'abstract\par}'
+                + keyword_block)
+    abstract = ''
+    if english_cover and has_en:
+        abstract = abstract_block('english', js['english_abstract_heading'], 'Keywords')
+    elif has_tr:
+        abstract = abstract_block('turkish', 'Öz', 'Anahtar kelimeler')
+    notes = []
+    if doi and js['doi_position'] == 'bottom':
+        notes.append(doi + r'\par')
+    for label, value in [(('Ethics Statement: ' if english_only else 'Etik Beyan: '), cov.get('ethics')),
+                         ('* ', cov.get('title_note')), ('', js['footer_text'])]:
+        if value:
+            notes.append(escape(label) + _escape_with_breakable_urls(value) + r'\par')
+    if cov.get('editor'):
+        notes.append(('Editor: ' if english_only else 'Editör / Editor: ') + escape(cov['editor']) + r'\par')
+    if js['show_cc_logo']:
+        notes.append(_optional_graphic(js['cc_logo_stem'], r'height=0.5cm,width=0.3\textwidth,keepaspectratio'))
+    footer = []
+    if any(a.get('corresponding') for a in data.get('authors', [])):
+        footer.append(r'\textbf{' + ('Corresponding Author: ' if english_only else 'Sorumlu Yazar / Corresponding Author: ') + r'}\JGTTRcorrespondinginfo\par')
+    dates = []
+    labels = [('Received', 'received'), ('Accepted', 'accepted'), ('Published', 'published')] if english_only else [('Gönderim / Received', 'received'), ('Kabul / Accepted', 'accepted'), ('Yayımlanma / Published', 'published')]
+    for label, key in labels:
+        if cov.get(key):
+            dates.append(r'\textbf{' + escape(label) + ': }' + escape(str(cov[key])))
+    if dates:
+        footer.append(r'\hfill '.join(dates) + r'\par')
+    footer_text = '\n'.join(notes + footer)
+    if footer_text:
+        footer_text = r'\noindent\rule{\textwidth}{0.4pt}\par ' + footer_text + r'\noindent\rule{\textwidth}{0.4pt}\par'
+    summary = ''
+    if separate_summary:
+        summary = (r'{\centering\fontsize{14}{23}\selectfont\bfseries\JGTTRenglishtitle\par}\vspace{16pt}'
+                   + abstract_block('english', js['english_abstract_heading'], 'Keywords') + r'\clearpage')
+    return ('% Template: scholarly; footer: ' + js['footer_layout'] + '\n' + r'''
+\newsavebox{\JGTTRfooterbox}
+\newcommand{\JGTTRfirstpage}[1]{%
+  \begingroup\renewcommand{\baselinestretch}{1}\selectfont
+  \newgeometry{includehead=false,top=1.2cm,bottom=1.5cm,left=1.5cm,right=1.5cm,headheight=0pt,headsep=0pt,footskip=0.8cm}%
+  \thispagestyle{firstpage}%
+  \begin{lrbox}{\JGTTRfooterbox}\begin{minipage}{\textwidth}
+  \fontsize{8}{10}\selectfont\setlength{\parindent}{0pt}\setlength{\parskip}{0pt}
+''' + footer_text + r'''
+  \end{minipage}\end{lrbox}%
+  \noindent\begin{adjustbox}{max width=\textwidth,max totalheight={\dimexpr\textheight-\ht\JGTTRfooterbox-\dp\JGTTRfooterbox-3mm\relax},center}%
+  \begin{minipage}{\textwidth}\setlength{\parindent}{0pt}\setlength{\parskip}{0pt}
+''' + header + r'{\fontsize{10}{12}\selectfont ' + citation + r'}\vspace{18pt}' + title + authors + abstract + r'''
+  \end{minipage}\end{adjustbox}\par%
+  \vspace*{\fill}\noindent\usebox{\JGTTRfooterbox}%
+  \restoregeometry%
+''' + summary + '\n\\endgroup\n}\n')
+
+
 def _first_page_layout(data: dict, js: dict, english_only: bool, has_tr: bool,
                        has_en: bool, has_authors: bool) -> str:
-    """Render four real cover structures with a separately measured footer."""
+    """Render the selected cover structure with a separately measured footer."""
+    if js['template_id'] == 'scholarly':
+        return _scholarly_first_page(data, js, english_only, has_tr, has_en, has_authors)
     cov = data.get('cover', {})
     profile = _cover_profile(data, js)
     layout, footer_layout = js['template_id'], js['footer_layout']
@@ -2073,6 +2184,7 @@ def _first_page_layout(data: dict, js: dict, english_only: bool, has_tr: bool,
     editor = str(cov.get('editor', '') or '').strip()
     if layout == 'classic':
         abstract = _build_abstract_block(english_only, has_tr, has_en, editor)
+        abstract = abstract.replace(r'\scshape Abstract}', r'\scshape ' + escape(js['english_abstract_heading']) + '}')
         abs_size, abs_leading = profile['abstract']
         info_size, info_leading = profile['info']
         abstract = abstract.replace(r'\fontsize{8.5}{10.5}', rf'\fontsize{{{abs_size}}}{{{abs_leading}}}')
@@ -2088,7 +2200,7 @@ def _first_page_layout(data: dict, js: dict, english_only: bool, has_tr: bool,
             dates.append(('Editor: ' if english_only else 'Editör / Editor: ') + escape(editor))
         abstract = (r'{\fontsize{7.5}{9}\selectfont ' + r'\quad '.join(dates) + r'\par}\vspace{4pt}') if dates else ''
         languages = ([('Özet', 'turkish', 'Anahtar kelimeler')] if has_tr and not english_only else [])
-        languages += [('Abstract', 'english', 'Keywords')] if has_en else []
+        languages += [(escape(js['english_abstract_heading']), 'english', 'Keywords')] if has_en else []
         columns = layout == 'contemporary' and len(languages) == 2
         rendered = []
         for label, language, keyword_label in languages:
@@ -2405,7 +2517,7 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
         [l.strip() for l in refs_raw.splitlines() if l.strip()],
         key=turkish_sort_key
     )
-    refs_heading = 'References' if english_only else r'Kaynakça / References'
+    refs_heading = 'References' if english_only else ('Kaynaklar' if js['template_id'] == 'scholarly' else r'Kaynakça / References')
     _ref_env_open = (
         r'\section*{' + refs_heading + r'}' + '\n'
         r'\begin{list}{}{%' + '\n'
@@ -2599,7 +2711,19 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
         # Carlito has no small-cap face; uppercase labels remain readable.
         tex = tex.replace(r'\scshape', r'\upshape')
     from latex_furniture import apply_running_latex
-    return apply_running_latex(tex, data, js, escape)
+    tex = apply_running_latex(tex, data, js, escape)
+    if js['template_id'] == 'scholarly':
+        tex = tex.replace(r'\titlespacing*', r'\titlespacing')
+        tex = tex.replace('% ── Paragraph format ──\n\\setlength{\\parindent}{0pt}\n\\setlength{\\parskip}{4pt}\n\\renewcommand{\\baselinestretch}{1.0}',
+                          '% ── Paragraph format ──\n\\setlength{\\parindent}{1.25cm}\n\\setlength{\\parskip}{0pt}\n\\renewcommand{\\baselinestretch}{1.5}')
+        tex = tex.replace(r'\bfseries\centering}{}{0em}{}', r'\bfseries}{}{0em}{}')
+        tex = tex.replace(r'\selectfont\bfseries\centering}', r'\selectfont\bfseries}')
+        if refs_tex:
+            compact_refs = (r'\begingroup\renewcommand{\baselinestretch}{1}\fontsize{10}{17.25}\selectfont' + '\n' + refs_tex + '\n' + r'\endgroup')
+            compact_refs = compact_refs.replace(r'\section*{' + refs_heading + '}',
+                                                r'{\centering\bfseries ' + refs_heading + r'\par}\vspace{6pt}')
+            tex = tex.replace(refs_tex, compact_refs)
+    return tex
 
 
 def build_zip_form(tex_content: str, logo_src: str, figure_file_bytes: dict,
