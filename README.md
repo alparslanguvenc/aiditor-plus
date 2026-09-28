@@ -89,3 +89,7 @@ macOS paketi: `bash build_mac.sh` · Windows paketi: `build_windows.bat` (Inno S
 Bu proje akademik dergi editörlerinin işlerini kolaylaştırmak amacıyla, **kâr amacı güdülmeden** geliştirilmiştir. Yazılım **MIT lisansıyla** yayımlanır. Bu geliştirme amacı MIT'nin verdiği kullanım, değiştirme ve dağıtım haklarına ek bir kısıtlama getirmez. Yazılım lisansı, hazırladığınız makalelerin veya derginizin yayın lisansını belirlemez; makale lisansı ve lisans görseli dergi tarafından seçilir.
 
 Copyright © 2025–2026 Alparslan Güvenç.
+
+### 2.0.3 ZIP indirme düzeltmesi
+
+Mac uygulamasındaki “arşiv desteklenmeyen bir biçimde” hatası düzeltildi. ZIP, açık dergi oturumuyla alınır ve kaydedilmeden önce doğrulanır. Eski sürümde indirilen hatalı dosyalar onarılamaz; kayıtlı makaleyi açıp LaTeX çıktısını yeniden oluşturun ve **ZIP İndir** düğmesiyle kaydedin. Güncelleme mevcut hesapları ve makaleleri korur.

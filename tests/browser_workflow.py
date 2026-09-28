@@ -46,7 +46,7 @@ class Server:
                 try:
                     with urllib.request.urlopen(self.url+'/health',timeout=1) as response:
                         health=json.load(response)
-                    if health.get('app')=='AI-ditor Plus' and health.get('version')=='2.0.2':return self.url
+                    if health.get('app')=='AI-ditor Plus' and health.get('version')=='2.0.3':return self.url
                 except (OSError,ValueError):pass
             self.log.seek(0)
             content=self.log.read()
@@ -226,10 +226,11 @@ def run():
             saved(page)
             page.locator('#btn-gen').click()
             page.wait_for_selector('#result-panel',state='visible')
-            link=page.locator('#dl-link')
-            response=context.request.get(url+link.get_attribute('href'))
-            assert response.status==200
-            with zipfile.ZipFile(io.BytesIO(response.body())) as archive:
+            with page.expect_download() as downloaded:
+                page.locator('#dl-link').click()
+            zip_path=Path(data)/'article.zip'
+            downloaded.value.save_as(zip_path)
+            with zipfile.ZipFile(zip_path) as archive:
                 assert archive.testzip() is None
                 tex=archive.read('main.tex').decode()
                 assert 'Science and Society Review' in tex

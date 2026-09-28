@@ -1,11 +1,16 @@
+import base64
+import io
+from pathlib import Path
 import sys
+import tempfile
 import threading
 import unittest
+import zipfile
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from app import create_local_server
-from desktop import run_desktop, protect_unsaved_close
+from desktop import ArticleDownloads, run_desktop, protect_unsaved_close
 
 
 class ClosingEvent:
@@ -65,3 +70,56 @@ class DesktopLifecycleTests(unittest.TestCase):
         callbacks.pop()(True)
         window.destroy.assert_called_once()
         self.assertTrue(close())
+
+
+class ArticleDownloadTests(unittest.TestCase):
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory(prefix='aiditor-save-test-')
+        self.addCleanup(directory.cleanup)
+        self.target = Path(directory.name) / 'Türkçe makale.zip'
+        self.api = ArticleDownloads()
+        self.api._window = SimpleNamespace(create_file_dialog=Mock(return_value=[str(self.target)]))
+        self.webview = SimpleNamespace(FileDialog=SimpleNamespace(SAVE=30))
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr('main.tex', 'Türkçe makale')
+            archive.writestr('journal_logo.png', b'example image bytes')
+        self.blob = buffer.getvalue()
+
+    def save(self, blob):
+        with patch.dict(sys.modules, {'webview': self.webview}):
+            return self.api.save_article_zip(base64.b64encode(blob).decode())
+
+    def test_native_save_preserves_zip_bytes(self):
+        self.assertEqual(self.save(self.blob), {'ok': True, 'cancelled': False})
+        self.assertEqual(self.target.read_bytes(), self.blob)
+        with zipfile.ZipFile(self.target) as archive:
+            self.assertIsNone(archive.testzip())
+            self.assertEqual(archive.read('main.tex').decode(), 'Türkçe makale')
+
+    def test_login_error_and_truncated_archive_are_never_saved(self):
+        for blob in (b'{"code":"login_required","ok":false}', self.blob[:30], b''):
+            self.assertFalse(self.save(blob)['ok'])
+        self.api._window.create_file_dialog.assert_not_called()
+        self.assertFalse(self.target.exists())
+
+    def test_cancel_does_not_replace_existing_file(self):
+        self.target.write_bytes(b'previous file')
+        self.api._window.create_file_dialog.return_value = None
+        self.assertEqual(self.save(self.blob), {'ok': True, 'cancelled': True})
+        self.assertEqual(self.target.read_bytes(), b'previous file')
+
+    def test_disk_failure_keeps_existing_file_and_cleans_temporary(self):
+        self.target.write_bytes(b'previous file')
+        with patch('desktop.os.replace', side_effect=OSError('disk full')):
+            self.assertFalse(self.save(self.blob)['ok'])
+        self.assertEqual(self.target.read_bytes(), b'previous file')
+        self.assertEqual(list(self.target.parent.iterdir()), [self.target])
+
+    def test_repeated_click_does_not_open_another_dialog(self):
+        self.api._lock.acquire()
+        try:
+            self.assertFalse(self.save(self.blob)['ok'])
+            self.api._window.create_file_dialog.assert_not_called()
+        finally:
+            self.api._lock.release()

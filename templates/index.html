@@ -574,9 +574,10 @@ textarea { resize:vertical; }
     <i class="bi bi-check-circle-fill me-2"></i>Tamamlandı — ZIP hazır
   </div>
   <div class="card-body text-center py-4">
-    <a id="dl-link" href="#" class="btn btn-success btn-lg px-4">
+    <button id="dl-link" type="button" class="btn btn-success btn-lg px-4" onclick="downloadArticleZip()">
       <i class="bi bi-download me-2"></i>ZIP İndir
-    </a>
+    </button>
+    <p id="zip-download-status" class="mt-3 mb-0" role="status" aria-live="polite"></p>
     <div class="mt-4 p-3 text-start" style="background:#fffde7;border-radius:8px;font-size:.83rem;color:#555">
       <strong>Sonraki adımlar:</strong>
       <ol class="mb-0 mt-1">
@@ -1951,7 +1952,8 @@ async function doGenerate() {
     const res = await resp.json();
     if(!resp.ok || !res.ok) throw new Error(res.error || 'Bilinmeyen hata');
 
-    document.getElementById('dl-link').href = '/download/' + res.key;
+    document.getElementById('dl-link').dataset.downloadUrl = '/download/' + res.key;
+    document.getElementById('zip-download-status').textContent = '';
     document.getElementById('result-panel').style.display = 'block';
     document.getElementById('result-panel').scrollIntoView({ behavior:'smooth' });
 
@@ -2008,6 +2010,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script src="/static/workspace.js"></script>
+<script src="/static/downloads.js"></script>
 <script src="/static/projects.js"></script>
 <script src="/static/library.js"></script>
 </body>

@@ -34,6 +34,7 @@ jobs:
       - run: python -m playwright install --with-deps chromium
       - run: python tests/browser_workflow.py
       - run: python tests/browser_races.py
+      - run: python tests/browser_downloads.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -101,7 +102,7 @@ jobs:
 
             Dergi hesapları, kalıcı ön ayarlar ve logolar; dört özelleştirilebilir sayfa düzeni; Word/Excel tabloları; otomatik kaydedilen makale arşivi ve taşınabilir JSON yedekleri.
 
-            2.0.2: Önceki kurulumlardan kalan dergi profillerini otomatik keşfetme ve içe aktarma kaldırıldı. Her hesap kendi dergi ayarlarını kullanır; JSON yedekleme ve içe aktarma devam eder.
+            2.0.3: Mac uygulamasında ZIP indirmesinin oturum bilgisini kaybetmesi düzeltildi. Hata yanıtları ZIP olarak kaydedilmez; arşiv doğrulanarak kaydedilir. Mevcut dergi hesapları ve makaleler korunur.
 
             Hesaplar bu bilgisayardaki kuruluma aittir. Bulut hesabı veya cihazlar arası otomatik eşitleme yoktur.
 

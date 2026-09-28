@@ -56,8 +56,8 @@ app = BUNDLE(
     info_plist={
         'CFBundleName':               'AI-ditor Plus',
         'CFBundleDisplayName':        'AI-ditor Plus',
-        'CFBundleVersion':            '2.0.2',
-        'CFBundleShortVersionString': '2.0.2',
+        'CFBundleVersion':            '2.0.3',
+        'CFBundleShortVersionString': '2.0.3',
         'NSHighResolutionCapable':    True,
         'LSMinimumSystemVersion':     '11.0',
     },

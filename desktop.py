@@ -1,5 +1,62 @@
 """Native desktop window for the local-only AI-ditor Plus service."""
+import base64
+import binascii
+import io
+import os
+from pathlib import Path
+import tempfile
 import threading
+import zipfile
+
+
+class ArticleDownloads:
+    """Save authenticated ZIP bytes without the WebKit downloader's new request."""
+
+    def __init__(self):
+        self._window = None
+        self._lock = threading.Lock()
+
+    def save_article_zip(self, encoded):
+        if not self._lock.acquire(blocking=False):
+            return {'ok': False, 'error': 'Açık olan kaydetme penceresini tamamlayın.'}
+        temporary = None
+        try:
+            if not isinstance(encoded, str) or len(encoded) > 180 * 1024 * 1024:
+                raise ValueError('ZIP verisi geçersiz veya çok büyük.')
+            try:
+                blob = base64.b64decode(encoded, validate=True)
+                with zipfile.ZipFile(io.BytesIO(blob)) as archive:
+                    entries = archive.infolist()
+                    if (len(entries) > 5000 or sum(item.file_size for item in entries) > 128 * 1024 * 1024
+                            or 'main.tex' not in archive.namelist() or archive.testzip() is not None):
+                        raise ValueError
+            except (ValueError, binascii.Error, zipfile.BadZipFile, RuntimeError, NotImplementedError) as exc:
+                raise ValueError('Geçerli bir LaTeX ZIP dosyası alınamadı. Çıktıyı yeniden oluşturun.') from exc
+            import webview
+            selected = self._window.create_file_dialog(
+                webview.FileDialog.SAVE, save_filename='aiditor_article.zip',
+                file_types=('ZIP arşivi (*.zip)',),
+            )
+            if not selected:
+                return {'ok': True, 'cancelled': True}
+            target = Path(selected if isinstance(selected, str) else selected[0])
+            # The OS dialog owns the filename and overwrite confirmation.
+            with tempfile.NamedTemporaryFile(dir=target.parent, prefix='.aiditor-', delete=False) as stream:
+                temporary = Path(stream.name)
+                stream.write(blob)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, target)
+            temporary = None
+            return {'ok': True, 'cancelled': False}
+        except ValueError as error:
+            return {'ok': False, 'error': str(error)}
+        except OSError:
+            return {'ok': False, 'error': 'Dosya kaydedilemedi. Klasör izinlerini ve boş disk alanını kontrol edin.'}
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
+            self._lock.release()
 
 
 def protect_unsaved_close(window):
@@ -40,12 +97,14 @@ def run_desktop(server, on_started=None):
     webview.settings['ALLOW_DOWNLOADS'] = True
     webview.settings['ALLOW_FILE_URLS'] = False
     webview.settings['OPEN_EXTERNAL_LINKS_IN_BROWSER'] = True
+    downloads = ArticleDownloads()
     window = webview.create_window(
         'AI-ditor Plus', f'http://127.0.0.1:{server.server_port}',
         width=1320, height=900, min_size=(760, 600),
         text_select=True, zoomable=True, confirm_close=False,
-        background_color='#f5f3ee',
+        background_color='#f5f3ee', js_api=downloads,
     )
+    downloads._window = window
     protect_unsaved_close(window)
     worker = threading.Thread(target=server.serve_forever, daemon=True, name='aiditor-local-server')
     worker.start()

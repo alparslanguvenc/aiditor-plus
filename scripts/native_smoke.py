@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 import tempfile
 import time
+import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
@@ -33,6 +34,23 @@ def main():
                   const title=document.getElementById('c-en-title');title.value='Native close recovery';title.dispatchEvent(new Event('input',{bubbles:true}));
                   return true;
                 })()''')
+                # Exercise the actual WebKit fetch -> JS/Python bridge -> disk flow.
+                # Only the OS file picker is replaced with a disposable destination.
+                zip_path = Path(directory) / 'native-article.zip'
+                window.create_file_dialog = lambda *args, **kwargs: [str(zip_path)]
+                window.evaluate_js('''(async()=>{
+                  await doGenerate();
+                  document.getElementById('dl-link').click();
+                })()''')
+                deadline=time.monotonic()+30
+                while time.monotonic()<deadline:
+                    if window.evaluate_js("document.getElementById('zip-download-status').textContent") == 'ZIP dosyası kaydedildi.':break
+                    time.sleep(.1)
+                else:
+                    raise AssertionError(window.evaluate_js("document.getElementById('zip-download-status').textContent + document.getElementById('err-panel').textContent"))
+                with zipfile.ZipFile(zip_path) as archive:
+                    assert archive.testzip() is None
+                    assert 'Native close recovery' in archive.read('main.tex').decode()
                 from webview.platforms.cocoa import BrowserView
                 from PyObjCTools import AppHelper
                 AppHelper.callAfter(BrowserView.instances[window.uid].window.performClose_, None)
@@ -47,7 +65,7 @@ def main():
         assert user
         assert store.journal(user['id'])['settings']['footer_text']=='Pencere kapanırken korunan dergi notu'
         assert store.articles(user['id'])[0]['title']=='Native close recovery'
-        print('PASS: native WebKit window, registration, workspace, close waits for settings and article disk saves')
+        print('PASS: native WebKit login, authenticated ZIP button/bridge/disk/CRC, autosave and close')
 
 
 if __name__=='__main__':main()

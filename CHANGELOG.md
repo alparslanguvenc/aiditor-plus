@@ -1,5 +1,9 @@
 # Sürüm geçmişi
 
+## 2.0.3 — 2026-09-28
+
+Mac masaüstü uygulamasında ZIP indirilirken oturum bilgisinin kaybolması ve giriş hatasının `.zip` uzantısıyla kaydedilmesi düzeltildi. İndirme açık oturum üzerinden yapılır; içerik türü ve ZIP imzası kontrol edilir. Masaüstünde arşiv bütünlüğü doğrulanır ve işletim sisteminin kaydetme penceresiyle dosyaya yazılır. İptal veya yazma hatasında önceki dosya korunur. Hesaplar ve kayıtlı dergi/makale verileri değişmez.
+
 ## 2.0.2 — 2026-09-08
 
 Önceki kurulumlardan kalan özel dergi profillerini otomatik keşfeden ve listeleyen bölüm kaldırıldı. Eski profil erişim ve aktarım uçları kapatıldı; uygulama başka dergilerin yerel ön ayarlarını sunmaz. Dergi hesaplarına ait ayarlar ile kullanıcının seçtiği JSON yedeklerini içe/dışa aktarma korunur.
