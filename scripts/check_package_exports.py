@@ -75,7 +75,14 @@ def main():
                 log.flush(); log.seek(0); print(log.read())
                 raise
             finally:
-                proc.terminate()
+                if os.name == 'nt' and proc.poll() is None:
+                    # A one-file PyInstaller EXE has a bootloader parent and a
+                    # service child. Terminate both before removing locked data.
+                    subprocess.run(['taskkill', '/PID', str(proc.pid), '/T', '/F'],
+                                   check=True, stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.DEVNULL)
+                elif proc.poll() is None:
+                    proc.terminate()
                 try:
                     proc.wait(timeout=10)
                 except subprocess.TimeoutExpired:
