@@ -37,6 +37,17 @@ TEMPLATES = [
                   'header_first_mode': 'custom', 'header_first_left': '',
                   'header_first_center': '{dergi} {yil} {cilt}({sayi})', 'header_first_right': '',
                   'footer_mode': 'none', 'footer_first_mode': 'none', 'footer_rule': 'none'}},
+    {'id': 'bilingual_panel', 'name': 'İki dilli kutulu kapak',
+     'description': 'Künye şeridi, yan yana makale bilgisi ve gri özet panelleri; tek/çift sayfada değişen üst bilgi.',
+     'settings': {'template_id': 'bilingual_panel', 'header_layout': 'bilingual_panel', 'footer_layout': 'minimal',
+                  'font_family': 'texgyretermes', 'accent_color': '#8CBF35', 'body_size': '11',
+                  'logo_height_cm': 1.3, 'english_abstract_heading': 'Abstract',
+                  'header_mode': 'odd_even', 'header_left': '{kisa_baslik}', 'header_right': '{cilt}({sayi}) · {yil}',
+                  'header_even_left': '{dergi}', 'header_even_right': '{cilt}({sayi}) · {yil}',
+                  'header_font_size': '9', 'header_rule': 'line',
+                  'header_first_mode': 'custom', 'header_first_center': 'e-ISSN: {issn} · {cilt}({sayi}) · {yil}',
+                  'footer_mode': 'same', 'footer_center': '{sayfa}', 'footer_font_size': '9',
+                  'footer_first_mode': 'inherit', 'footer_rule': 'none'}},
 ]
 
 _DEFAULTS = {

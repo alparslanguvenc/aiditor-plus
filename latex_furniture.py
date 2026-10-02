@@ -49,6 +49,8 @@ def apply_running_latex(tex: str, data: dict, settings: dict, escape) -> str:
     layout = f'includehead=true,includefoot=true,top=0.8cm,bottom=0.8cm,left=1.5cm,right=1.5cm,headheight={header_height:.3f}cm,headsep=0.4cm,footskip={footer_height:.3f}cm'
     if scholarly:
         layout = f'includehead=true,includefoot=true,top=1.25cm,bottom=1.4cm,left=2.5cm,right=2.5cm,headheight={header_height:.3f}cm,headsep=0.65cm,footskip={footer_height:.3f}cm'
+    elif settings['template_id'] == 'bilingual_panel':
+        layout = f'includehead=true,includefoot=true,top=0.6cm,bottom=1.1cm,left=2cm,right=2cm,headheight={header_height:.3f}cm,headsep=0.2cm,footskip={footer_height:.3f}cm'
     tex = tex.replace(r'\geometry{a4paper,top=1.5cm,bottom=1.5cm,left=1.5cm,right=1.5cm,headheight=1.2cm,headsep=0.4cm,footskip=0.8cm}', r'\geometry{a4paper,' + layout + '}')
     cover_layout = layout.replace('top=1.25cm', 'top=0.3cm').replace('headsep=0.65cm', 'headsep=0.25cm').replace('bottom=1.4cm', 'bottom=0.2cm') if scholarly else layout
     tex = tex.replace(r'\newgeometry{includehead=false,top=1.2cm,bottom=1.5cm,left=1.5cm,right=1.5cm,headheight=0pt,headsep=0pt,footskip=0.8cm}', r'\newgeometry{' + cover_layout + '}')

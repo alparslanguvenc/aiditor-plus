@@ -207,8 +207,9 @@ def _running_part(part, slots, values, *, size, line, kind, start, width=18, sch
 def _setup(doc, settings, data):
     section = doc.sections[0]
     scholarly = settings['template_id'] == 'scholarly'
+    bilingual_panel = settings['template_id'] == 'bilingual_panel'
     section.page_width, section.page_height = Cm(21), Cm(29.7)
-    section.left_margin = section.right_margin = Cm(2.5 if scholarly else 1.5)
+    section.left_margin = section.right_margin = Cm(2.5 if scholarly else 2 if bilingual_panel else 1.5)
     section.header_distance = section.footer_distance = Cm(.8)
     section.top_margin = Cm(.8 + block_height_cm(settings, data, 'header') + .4)
     section.bottom_margin = Cm(.8 + block_height_cm(settings, data, 'footer') + .4)
@@ -216,6 +217,11 @@ def _setup(doc, settings, data):
         section.header_distance = Cm(1.25)
         section.top_margin = Cm(1.25 + block_height_cm(settings, data, 'header') + .65)
         section.bottom_margin = Cm(max(2.5, section.bottom_margin.cm))
+    elif bilingual_panel:
+        section.header_distance = Cm(.6)
+        section.footer_distance = Cm(1.5)
+        section.top_margin = Cm(max(1.55, .6 + block_height_cm(settings, data, 'header') + .2))
+        section.bottom_margin = Cm(max(2, section.bottom_margin.cm))
     section.different_first_page_header_footer = True
     doc.settings.odd_and_even_pages_header_footer = any(settings[kind + '_mode'] == 'odd_even' for kind in ('header', 'footer'))
     start = str(data.get('cover', {}).get('start_page', '1'))
@@ -226,7 +232,7 @@ def _setup(doc, settings, data):
         for variant, attr in [('odd', kind), ('even', 'even_page_' + kind), ('first', 'first_page_' + kind)]:
             _running_part(getattr(section, attr), running_slots(settings, data, kind, variant), values,
                           size=int(settings[kind + '_font_size']), line=settings[kind + '_rule'], kind=kind, start=start,
-                          width=16 if scholarly else 18, scholarly=scholarly)
+                          width=16 if scholarly else 17 if bilingual_panel else 18, scholarly=scholarly)
     for name in ('Normal', 'Title', 'Subtitle', 'Heading 1', 'Heading 2', 'Heading 3', 'Caption', 'Header', 'Footer'):
         style = doc.styles[name]
         style.font.name = FONTS[settings['font_family']]
@@ -245,6 +251,12 @@ def _setup(doc, settings, data):
         style.font.size = Pt(11)
         style.paragraph_format.keep_with_next = True
         style.paragraph_format.space_before = Pt(8)
+    if bilingual_panel:
+        normal = doc.styles['Normal']
+        normal.paragraph_format.space_after = Pt(6)
+        normal.paragraph_format.line_spacing = 1
+        doc.styles['Heading 1'].font.size = Pt(12)
+        doc.styles['Heading 1'].paragraph_format.space_before = Pt(12)
     doc.core_properties.title = values['baslik']
     doc.core_properties.author = '; '.join(a.get('name', '') for a in data.get('authors', []))
     doc.core_properties.subject = values['dergi']
@@ -296,9 +308,10 @@ def _body_section(doc, settings, data):
     section = doc.add_section(WD_SECTION_START.NEW_PAGE)
     section.different_first_page_header_footer = False
     scholarly = settings['template_id'] == 'scholarly'
-    section.header_distance = Cm(1.25 if scholarly else .8)
-    section.top_margin = Cm((1.25 if scholarly else .8) + block_height_cm(settings, data, 'header') + (.65 if scholarly else .4))
-    section.bottom_margin = Cm(max(2.5 if scholarly else 1.85, .8 + block_height_cm(settings, data, 'footer') + .4))
+    bilingual_panel = settings['template_id'] == 'bilingual_panel'
+    section.header_distance = Cm(1.25 if scholarly else .6 if bilingual_panel else .8)
+    section.top_margin = Cm((1.25 if scholarly else .6 if bilingual_panel else .8) + block_height_cm(settings, data, 'header') + (.65 if scholarly else .2 if bilingual_panel else .4))
+    section.bottom_margin = Cm(max(2.5 if scholarly else 2 if bilingual_panel else 1.85, .8 + block_height_cm(settings, data, 'footer') + .4))
     # The cloned section must continue numbering, not restart at the article's first page.
     for number in list(section._sectPr.findall(qn('w:pgNumType'))):
         section._sectPr.remove(number)
@@ -425,7 +438,99 @@ def _scholarly_cover(doc, data, settings, assets):
         add_abstract('en', settings['english_abstract_heading'], 'Keywords')
 
 
+def _bilingual_panel_cover(doc, data, settings, assets):
+    """Identity-free adaptation of the supplied bilingual journal cover."""
+    cov, abstract = data.get('cover', {}), data.get('abstract', {})
+    english = settings['english_only']
+    values = article_values(data, settings)
+    accent = settings['accent_color'].lstrip('#')
+    pale_accent = ''.join(f'{round(int(accent[i:i + 2], 16) * .2 + 255 * .8):02X}' for i in (0, 2, 4))
+    mast = _table(doc, [2.5, 14.5])
+    logo_cell, name_cell = mast.rows[0].cells
+    if assets.get('logo') and settings['show_logo']:
+        _picture(logo_cell.paragraphs[0], assets['logo'], max_width_cm=2.4,
+                 max_height_cm=settings['logo_height_cm'])
+    _cell_style(name_cell, fill=pale_accent, padding=110)
+    name = values['dergi']
+    if name:
+        _paragraph(name_cell, name, size=12, bold=True, align='center', after=0)
+    if settings['journal_name_en'] and not english and settings['journal_name_en'] != name:
+        _paragraph(name_cell, settings['journal_name_en'], size=9, align='center', after=0)
+    if settings['journal_url']:
+        _paragraph(name_cell, settings['journal_url'], size=8, align='center', after=0)
+    _compact_cell(logo_cell); _compact_cell(name_cell)
+    rule = _paragraph(doc, size=1, after=12)
+    border = _element('pBdr'); border.append(_element('bottom', val='single', sz=5, color='333333'))
+    rule._p.get_or_add_pPr().append(border)
+    title = (cov.get('en_title') or cov.get('tr_title') or '') if english else (cov.get('tr_title') or cov.get('en_title') or '')
+    _paragraph(doc, title + (' *' if cov.get('title_note') else ''), style='Title',
+               size=15, bold=True, align='center', before=10, after=2, keep=True)
+    if not english and cov.get('en_title') and cov['en_title'] != title:
+        _paragraph(doc, cov['en_title'], style='Subtitle', size=12, align='center', after=14, keep=True)
+    authors = [a for a in data.get('authors', []) if a.get('name', '').strip()]
+    if authors:
+        p = _paragraph(doc, align='center', after=5, keep=True)
+        for index, author in enumerate(authors):
+            if index:
+                _run(p, ', ', 11)
+            _run(p, author['name'], 11, bold=True)
+            number = _run(p, str(index + 1) + (settings['corresponding_marker'] if author.get('corresponding') else ''), 7)
+            number.font.superscript = True
+        for index, author in enumerate(authors):
+            affiliation = ' · '.join(str(author.get(key, '')).strip() for key in ('title', 'affiliation') if str(author.get(key, '')).strip())
+            if affiliation:
+                _paragraph(doc, str(index + 1) + ' ' + affiliation, size=9, italic=True, align='center', after=2)
+    rule = _paragraph(doc, size=1, after=8)
+    border = _element('pBdr'); border.append(_element('bottom', val='single', sz=9, color='333333'))
+    rule._p.get_or_add_pPr().append(border)
+
+    def info_panel(language):
+        tr = language == 'tr'
+        table = _table(doc, [5.2, 11.8])
+        info, summary = table.rows[0].cells
+        _cell_style(summary, fill='F0F0F0', padding=150)
+        _paragraph(info, 'MAKALE BİLGİSİ' if tr else 'ARTICLE INFO', size=10, bold=True, after=6)
+        if cov.get('article_type'):
+            _paragraph(info, cov['article_type'] if tr else _english_label(cov['article_type']), size=9, bold=True, after=5)
+        for label, key in ([('Geliş:', 'received'), ('Kabul:', 'accepted')] if tr else [('Received:', 'received'), ('Accepted:', 'accepted')]):
+            if cov.get(key):
+                _paragraph(info, label + ' ' + str(cov[key]), size=8.5, after=4)
+        keywords = abstract.get(language + '_kw', '').strip()
+        if keywords:
+            _paragraph(info, 'Anahtar Kelimeler:' if tr else 'Keywords:', size=9, bold=True, before=5, after=2)
+            _paragraph(info, keywords, size=8.5)
+        _paragraph(summary, 'ÖZ' if tr else settings['english_abstract_heading'].upper(),
+                   size=10, bold=True, after=6, keep=True)
+        for text in re.split(r'\n\s*\n', abstract.get(language + '_abs', '').strip()):
+            if text:
+                p = _paragraph(summary, text, size=9, align='justify', after=3)
+                p.paragraph_format.line_spacing = 1.08
+        _compact_cell(info); _compact_cell(summary)
+        _paragraph(doc, size=2, after=8)
+
+    if not english and abstract.get('tr_abs', '').strip():
+        info_panel('tr')
+    if abstract.get('en_abs', '').strip():
+        info_panel('en')
+    footer, original = _start_cover_footer(doc)
+    corresponding = [a for a in authors if a.get('corresponding')]
+    if corresponding:
+        _paragraph(footer, settings['corresponding_marker'] + ' ' + ('Corresponding author: ' if english else 'Sorumlu yazar: ') +
+                   '; '.join(a['name'] + (' · ' + a['email'] if a.get('email') else '') for a in corresponding), size=8)
+    for label, value in [('DOI: ', cov.get('doi') if settings['doi_position'] == 'bottom' else ''),
+                         ('Etik Beyan: ' if not english else 'Ethics Statement: ', cov.get('ethics')),
+                         ('* ', cov.get('title_note')), ('', settings['footer_text'])]:
+        if value:
+            _paragraph(footer, label + value, size=8, after=1)
+    if assets.get('license') and settings['show_cc_logo']:
+        _picture(_paragraph(footer), assets['license'], max_width_cm=4, max_height_cm=.5)
+    _finish_cover_footer(doc, footer, original, settings, data)
+
+
 def _cover(doc, data, settings, assets):
+    if settings['template_id'] == 'bilingual_panel':
+        _bilingual_panel_cover(doc, data, settings, assets)
+        return
     if settings['template_id'] == 'scholarly':
         _scholarly_cover(doc, data, settings, assets)
         return
@@ -614,6 +719,7 @@ def _figure_or_table(doc, item, figures, english):
 def _body(doc, data, settings, figures):
     english = settings['english_only']
     scholarly = settings['template_id'] == 'scholarly'
+    bilingual_panel = settings['template_id'] == 'bilingual_panel'
     refs = sorted([r.strip() for r in data.get('references', '').splitlines() if r.strip()], key=turkish_sort_key)
     citations = CitationIndex(refs, settings['link_citations'])
     items = data.get('figtables', [])
@@ -626,7 +732,7 @@ def _body(doc, data, settings, figures):
         title = (_english_label(title) if english else title) or ('Section' if english else 'Bölüm')
         level = max(1, min(3, int(section.get('level', '1'))))
         _paragraph(doc, title, style='Heading ' + str(level), bold=True, keep=True, before=8, after=4,
-                   align='center' if level == 1 and not scholarly else 'left')
+                   align='center' if level == 1 and not scholarly and not bilingual_panel else 'left')
         assigned = [(i, item) for i, item in enumerate(items) if i not in placed and
                     (str(item.get('section_id')) == str(section.get('id')) if item.get('section_id') is not None and section.get('id') is not None else item.get('section', '').strip() == section.get('name', '').strip())]
         for i, item in assigned:
@@ -639,6 +745,10 @@ def _body(doc, data, settings, figures):
                     p.paragraph_format.first_line_indent = Cm(1.25)
                     p.paragraph_format.line_spacing = 1.5
                     p.paragraph_format.space_after = Pt(0)
+                elif bilingual_panel:
+                    p.paragraph_format.first_line_indent = Cm(0)
+                    p.paragraph_format.line_spacing = 1
+                    p.paragraph_format.space_after = Pt(6)
                 cursor = 0
                 for start, end, index in citations.spans(para.strip()):
                     _text(p, para.strip()[cursor:start])
@@ -668,7 +778,7 @@ def _body(doc, data, settings, figures):
             _paragraph(doc, text, align='justify')
     refs = sorted([ref.strip() for ref in data.get('references', '').splitlines() if ref.strip()], key=turkish_sort_key)
     if refs:
-        _paragraph(doc, 'References' if english else ('Kaynaklar' if scholarly else 'Kaynakça / References'), style='Heading 1', bold=True, keep=True, before=8, align='center' if scholarly else 'left')
+        _paragraph(doc, 'References' if english else ('Kaynaklar' if scholarly else 'Kaynakça' if bilingual_panel else 'Kaynakça / References'), style='Heading 1', bold=True, keep=True, before=8, align='center' if scholarly else 'left')
         for index, ref in enumerate(refs):
             p = _paragraph(doc, ref)
             p._p.insert(1, _element('bookmarkStart', id=index, name='aiditor_ref_' + str(index)))

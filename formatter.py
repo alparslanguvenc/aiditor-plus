@@ -2114,11 +2114,100 @@ def _scholarly_first_page(data: dict, js: dict, english_only: bool, has_tr: bool
 ''' + summary + '\n\\endgroup\n}\n')
 
 
+def _bilingual_panel_first_page(data: dict, js: dict, english_only: bool,
+                                has_tr: bool, has_en: bool, has_authors: bool) -> str:
+    """Editable two-column abstract panels with journal identity supplied by settings."""
+    cov = data.get('cover', {})
+    primary, secondary = _journal_names_for_output(js, english_only)
+    journal = primary or secondary or ''
+    logo = _optional_graphic(js['logo_stem'],
+                             f'height={js["logo_height_cm"]}cm,width=\\linewidth,keepaspectratio') if js['show_logo'] else ''
+    identity = (r'{\fontsize{12}{14}\selectfont\bfseries ' + escape(journal) + r'\par}') if journal else ''
+    if secondary and secondary != primary and not english_only:
+        identity += r'{\fontsize{9}{11}\selectfont ' + escape(secondary) + r'\par}'
+    if js['journal_url']:
+        identity += r'{\fontsize{8}{10}\selectfont ' + _escape_with_breakable_urls(js['journal_url']) + r'\par}'
+    mast = (r'\noindent\rule{\textwidth}{0.4pt}\par\vspace{3pt}'
+            r'\noindent\begin{minipage}[c]{0.15\textwidth}\centering ' + logo + r'\end{minipage}\hfill'
+            r'{\setlength{\fboxsep}{7pt}\colorbox{JGTTRbrown!30}{'
+            r'\begin{minipage}[c]{\dimexpr0.83\textwidth-14pt\relax}\centering ' + identity
+            + r'\end{minipage}}}\par\vspace{3pt}\noindent\rule{\textwidth}{0.4pt}\par')
+    primary_title = 'JGTTRenglishtitle' if english_only else 'JGTTRturkishtitle'
+    title = (r'\vspace{10pt}{\centering\fontsize{15}{18}\selectfont\bfseries ' + '\\' + primary_title
+             + (r'\textsuperscript{*}' if cov.get('title_note') else '') + r'\par}')
+    if not english_only and cov.get('en_title'):
+        title += r'{\centering\fontsize{12}{14}\selectfont\JGTTRenglishtitle\par}'
+    if has_authors:
+        title += (r'\vspace{12pt}{\centering\fontsize{11}{13}\selectfont\bfseries #1\par}'
+                  r'{\centering\fontsize{8.5}{10}\selectfont\itshape\JGTTRaffiliations\par}')
+    title += r'\vspace{7pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{8pt}'
+
+    def panel(language: str) -> str:
+        tr = language == 'turkish'
+        key = 'tr' if tr else 'en'
+        info_label = 'MAKALE BİLGİSİ' if tr else 'ARTICLE INFO'
+        summary_label = 'ÖZ' if tr else js['english_abstract_heading'].upper()
+        keyword_label = 'Anahtar Kelimeler' if tr else 'Keywords'
+        dates = [('Geliş', 'received'), ('Kabul', 'accepted')] if tr else [('Received', 'received'), ('Accepted', 'accepted')]
+        info = r'\textbf{' + escape(info_label) + r'}\par\vspace{5pt}' + '\n'
+        if cov.get('article_type'):
+            info += r'\textbf{\JGTTRarticletype}\par\vspace{4pt}' + '\n'
+        for label, field in dates:
+            if cov.get(field):
+                info += escape(label) + ': ' + escape(str(cov[field])) + r'\par' + '\n'
+        if data.get('abstract', {}).get(key + '_kw'):
+            info += r'\vspace{5pt}\textbf{' + escape(keyword_label) + r':}\par\JGTTR' + language + r'keywords\par'
+        summary = (r'\textbf{' + escape(summary_label) + r'}\par\vspace{6pt}'
+                   r'\JGTTR' + language + r'abstract\par')
+        return (r'\noindent\begin{minipage}[t]{0.30\textwidth}\vspace{0pt}'
+                r'\fontsize{8.5}{10.5}\selectfont ' + info + r'\end{minipage}\hfill'
+                r'{\setlength{\fboxsep}{7pt}\colorbox{JGTTRgray!35}{'
+                r'\begin{minipage}[t]{\dimexpr0.68\textwidth-14pt\relax}\vspace{0pt}'
+                r'\fontsize{9}{11}\selectfont ' + summary + r'\end{minipage}}}\par\vspace{11pt}')
+
+    panels = (panel('turkish') if has_tr and not english_only else '') + (panel('english') if has_en else '')
+    footer = []
+    if any(a.get('corresponding') for a in data.get('authors', [])):
+        footer.append(r'\textbf{' + ('Corresponding author: ' if english_only else 'Sorumlu yazar: ')
+                      + r'}\JGTTRcorrespondinginfo\par')
+    if cov.get('doi') and js['doi_position'] == 'bottom':
+        footer.append(r'\JGTTRdoilink\par')
+    if cov.get('ethics'):
+        footer.append(r'\textbf{' + ('Ethics Statement: ' if english_only else 'Etik Beyan: ')
+                      + r'}\JGTTRethicsstatement\par')
+    if cov.get('title_note'):
+        footer.append(r'* ' + escape(cov['title_note']) + r'\par')
+    if js['footer_text']:
+        footer.append(_escape_with_breakable_urls(js['footer_text']) + r'\par')
+    if js['show_cc_logo']:
+        footer.append(_optional_graphic(js['cc_logo_stem'], r'height=0.5cm,width=0.25\textwidth,keepaspectratio'))
+    notes = '\n'.join(footer)
+    return ('% Template: bilingual_panel; footer: ' + js['footer_layout'] + '\n' + r'''
+\newsavebox{\JGTTRfooterbox}
+\newcommand{\JGTTRfirstpage}[1]{%
+  \newgeometry{includehead=false,top=1.2cm,bottom=1.5cm,left=1.5cm,right=1.5cm,headheight=0pt,headsep=0pt,footskip=0.8cm}%
+  \thispagestyle{firstpage}%
+  \begin{lrbox}{\JGTTRfooterbox}\begin{minipage}{\textwidth}
+  \fontsize{8}{10}\selectfont\setlength{\parindent}{0pt}\setlength{\parskip}{0pt}
+''' + notes + r'''
+  \end{minipage}\end{lrbox}%
+  \noindent\begin{adjustbox}{max width=\textwidth,max totalheight={\dimexpr\textheight-\ht\JGTTRfooterbox-\dp\JGTTRfooterbox-3mm\relax},center}%
+  \begin{minipage}{\textwidth}\setlength{\parindent}{0pt}\setlength{\parskip}{0pt}
+''' + mast + title + panels + r'''
+  \end{minipage}\end{adjustbox}\par%
+  \vspace*{\fill}\noindent\usebox{\JGTTRfooterbox}%
+  \restoregeometry%
+}
+''')
+
+
 def _first_page_layout(data: dict, js: dict, english_only: bool, has_tr: bool,
                        has_en: bool, has_authors: bool) -> str:
     """Render the selected cover structure with a separately measured footer."""
     if js['template_id'] == 'scholarly':
         return _scholarly_first_page(data, js, english_only, has_tr, has_en, has_authors)
+    if js['template_id'] == 'bilingual_panel':
+        return _bilingual_panel_first_page(data, js, english_only, has_tr, has_en, has_authors)
     cov = data.get('cover', {})
     profile = _cover_profile(data, js)
     layout, footer_layout = js['template_id'], js['footer_layout']
@@ -2517,7 +2606,7 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
         [l.strip() for l in refs_raw.splitlines() if l.strip()],
         key=turkish_sort_key
     )
-    refs_heading = 'References' if english_only else ('Kaynaklar' if js['template_id'] == 'scholarly' else r'Kaynakça / References')
+    refs_heading = 'References' if english_only else ('Kaynaklar' if js['template_id'] == 'scholarly' else 'Kaynakça' if js['template_id'] == 'bilingual_panel' else r'Kaynakça / References')
     _ref_env_open = (
         r'\section*{' + refs_heading + r'}' + '\n'
         r'\begin{list}{}{%' + '\n'
@@ -2723,6 +2812,11 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
             compact_refs = compact_refs.replace(r'\section*{' + refs_heading + '}',
                                                 r'{\centering\bfseries ' + refs_heading + r'\par}\vspace{6pt}')
             tex = tex.replace(refs_tex, compact_refs)
+    elif js['template_id'] == 'bilingual_panel':
+        tex = tex.replace('% ── Paragraph format ──\n\\setlength{\\parindent}{0pt}\n\\setlength{\\parskip}{4pt}\n\\renewcommand{\\baselinestretch}{1.0}',
+                          '% ── Paragraph format ──\n\\setlength{\\parindent}{0pt}\n\\setlength{\\parskip}{6pt}\n\\renewcommand{\\baselinestretch}{1.0}')
+        tex = tex.replace(r'\bfseries\centering}{}{0em}{}', r'\bfseries}{}{0em}{}')
+        tex = tex.replace(r'\selectfont\bfseries\centering}', r'\selectfont\bfseries}')
     return tex
 
 

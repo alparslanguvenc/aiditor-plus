@@ -78,7 +78,12 @@ def running_slots(settings: dict, data: dict, kind: str, variant: str) -> tuple[
         if first == 'none':
             return ('', '', '')
         if first == 'custom':
-            return tuple(settings[f'{kind}_first_{slot}'] for slot in ('left', 'center', 'right'))
+            slots = tuple(settings[f'{kind}_first_{slot}'] for slot in ('left', 'center', 'right'))
+            if (kind == 'header' and settings.get('template_id') == 'bilingual_panel'
+                    and slots == ('', 'e-ISSN: {issn} · {cilt}({sayi}) · {yil}', '')
+                    and not (settings.get('issn_online') or settings.get('issn_print'))):
+                return ('', '{cilt}({sayi}) · {yil}', '')
+            return slots
         start = str(data.get('cover', {}).get('start_page', '1'))
         variant = 'even' if start.isdigit() and int(start) % 2 == 0 else 'odd'
     mode = settings[f'{kind}_mode']

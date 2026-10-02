@@ -1,5 +1,11 @@
 # Sürüm geçmişi
 
+## 2.3.0 — 2026-10-02
+
+Kullanıcının sağladığı Word sayfa düzeni, herhangi bir gerçek dergiye ait logo, ISSN, URL, yazar veya makale metni taşınmadan “İki dilli kutulu kapak” adlı altıncı hazır şablona uyarlandı. İlk sayfada künye bandı, iki dilde başlık ve solda makale bilgileri / sağda gri özet panelleri bulunur. Devam sayfalarında tek/çift sayfa üst bilgileri ve altta sayfa numarası desteklenir. Word ve LaTeX çıktıları, hesabın dergi kimliğini ve yüklenen logosunu kullanır; seçim mevcut kimlik ayarlarını korur. Önizleme temsili, kimliksiz örnek sayfadır.
+
+Mevcut beş şablon ve JGTTR Formatter değiştirilmedi.
+
 ## 2.2.0 — 2026-09-28
 
 Word çıktılarında ilk sayfa dipnotları, etik beyan, başlık açıklaması ve dergi notları sayfanın altındaki gerçek alt bilgi alanına taşındı. Kısa özetlerde yukarı çıkma sorunu giderildi. Kullanıcının ilk sayfa alt bilgisi korunur; kapak notları sonraki sayfalarda tekrarlanmaz. Gövde ayrı Word bölümünde devam eder ve sayfa numarası sıfırlanmaz. Eski Word dosyalarını düzeltmek için uygulamadan yeniden çıktı alın.

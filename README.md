@@ -16,6 +16,14 @@ Geliştirici: **Alparslan Güvenç** · [MIT lisansı](LICENSE) · [Sürüm notl
 
 macOS 13 veya üzerinde DMG içindeki **AI-ditor Plus** uygulamasını **Applications** klasörüne sürükleyin. Windows'ta kurulum dosyasını çalıştırın. Uygulama kendi Python ortamını içerir; kaynak koddan çalıştırmıyorsanız Python kurulumu gerekmez. Windows masaüstü penceresi Microsoft Edge WebView2 kullanır. macOS uygulaması Apple noter onayına sahip değildir; ilk açılışta Sistem Ayarları → Gizlilik ve Güvenlik bölümünden izin vermenizi isteyebilir.
 
+## 2.3 ile gelenler
+
+**Altıncı hazır şablon — İki dilli kutulu kapak:** A4 sayfada üst künye şeridi, ortalanmış Türkçe/İngilizce başlık ve yazar bilgileri, solda makale künyesi ve sağda gri özet paneli bulunan iki dilde bir ilk sayfa düzeni. Devam sayfalarında tek/çift sayfa üst bilgileri değişir; sayfa numarası altta yer alır. Hem düzenlenebilir Word hem Overleaf ZIP çıktısında kullanılabilir.
+
+**Dergi tasarımı ve ayarları → İki dilli kutulu kapak** yolundan seçin. Örnek görseldeki ad, ISSN, URL, yazar ve metinler temsildir. Şablonun içinde gerçek bir derginin logosu veya kimlik bilgisi bulunmaz. Seçim, hesabınızda kayıtlı dergi adı, logo, ISSN, web adresi ve yayın notlarını korur; bunları ve üst/alt bilgileri daha sonra değiştirebilirsiniz.
+
+![İki dilli kutulu kapak — kimliksiz örnek sayfa](static/previews/bilingual_panel.png)
+
 ## 2.2 ile gelenler
 
 - **İlk sayfa dipnotları sayfanın altında:** Word çıktısındaki yazar/dipnot, etik beyan ve dergi açıklamaları gerçek ilk sayfa alt bilgi alanına yerleştirilir. Özet kısa olduğunda yukarı taşınmaz; sonraki sayfalarda tekrarlanmaz. Özelleştirilmiş ilk sayfa alt bilgisi de korunur. Daha önce indirilen Word belgeleri için çıktıyı yeniden oluşturun.
@@ -60,7 +68,7 @@ Atıf eşleştirmesi `(Yılmaz, 2020)`, `Yılmaz (2020a)`, `(Kaya & Demir, 2021)
 ## İlk kullanım
 
 1. **Hesap oluştur** sekmesinden dergi adını, kullanıcı adını ve parolayı belirleyin.
-2. **Dergi ayarları** bölümündeki beş örnekten birini seçin. Seçimden sonra adı, logo, renk, tipografi ve dipnot alanlarını düzenleyin.
+2. **Dergi ayarları** bölümündeki altı örnekten birini seçin. Seçimden sonra adı, logo, renk, tipografi ve dipnot alanlarını düzenleyin.
 3. Kayıt göstergesinde ayarların kaydedildiğini görün. Sonraki girişinizde bu ayarlar geri gelir.
 4. Yeni makale açın veya Word belgenizi içe aktarın. Makaleye özgü yazar, tarih, cilt/sayı, başlık, özet, etik beyan ve kaynakça bilgilerini kontrol edin.
 5. Düzenlenebilir belge için **Word (.docx) oluştur → Word (.docx) indir** yolunu kullanın. PDF hazırlamak için **LaTeX Oluştur → ZIP İndir** yolunu kullanıp Overleaf'te **New Project → Upload Project** ile yükleyin ve **XeLaTeX** seçin.
@@ -108,6 +116,7 @@ python tests/browser_races.py
 python tests/browser_downloads.py
 python tests/browser_docx.py
 python tests/browser_scholarly.py
+python tests/browser_bilingual_panel.py
 ```
 
 macOS paketi: `bash build_mac.sh` · Windows paketi: `build_windows.bat` (Inno Setup gerektirir). GitHub Actions, değişikliklerde testleri; sürüm etiketlerinde macOS ve Windows paketlerini çalıştırır. Sürüm dosyaları her iki paket ve kontroller başarılı olduğunda yayımlanır.

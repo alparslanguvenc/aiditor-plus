@@ -37,6 +37,7 @@ jobs:
       - run: python tests/browser_downloads.py
       - run: python tests/browser_docx.py
       - run: python tests/browser_scholarly.py
+      - run: python tests/browser_bilingual_panel.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -101,7 +102,7 @@ jobs:
           body: |
             Akademik dergi editörlerinin işlerini kolaylaştırmak için kâr amacı güdülmeden geliştirilen, MIT lisanslı açık kaynak uygulama.
 
-            2.2.0: Word çıktısındaki ilk sayfa dipnotları artık özetin hemen ardından değil, sayfanın altında yer alır. Kapak notları sonraki sayfalarda tekrarlanmaz; özelleştirilmiş alt bilgi korunur. Önceden indirilen belgeleri uygulamadan yeniden oluşturun.
+            2.3.0: Yeni “İki dilli kutulu kapak” şablonunda künye şeridi, Türkçe ve İngilizce özet panelleri ve tek/çift sayfa üst bilgileri bulunur. Dergi adı, ISSN, web adresi ve logo hesabınızdan alınır; örnek şablonda gerçek dergi kimliği bulunmaz. Word ve LaTeX çıktısı desteklenir.
 
             Beşinci hazır şablon “Sosyal bilimler”: logolu gri künye, ortalanmış başlık, 2,5 cm yan kenar boşluğu, 1,5 satır aralığı ve ayrı sayfada İngilizce özet. Özelleştirilebilir “Extended Summary” başlığı ve üst bilgilerde otomatik sayfa aralığı. Word ve LaTeX desteği.
 

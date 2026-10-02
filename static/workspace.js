@@ -47,6 +47,7 @@ window.journalWorkspace = (() => {
     {id:'contemporary', name:'Çağdaş', description:'Belirgin renk bandı ve güçlü bir başlık hiyerarşisi.'},
     {id:'centered', name:'Ortalanmış', description:'Simetrik logo, merkezde dergi kimliği ve dengeli başlık.'},
     {id:'scholarly', name:'Sosyal bilimler', description:'Gri künye, ayrı sayfada İngilizce özet ve değişen üst bilgiler.'},
+    {id:'bilingual_panel', name:'İki dilli kutulu kapak', description:'Künye şeridi, iki dilde bilgi ve özet panelleri.'},
     {id:'minimal', name:'Sade', description:'İnce çizgiler, yalın kimlik ve ferah bir sayfa.'},
   ];
   function status(message, state='saved') {
@@ -84,7 +85,7 @@ window.journalWorkspace = (() => {
     }
   }
   function pageSketch(id, values = {}, imageAsset = null) {
-    const safeId = ['classic','contemporary','centered','minimal','scholarly'].includes(id) ? id : 'classic';
+    const safeId = ['classic','contemporary','centered','minimal','scholarly','bilingual_panel'].includes(id) ? id : 'classic';
     const page=document.createElement('div'); page.className='mini-paper '+safeId; page.setAttribute('aria-hidden','true');
     if (/^#[0-9a-f]{6}$/i.test(values.accent_color || '')) page.style.setProperty('--page-accent',values.accent_color);
     if (values.font_family === 'Calibri' || values.font_family === 'Sans Serif') page.style.fontFamily='Arial,sans-serif';
@@ -93,6 +94,21 @@ window.journalWorkspace = (() => {
     else if(imageAsset?.name){const icon=document.createElement('span');icon.className='asset-pdf';icon.textContent=imageAsset.name;mast.append(icon);}
     else {const icon=document.createElement('i');icon.textContent='J';mast.append(icon);}
     const name=document.createElement('b');name.textContent=(values.english_only ? values.journal_name_en : values.journal_name_tr) || values.journal_name_en || 'AKADEMİK ARAŞTIRMALAR DERGİSİ';mast.append(name);page.append(mast);
+    if(safeId==='bilingual_panel') {
+      const top=document.createElement('div');top.className='panel-top';top.textContent=(values.issn_online ? 'E-ISSN: '+values.issn_online+' · ' : '')+'Cilt 1 · Sayı 1 · 2026';page.prepend(top);
+      const url=document.createElement('span');url.className='panel-url';url.textContent=values.journal_url || 'Dergi web adresi';mast.append(url);
+      const title=document.createElement('h4');title.textContent=values.english_only ? 'Research and new perspectives' : 'Araştırma ve yeni bakış açıları';page.append(title);
+      if(!values.english_only){const en=document.createElement('div');en.className='panel-english-title';en.textContent='Research and New Perspectives';page.append(en);}
+      const author=document.createElement('div');author.className='mini-authors';author.textContent='Yazar Adı · Yazar Adı';page.append(author);
+      const affiliation=document.createElement('div');affiliation.className='panel-affiliation';affiliation.textContent='Üniversite · Bölüm';page.append(affiliation);
+      const rule=document.createElement('div');rule.className='mini-rule';page.append(rule);
+      for(const label of (values.english_only ? ['ABSTRACT'] : ['ÖZ','ABSTRACT'])){
+        const row=document.createElement('div');row.className='panel-row';const info=document.createElement('div');info.className='panel-info';info.textContent=label==='ÖZ' ? 'MAKALE BİLGİSİ\nGeliş · Kabul\nAnahtar kelimeler' : 'ARTICLE INFO\nReceived · Accepted\nKeywords';
+        const summary=document.createElement('div');summary.className='panel-summary';const head=document.createElement('b');head.textContent=label==='ÖZ' ? label : (values.english_abstract_heading || 'Abstract').toUpperCase();const lines=document.createElement('div');lines.className='mini-lines';summary.append(head,lines);row.append(info,summary);page.append(row);
+      }
+      const foot=document.createElement('div');foot.className='mini-foot';foot.textContent=values.footer_text || 'Sorumlu yazar · Yayın notları';page.append(foot);
+      return page;
+    }
     const band=document.createElement('div');band.className='mini-band';band.textContent=(values.issn_online ? 'e-ISSN '+values.issn_online+' · ' : '')+'2026 · CİLT 1 · SAYI 1';page.append(band);
     const title=document.createElement('h4');title.textContent=values.english_only ? 'Research, knowledge and new perspectives' : 'Araştırma, bilgi ve yeni bakış açıları';page.append(title);
     const author=document.createElement('div');author.className='mini-authors';author.textContent='Yazar Adı · Yazar Adı';page.append(author);
@@ -123,7 +139,7 @@ window.journalWorkspace = (() => {
     }
   }
   function updatePreview() {
-    const values=collect();byId('scholarly-layout-note').hidden=values.template_id!=='scholarly';window.updateRunningPreview(values);byId('live-preview').replaceChildren(pageSketch(values.header_layout,values,assets.logo));
+    const values=collect();byId('scholarly-layout-note').hidden=values.template_id!=='scholarly';byId('bilingual-panel-layout-note').hidden=values.template_id!=='bilingual_panel';window.updateRunningPreview(values);byId('live-preview').replaceChildren(pageSketch(values.header_layout,values,assets.logo));
     byId('journal-heading').textContent=values.journal_name_tr || values.journal_name_en || aiditorAccount?.display_name || 'Derginiz';
     const layout=(templates.length ? templates : localTemplates).find(item=>item.id===values.template_id)?.name || 'Özel';
     byId('journal-summary').textContent=`${layout} düzen · ${values.font_family || 'Palatino Linotype'} · ${values.body_size || 10} punto. Dergi ayarlarınız yeni girişlerde korunur.`;

@@ -67,7 +67,7 @@ class SettingsTests(unittest.TestCase):
         self.assertNotIn('jgttr', str(default_settings()).lower())
 
     def test_presets_validate_and_legacy_fonts_migrate(self):
-        self.assertEqual({t['id'] for t in TEMPLATES}, {'classic', 'contemporary', 'centered', 'minimal', 'scholarly'})
+        self.assertEqual({t['id'] for t in TEMPLATES}, {'classic', 'contemporary', 'centered', 'minimal', 'scholarly', 'bilingual_panel'})
         for template in TEMPLATES:
             self.assertEqual(normalize_settings(template['settings'])['template_id'], template['id'])
         self.assertEqual(normalize_settings({'font': 'Times New Roman'})['font_family'], 'texgyretermes')
@@ -102,7 +102,7 @@ class TemplateOutputTests(unittest.TestCase):
             self.assertNotIn('2717-6924', tex)
             self.assertIn(r'max totalheight={\dimexpr\textheight-\ht\JGTTRfooterbox', tex)
             outputs[template['id']] = tex[tex.index('% Template:'):]
-        self.assertEqual(len(set(outputs.values())), 5)
+        self.assertEqual(len(set(outputs.values())), 6)
         self.assertIn(r'p{0.183\textwidth}', outputs['classic'])
         self.assertIn(r'\colorbox{JGTTRbrown}', outputs['contemporary'])
         self.assertIn(r'\begin{minipage}[t]{0.48\textwidth}', outputs['contemporary'])

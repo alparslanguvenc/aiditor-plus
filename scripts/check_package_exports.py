@@ -44,7 +44,7 @@ def main():
                 deadline = time.monotonic() + 60
                 while time.monotonic() < deadline:
                     try:
-                        if json.loads(request('/health')).get('version') == '2.2.0':
+                        if json.loads(request('/health')).get('version') == '2.3.0':
                             break
                     except (OSError, ValueError):
                         if proc.poll() is not None:
