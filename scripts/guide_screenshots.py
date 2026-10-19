@@ -3,9 +3,13 @@
 Uses fictional sample data only (journal, authors, logo, article). Requires Playwright Chromium:
     python -m playwright install chromium
     python scripts/guide_screenshots.py
+Add `--pdf-engine /path/to/xelatex` (or tectonic) to also render the compiled cover example.
 """
 import argparse
+import copy
 from pathlib import Path
+import shutil
+import subprocess
 import sys
 import tempfile
 
@@ -195,6 +199,39 @@ def capture(url, work, out):
             raise RuntimeError(errors)
 
 
+def cover_example(engine, work, out):
+    """Compile a bilingual-panel cover that shows the 2.4 cover options."""
+    import pypdfium2
+    from formatter import generate_latex_from_form
+    from journal_templates import TEMPLATES
+    from test_formatter_templates import sample_article
+    data = sample_article()
+    data['cover'].update(start_page='45', end_page='', short_title='Açık İş Akışları',
+                         article_type='Araştırma Makalesi -- Research Article',
+                         revisions='01.05.2026\n15.06.2026', author_short='Örnek & Smith')
+    settings = {**next(item['settings'] for item in TEMPLATES if item['id'] == 'bilingual_panel'),
+                'journal_name_tr': 'Örnek Sosyal Araştırmalar Dergisi',
+                'journal_name_en': 'Journal of Sample Social Research', 'issn_online': '1234-5678',
+                'journal_url': 'https://example.org/osad',
+                'footer_text': 'Bu makale CC BY 4.0 lisansı ile yayımlanmaktadır.',
+                'citation_position': 'below_authors', 'footer_text_align': 'right'}
+    folder = work / 'cover'
+    folder.mkdir()
+    shutil.copy(work / 'ornek_logo.png', folder / 'journal_logo.png')
+    shutil.copy(ROOT / 'ccby.png', folder / 'license_logo.png')
+    (folder / 'main.tex').write_text(generate_latex_from_form(copy.deepcopy(data), {}, settings), encoding='utf-8')
+    if 'tectonic' in Path(engine).name:
+        subprocess.run([engine, '-k', 'main.tex'], cwd=folder, check=True, capture_output=True, timeout=600)
+    else:
+        for _ in range(2):  # the second pass resolves the automatic last page
+            subprocess.run([engine, '-interaction=nonstopmode', '-halt-on-error', 'main.tex'],
+                           cwd=folder, check=True, capture_output=True, timeout=600)
+    pdf = pypdfium2.PdfDocument(str(folder / 'main.pdf'))
+    page = pdf[0]
+    page.render(scale=2.2).to_pil().save(out / '21-iki-dilli-kapak-ornegi.png')
+    page.close(); pdf.close()
+
+
 def optimise(out, max_width):
     for path in sorted(out.glob('*.png')):
         image = Image.open(path).convert('RGB')
@@ -212,6 +249,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', type=Path, default=ROOT / 'docs' / 'images' / 'kilavuz')
     parser.add_argument('--max-width', type=int, default=1600)
+    parser.add_argument('--pdf-engine', help='XeLaTeX or Tectonic executable for the compiled cover example')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='aiditor-guide-') as data:
@@ -222,6 +260,8 @@ def main():
             capture(server.start(), work, args.output)
         finally:
             server.stop()
+        if args.pdf_engine:
+            cover_example(args.pdf_engine, work, args.output)
     optimise(args.output, args.max_width)
     print('Kılavuz görselleri:', args.output)
 

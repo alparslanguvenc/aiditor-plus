@@ -102,6 +102,8 @@ jobs:
           body: |
             Akademik dergi editörlerinin işlerini kolaylaştırmak için kâr amacı güdülmeden geliştirilen, MIT lisanslı açık kaynak uygulama.
 
+            2.4.0: Editör geri bildirimleriyle gelen yenilikler. Kapak bilgilerinde kısa başlık alanı ve isteğe bağlı birden fazla revizyon tarihi. Bitiş sayfası boş bırakıldığında sayfa aralığı Word ve PDF çıktısında mizanpaja göre otomatik hesaplanır. İki dilli kutulu kapakta makale türünün Türkçesi Öz, İngilizcesi Abstract panelinde; geliş, revizyon, kabul ve yayın tarihleri özetlerin solunda gösterilir. Dergi ayarlarında lisans metni ve görseli için sol/orta/sağ hizalama ile önerilen atıf için konum seçimi (yazar bilgilerinin altında, ilk sayfa dipnotunda veya gizli). Word içe aktarmada Türkçe ve İngilizce başlıklar dile göre doğru alanlara yerleşir. Varsayılan ayarlar mevcut şablon görünümünü değiştirmez.
+
             2.3.0: Yeni “İki dilli kutulu kapak” şablonunda künye şeridi, Türkçe ve İngilizce özet panelleri ve tek/çift sayfa üst bilgileri bulunur. Dergi adı, ISSN, web adresi ve logo hesabınızdan alınır; örnek şablonda gerçek dergi kimliği bulunmaz. Word ve LaTeX çıktısı desteklenir.
 
             Beşinci hazır şablon “Sosyal bilimler”: logolu gri künye, ortalanmış başlık, 2,5 cm yan kenar boşluğu, 1,5 satır aralığı ve ayrı sayfada İngilizce özet. Özelleştirilebilir “Extended Summary” başlığı ve üst bilgilerde otomatik sayfa aralığı. Word ve LaTeX desteği.
