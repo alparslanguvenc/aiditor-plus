@@ -70,7 +70,8 @@ window.journalWorkspace = (() => {
     settings = {...next};
     const values = {...window.runningDefaults, font_family:next.font_family || next.font || 'Palatino Linotype',body_size:10,accent_color:'#176B6A',
       logo_height_cm:2.3,corresponding_marker:'*',doi_position:'bottom',header_layout:next.template_id || 'classic',
-      footer_layout:'full',first_page_fit:'auto',english_abstract_heading:'Abstract',...next};
+      footer_layout:'full',first_page_fit:'auto',english_abstract_heading:'Abstract',
+      footer_text_align:'left',citation_position:'auto',...next};
     const fontAliases = {texgyrepagella:'Palatino Linotype',texgyretermes:'Times New Roman',tgschola:'Century',texgyrebonum:'Century',latinmodern:'Latin Modern',carlito:'Calibri',texgyreheros:'Sans Serif'};
     values.font_family = fontAliases[values.font_family] || values.font_family;
     for (const [key,id] of Object.entries(fields)) byId(id).value = values[key] ?? '';
@@ -103,10 +104,10 @@ window.journalWorkspace = (() => {
       const affiliation=document.createElement('div');affiliation.className='panel-affiliation';affiliation.textContent='Üniversite · Bölüm';page.append(affiliation);
       const rule=document.createElement('div');rule.className='mini-rule';page.append(rule);
       for(const label of (values.english_only ? ['ABSTRACT'] : ['ÖZ','ABSTRACT'])){
-        const row=document.createElement('div');row.className='panel-row';const info=document.createElement('div');info.className='panel-info';info.textContent=label==='ÖZ' ? 'MAKALE BİLGİSİ\nGeliş · Kabul\nAnahtar kelimeler' : 'ARTICLE INFO\nReceived · Accepted\nKeywords';
+        const row=document.createElement('div');row.className='panel-row';const info=document.createElement('div');info.className='panel-info';info.textContent=label==='ÖZ' ? 'MAKALE BİLGİSİ\nGeliş · Kabul · Yayın\nAnahtar kelimeler' : 'ARTICLE INFO\nReceived · Accepted · Published\nKeywords';
         const summary=document.createElement('div');summary.className='panel-summary';const head=document.createElement('b');head.textContent=label==='ÖZ' ? label : (values.english_abstract_heading || 'Abstract').toUpperCase();const lines=document.createElement('div');lines.className='mini-lines';summary.append(head,lines);row.append(info,summary);page.append(row);
       }
-      const foot=document.createElement('div');foot.className='mini-foot';foot.textContent=values.footer_text || 'Sorumlu yazar · Yayın notları';page.append(foot);
+      const foot=document.createElement('div');foot.className='mini-foot';foot.style.textAlign=values.footer_text_align||'left';foot.textContent=values.footer_text || 'Sorumlu yazar · Yayın notları';page.append(foot);
       return page;
     }
     const band=document.createElement('div');band.className='mini-band';band.textContent=(values.issn_online ? 'e-ISSN '+values.issn_online+' · ' : '')+'2026 · CİLT 1 · SAYI 1';page.append(band);
@@ -115,7 +116,7 @@ window.journalWorkspace = (() => {
     const rule=document.createElement('div');rule.className='mini-rule';page.append(rule);
     const abstracts=document.createElement('div');abstracts.className='mini-abstracts';
     for (const heading of (safeId==='scholarly' ? [values.english_only ? (values.english_abstract_heading || 'Abstract') : 'ÖZ'] : values.english_only ? [(values.english_abstract_heading || 'ABSTRACT'),'1. INTRODUCTION'] : ['ÖZET',values.english_abstract_heading || 'ABSTRACT'])) {const group=document.createElement('div');const h=document.createElement('h5');h.textContent=heading;const lines=document.createElement('div');lines.className='mini-lines';group.append(h,lines);abstracts.append(group);}page.append(abstracts);
-    const foot=document.createElement('div');foot.className='mini-foot';foot.textContent=values.footer_text || values.journal_url || 'Dergi bilgileri · Lisans ve yayın notları';page.append(foot);
+    const foot=document.createElement('div');foot.className='mini-foot';foot.style.textAlign=values.footer_text_align||'left';foot.textContent=values.footer_text || values.journal_url || 'Dergi bilgileri · Lisans ve yayın notları';page.append(foot);
     if (values.footer_layout === 'minimal') foot.style.borderTop='0';
     return page;
   }

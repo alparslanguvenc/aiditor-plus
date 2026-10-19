@@ -14,11 +14,12 @@ from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.shared import Cm, Pt, RGBColor
 from PIL import Image
 
-from formatter import (_cover_profile, _english_label, _normalize_table_model,
+from formatter import (_cover_profile, _english_label, _normalize_table_model, _turkish_label,
                        _numbered_section_title, _parse_table_rows, turkish_sort_key)
 from journal_templates import normalize_settings
 from citation_links import CitationIndex
-from page_furniture import article_values, block_height_cm, citation_text, resolved_parts, running_slots
+from page_furniture import (LAST_PAGE, article_values, block_height_cm, citation_text, page_value,
+                            resolved_parts, revision_dates, running_slots, text_parts)
 
 DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 FONTS = {'texgyrepagella': 'Palatino Linotype', 'texgyretermes': 'Times New Roman',
@@ -27,6 +28,7 @@ FONTS = {'texgyrepagella': 'Palatino Linotype', 'texgyretermes': 'Times New Roma
 ALIGN = {'left': WD_ALIGN_PARAGRAPH.LEFT, 'center': WD_ALIGN_PARAGRAPH.CENTER,
          'right': WD_ALIGN_PARAGRAPH.RIGHT, 'justify': WD_ALIGN_PARAGRAPH.JUSTIFY}
 _PDF_LOCK = threading.Lock()
+LAST_PAGE_BOOKMARK = 'aiditor_last_page'
 
 
 def _element(tag: str, **attributes):
@@ -51,6 +53,13 @@ def _paragraph(container, text='', *, size=None, bold=False, italic=False, color
 
 def _text(p, text, *, size=None, bold=False, italic=False, color=None):
     """Keep plain prose and URLs editable; URLs also receive Word relationships."""
+    if LAST_PAGE in text:
+        for kind, part in text_parts(text):
+            if kind == 'lastpage':
+                _field(p, ' PAGEREF ' + LAST_PAGE_BOOKMARK + ' ', '…', size)
+            else:
+                _text(p, part, size=size, bold=bold, italic=italic, color=color)
+        return
     position = 0
     for match in re.finditer(r'https?://[^\s<>]+', text):
         _run(p, text[position:match.start()], size, bold, italic, color)
@@ -158,16 +167,46 @@ def _picture(p, asset, *, max_width_cm=18, max_height_cm=14):
     shape._inline.docPr.set('descr', filename)
 
 
-def _page_field(p, value='1', size=8):
+def _field(p, instruction, value, size=None):
     # Separate runs are required by Word and LibreOffice's complex-field reader.
     p.add_run()._r.append(_element('fldChar', fldCharType='begin'))
     code = _element('instrText')
     code.set(qn('xml:space'), 'preserve')
-    code.text = ' PAGE '
+    code.text = instruction
     p.add_run()._r.append(code)
     p.add_run()._r.append(_element('fldChar', fldCharType='separate'))
-    p.add_run(value).font.size = Pt(size)
+    result = p.add_run(value)
+    if size:
+        result.font.size = Pt(float(size))
     p.add_run()._r.append(_element('fldChar', fldCharType='end'))
+
+
+def _page_field(p, value='1', size=8):
+    _field(p, ' PAGE ', value, size)
+
+
+def _mark_last_page(doc, data):
+    """Bookmark the article's end so PAGEREF fields resolve its last page number."""
+    if page_value(data.get('cover', {}).get('end_page')):
+        return
+    body = doc.element.body
+    blocks = [child for child in body if child.tag in {qn('w:p'), qn('w:tbl')}]
+    if not blocks or blocks[-1].tag != qn('w:p'):
+        p = doc.add_paragraph()
+        p.paragraph_format.space_before = p.paragraph_format.space_after = Pt(0)
+        p.paragraph_format.line_spacing = Pt(1)
+        target = p._p
+    else:
+        target = blocks[-1]
+    target.append(_element('bookmarkStart', id=9999, name=LAST_PAGE_BOOKMARK))
+    target.append(_element('bookmarkEnd', id=9999))
+    # Header/footer fields refresh during layout; body fields refresh on open.
+    doc.settings.element.insert_element_before(
+        _element('updateFields', val='true'), 'w:hdrShapeDefaults', 'w:footnotePr', 'w:endnotePr', 'w:compat',
+        'w:docVars', 'w:rsids', 'm:mathPr', 'w:attachedSchema', 'w:themeFontLang', 'w:clrSchemeMapping',
+        'w:doNotIncludeSubdocsInStats', 'w:doNotAutoCompressPictures', 'w:forceUpgrade', 'w:captions',
+        'w:readModeInkLockDown', 'w:smartTagType', 'sl:schemaLibrary', 'w:shapeDefaults',
+        'w:doNotEmbedSmartTags', 'w:decimalSymbol', 'w:listSeparator')
 
 
 def _running_part(part, slots, values, *, size, line, kind, start, width=18, scholarly=False):
@@ -190,6 +229,8 @@ def _running_part(part, slots, values, *, size, line, kind, start, width=18, sch
         for kind_, value in resolved_parts(text, values):
             if kind_ == 'page':
                 _page_field(p, start, size)
+            elif kind_ == 'lastpage':
+                _field(p, ' PAGEREF ' + LAST_PAGE_BOOKMARK + ' ', '…', size)
             else:
                 _text(p, value, size=size, bold=scholarly and kind == 'header', italic=scholarly and kind == 'header')
         if scholarly and kind == 'header':
@@ -356,7 +397,7 @@ def _scholarly_cover(doc, data, settings, assets):
         p = _paragraph(doc, after=0)
         _run(p, 'Article Type: ' if english else 'Makale Türü / Article Type: ', 10, bold=True)
         _text(p, _english_label(cov['article_type']) if english else cov['article_type'], size=10, italic=True)
-    if settings['footer_layout'] != 'minimal':
+    if settings['citation_position'] == 'auto' and settings['footer_layout'] != 'minimal':
         p = _paragraph(doc, after=2, align='justify')
         _run(p, 'Citation: ' if english else 'Atıf / Citation: ', 10, bold=True)
         _text(p, citation_text(data, settings), size=10)
@@ -386,6 +427,8 @@ def _scholarly_cover(doc, data, settings, assets):
                 info += (' · ' if info else '') + author['email']
             if info:
                 _paragraph(doc, str(index + 1) + ' ' + info, size=9, italic=True, after=4)
+    if settings['citation_position'] == 'below_authors':
+        _citation_paragraph(doc, data, settings, size=9, align='justify', before=4, after=4)
 
     def add_abstract(language, label, keyword_label):
         size = 10 * scale if language == 'tr' or english_cover else 10
@@ -408,12 +451,17 @@ def _scholarly_cover(doc, data, settings, assets):
     if doi and settings['doi_position'] == 'bottom':
         _paragraph(footer, 'https://doi.org/' + doi, size=8, after=2)
     for label, value in [('Ethics Statement: ' if english else 'Etik Beyan: ', cov.get('ethics')),
-                         ('* ', cov.get('title_note')), ('', settings['footer_text']),
-                         ('Editor: ' if english else 'Editör / Editor: ', cov.get('editor'))]:
+                         ('* ', cov.get('title_note'))]:
         if value:
             _paragraph(footer, label + value, size=8, before=4)
+    if settings['citation_position'] == 'footer':
+        _citation_paragraph(footer, data, settings, size=8, before=4)
+    if settings['footer_text']:
+        _paragraph(footer, settings['footer_text'], size=8, before=4, align=settings['footer_text_align'])
+    if cov.get('editor'):
+        _paragraph(footer, ('Editor: ' if english else 'Editör / Editor: ') + cov['editor'], size=8, before=4)
     if assets.get('license') and settings['show_cc_logo']:
-        _picture(_paragraph(footer), assets['license'], max_width_cm=5, max_height_cm=.5)
+        _picture(_paragraph(footer, align=settings['footer_text_align']), assets['license'], max_width_cm=5, max_height_cm=.5)
     # Editorial contact/dates belong to the cover footer; the user-controlled
     # running first-page footer, if present, remains in the same editable part.
     contacts = []
@@ -427,6 +475,8 @@ def _scholarly_cover(doc, data, settings, assets):
         _text(p, '; '.join(contacts), size=8)
     labels = [('Received', 'received'), ('Accepted', 'accepted'), ('Published', 'published')] if english else [('Gönderim / Received', 'received'), ('Kabul / Accepted', 'accepted'), ('Yayımlanma / Published', 'published')]
     dates = [label + ': ' + str(cov[key]) for label, key in labels if cov.get(key)]
+    revised = [('Revised: ' if english else 'Revizyon / Revised: ') + value for value in revision_dates(cov)]
+    dates[1 if cov.get('received') else 0:1 if cov.get('received') else 0] = revised
     if dates:
         dates_p = _paragraph(footer, '    '.join(dates), size=8, after=0)
         p = p or dates_p
@@ -480,6 +530,8 @@ def _bilingual_panel_cover(doc, data, settings, assets):
             affiliation = ' · '.join(str(author.get(key, '')).strip() for key in ('title', 'affiliation') if str(author.get(key, '')).strip())
             if affiliation:
                 _paragraph(doc, str(index + 1) + ' ' + affiliation, size=9, italic=True, align='center', after=2)
+    if settings['citation_position'] == 'below_authors':
+        _citation_paragraph(doc, data, settings, size=8.5, align='justify', before=6, after=2)
     rule = _paragraph(doc, size=1, after=8)
     border = _element('pBdr'); border.append(_element('bottom', val='single', sz=9, color='333333'))
     rule._p.get_or_add_pPr().append(border)
@@ -491,10 +543,16 @@ def _bilingual_panel_cover(doc, data, settings, assets):
         _cell_style(summary, fill='F0F0F0', padding=150)
         _paragraph(info, 'MAKALE BİLGİSİ' if tr else 'ARTICLE INFO', size=10, bold=True, after=6)
         if cov.get('article_type'):
-            _paragraph(info, cov['article_type'] if tr else _english_label(cov['article_type']), size=9, bold=True, after=5)
-        for label, key in ([('Geliş:', 'received'), ('Kabul:', 'accepted')] if tr else [('Received:', 'received'), ('Accepted:', 'accepted')]):
-            if cov.get(key):
-                _paragraph(info, label + ' ' + str(cov[key]), size=8.5, after=4)
+            # Each panel shows its own language half of "Türkçe -- English".
+            _paragraph(info, _turkish_label(cov['article_type']) if tr else _english_label(cov['article_type']), size=9, bold=True, after=5)
+        revisions = revision_dates(cov)
+        dates = [('Geliş' if tr else 'Received', cov.get('received'))]
+        dates += [(('Revizyon' if tr else 'Revised') + (f' {number}' if len(revisions) > 1 else ''), value)
+                  for number, value in enumerate(revisions, 1)]
+        dates += [('Kabul' if tr else 'Accepted', cov.get('accepted')), ('Yayın' if tr else 'Published', cov.get('published'))]
+        for label, value in dates:
+            if value:
+                _paragraph(info, label + ': ' + str(value), size=8.5, after=4)
         keywords = abstract.get(language + '_kw', '').strip()
         if keywords:
             _paragraph(info, 'Anahtar Kelimeler:' if tr else 'Keywords:', size=9, bold=True, before=5, after=2)
@@ -519,11 +577,12 @@ def _bilingual_panel_cover(doc, data, settings, assets):
                    '; '.join(a['name'] + (' · ' + a['email'] if a.get('email') else '') for a in corresponding), size=8)
     for label, value in [('DOI: ', cov.get('doi') if settings['doi_position'] == 'bottom' else ''),
                          ('Etik Beyan: ' if not english else 'Ethics Statement: ', cov.get('ethics')),
-                         ('* ', cov.get('title_note')), ('', settings['footer_text'])]:
+                         ('* ', cov.get('title_note'))]:
         if value:
             _paragraph(footer, label + value, size=8, after=1)
-    if assets.get('license') and settings['show_cc_logo']:
-        _picture(_paragraph(footer), assets['license'], max_width_cm=4, max_height_cm=.5)
+    if settings['citation_position'] == 'footer':
+        _citation_paragraph(footer, data, settings, size=8, after=1)
+    _licence_notes(footer, settings, assets, size=8)
     _finish_cover_footer(doc, footer, original, settings, data)
 
 
@@ -598,7 +657,11 @@ def _cover(doc, data, settings, assets):
             _run(p, author['name'], profile['authors'][0], bold=True)
             r = _run(p, str(i + 1) + (settings['corresponding_marker'] if author.get('corresponding') else ''), 7)
             r.font.superscript = True
+    if settings['citation_position'] == 'below_authors':
+        _citation_paragraph(doc, data, settings, size=profile['info'][0], after=6,
+                            align='center' if layout == 'centered' else 'left')
     date_items = [(('Received' if english else 'Başvuru / Received'), cov.get('received')),
+                  *[(('Revised' if english else 'Revizyon / Revised'), value) for value in revision_dates(cov)],
                   (('Accepted' if english else 'Kabul / Accepted'), cov.get('accepted')),
                   (('Published' if english else 'Yayın / Published'), cov.get('published')),
                   (('Editor' if english else 'Editör / Editor'), cov.get('editor'))]
@@ -646,17 +709,37 @@ def _cover(doc, data, settings, assets):
     corresponding = [a for a in authors if a.get('corresponding')]
     if corresponding:
         _paragraph(footer, settings['corresponding_marker'] + ' ' + ('Corresponding author: ' if english else 'Sorumlu yazar / Corresponding author: ') + '; '.join(a['name'] + (' · ' + a['email'] if a.get('email') else '') for a in corresponding), size=fs, italic=True)
-    if settings['footer_layout'] != 'minimal':
+    position = settings['citation_position']
+    if position == 'footer' or (position == 'auto' and settings['footer_layout'] != 'minimal'):
         _paragraph(footer, ('Suggested Citation: ' if english else 'Önerilen Atıf / Suggested Citation: ') + citation_text(data, settings), size=fs)
-    for label, value in [('Ethics Statement: ' if english else 'Etik Beyan / Ethics Statement: ', cov.get('ethics')), ('* ', cov.get('title_note')), ('', settings['footer_text'])]:
+    for label, value in [('Ethics Statement: ' if english else 'Etik Beyan / Ethics Statement: ', cov.get('ethics')), ('* ', cov.get('title_note'))]:
         if value:
             _paragraph(footer, label + value, size=fs)
+    if settings['footer_text']:
+        _paragraph(footer, settings['footer_text'], size=fs, align=settings['footer_text_align'])
     if settings['doi_position'] == 'bottom' and cov.get('doi'):
         _paragraph(footer, 'DOI: https://doi.org/' + cov['doi'], size=fs)
     if assets.get('license') and settings['show_cc_logo']:
-        p = _paragraph(footer, after=2)
+        p = _paragraph(footer, after=2, align=settings['footer_text_align'])
         _picture(p, assets['license'], max_width_cm=6, max_height_cm=.55)
     _finish_cover_footer(doc, footer, original, settings, data)
+
+
+def _citation_paragraph(container, data, settings, *, size, align='left', before=0, after=3):
+    p = _paragraph(container, align=align, before=before, after=after)
+    _run(p, 'Suggested Citation: ' if settings['english_only'] else 'Önerilen Atıf / Suggested Citation: ', size, bold=True)
+    _text(p, citation_text(data, settings), size=size)
+    return p
+
+
+def _licence_notes(footer, settings, assets, *, size, after=1, max_width_cm=4, max_height_cm=.5):
+    """Journal licence text and image share the selected footer alignment."""
+    align = settings['footer_text_align']
+    if settings['footer_text']:
+        _paragraph(footer, settings['footer_text'], size=size, after=after, align=align)
+    if assets.get('license') and settings['show_cc_logo']:
+        _picture(_paragraph(footer, align=align, after=after), assets['license'],
+                 max_width_cm=max_width_cm, max_height_cm=max_height_cm)
 
 
 def _figure_or_table(doc, item, figures, english):
@@ -811,6 +894,7 @@ def generate_docx_from_form(data: dict, figures: dict, journal_settings: dict | 
         else:
             document.add_page_break()
         _body(document, data, settings, figures)
+    _mark_last_page(document, data)
     buffer = io.BytesIO()
     document.save(buffer)
     return buffer.getvalue()

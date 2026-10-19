@@ -59,6 +59,8 @@ _DEFAULTS = {
     'template_id': 'classic', 'header_layout': 'classic', 'footer_layout': 'full',
     'show_logo': True, 'show_cc_logo': True, 'link_citations': True,
     'english_abstract_heading': 'Abstract',
+    # Optional placements; the defaults keep each template's original layout.
+    'footer_text_align': 'left', 'citation_position': 'auto',
 }
 _FONT_ALIASES = {
     'palatino linotype': 'texgyrepagella', 'palatino': 'texgyrepagella',
@@ -97,6 +99,8 @@ def normalize_settings(raw):
         'footer_layout': {'full', 'compact', 'minimal'},
         'doi_position': {'top', 'bottom'}, 'first_page_fit': {'auto', 'compact', 'dense'},
         'body_size': {'10', '11', '12'},
+        'footer_text_align': {'left', 'center', 'right'},
+        'citation_position': {'auto', 'below_authors', 'footer', 'none'},
     }.items():
         value = str(result[key]).strip().lower()
         if value not in choices:

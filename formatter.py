@@ -13,6 +13,7 @@ import math
 import unicodedata
 from urllib.parse import quote
 from journal_templates import normalize_settings
+from page_furniture import page_value, revision_dates, short_authors
 from docx import Document
 from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -122,6 +123,15 @@ def _english_label(text: str) -> str:
         value = value.rsplit(' -- ', 1)[-1].strip()
     elif ' / ' in value:
         value = value.rsplit(' / ', 1)[-1].strip()
+    return value
+
+
+def _turkish_label(text: str) -> str:
+    """Return the Turkish half of common bilingual UI labels."""
+    value = (text or '').strip()
+    for separator in (' -- ', ' / '):
+        if separator in value:
+            return value.split(separator, 1)[0].strip()
     return value
 
 
@@ -964,6 +974,37 @@ def _paragraph_is_list(paragraph: Paragraph) -> bool:
     return p_pr is not None and p_pr.numPr is not None
 
 
+_TURKISH_WORDS = {
+    've', 'bir', 'ile', 'için', 'bu', 'da', 'de', 'olarak', 'üzerine', 'üzerinde', 'yönelik', 'arasındaki',
+    'ilişkisi', 'ilişki', 'etkisi', 'etkileri', 'analizi', 'incelenmesi', 'değerlendirilmesi', 'örneği',
+    'bağlamında', 'açısından', 'göre', 'karşı', 'nasıl', 'neden', 'veya', 'ya', 'ki', 'mi', 'ne', 'çok',
+    'türkiye', 'türk', 'araştırma', 'çalışma', 'durumu', 'rolü', 'önemi', 'sürecinde',
+}
+_ENGLISH_WORDS = {
+    'the', 'of', 'and', 'in', 'on', 'for', 'a', 'an', 'to', 'with', 'from', 'by', 'at', 'as', 'its', 'their',
+    'study', 'analysis', 'effect', 'effects', 'case', 'between', 'among', 'towards', 'toward', 'role', 'how',
+    'why', 'what', 'impact', 'evidence', 'review', 'approach', 'perspective', 'investigation', 'into', 'or',
+}
+
+
+def _turkish_score(text: str) -> int:
+    """Positive for Turkish, negative for English; used to route imported titles."""
+    lowered = (text or '').replace('İ', 'i').lower()
+    words = re.findall(r'[a-zçğıöşüâîû]+', lowered)
+    return (2 * sum(char in 'çğıöşüÇĞİÖŞÜ' for char in text or '')
+            + 3 * sum(word in _TURKISH_WORDS for word in words)
+            - 3 * sum(word in _ENGLISH_WORDS for word in words))
+
+
+def _route_titles_by_language(first: str, second: str) -> tuple[str, str]:
+    """Place Turkish/English titles in their own fields regardless of source order."""
+    if first and second:
+        return (second, first) if _turkish_score(second) > _turkish_score(first) else (first, second)
+    if first and _turkish_score(first) < 0:
+        return '', first
+    return first, second
+
+
 def extract_form_data_from_docx(file_bytes: bytes) -> tuple[dict, list[dict]]:
     """Extract a reviewable form payload and body images from a DOCX file."""
     document = Document(io.BytesIO(file_bytes))
@@ -1029,6 +1070,7 @@ def extract_form_data_from_docx(file_bytes: bytes) -> tuple[dict, list[dict]]:
         tr_title = labeled_titles.get('tr', '')
         en_title = labeled_titles.get('en', '')
         title_indices.update(labeled_title_indices)
+    tr_title, en_title = _route_titles_by_language(tr_title, en_title)
 
     captions_by_target: dict[int, dict] = {}
     caption_indices: set[int] = set()
@@ -2008,6 +2050,19 @@ def _optional_graphic(stem: str, options: str) -> str:
     return result
 
 
+def _citation_line(english_only: bool, align: str = '') -> str:
+    label = 'Suggested Citation: ' if english_only else 'Önerilen Atıf / Suggested Citation: '
+    return '{' + align + r'\textbf{' + label + r'}\JGTTRapacitation\par}'
+
+
+def _aligned_note(js: dict, content: str) -> str:
+    """Apply the journal's left/centre/right choice to its licence text and image."""
+    align = {'left': '', 'center': r'\centering ', 'right': r'\raggedleft '}[js['footer_text_align']]
+    if not align or not content:
+        return content
+    return '{' + align + content + ('' if content.endswith(r'\par') else r'\par') + '}'
+
+
 def _scholarly_first_page(data: dict, js: dict, english_only: bool, has_tr: bool,
                           has_en: bool, has_authors: bool) -> str:
     """Journal-panel cover followed by a flowing, separately paginated English summary."""
@@ -2042,7 +2097,7 @@ def _scholarly_first_page(data: dict, js: dict, english_only: bool, has_tr: bool
     citation = ''
     if cov.get('article_type'):
         citation += r'\textbf{' + ('Article Type: ' if english_only else 'Makale Türü / Article Type: ') + r'}\textit{\JGTTRarticletype}\par'
-    if js['footer_layout'] != 'minimal':
+    if js['citation_position'] == 'auto' and js['footer_layout'] != 'minimal':
         citation += r'\textbf{' + ('Citation: ' if english_only else 'Atıf / Citation: ') + r'}\JGTTRapacitation\par'
     # The English block follows on its own page only when a primary Turkish abstract exists.
     separate_summary = has_tr and has_en and not english_only
@@ -2053,6 +2108,8 @@ def _scholarly_first_page(data: dict, js: dict, english_only: bool, has_tr: bool
     if not english_only and not has_en and cov.get('en_title') and cov['en_title'] != cov.get('tr_title'):
         title += r'{\centering\fontsize{11}{14}\selectfont\itshape\JGTTRenglishtitle\par}\vspace{8pt}'
     authors = r'{\fontsize{11}{14}\selectfont #1\par}\vspace{3pt}{\fontsize{9}{12}\selectfont\itshape\JGTTRaffiliations\par}\vspace{12pt}' if has_authors else ''
+    if js['citation_position'] == 'below_authors':
+        authors += r'{\fontsize{9}{12}\selectfont ' + _citation_line(english_only) + r'}\vspace{10pt}'
 
     def abstract_block(language: str, label: str, keyword_label: str) -> str:
         size = 10 * scale if language == 'turkish' or english_cover else 10
@@ -2071,13 +2128,17 @@ def _scholarly_first_page(data: dict, js: dict, english_only: bool, has_tr: bool
     if doi and js['doi_position'] == 'bottom':
         notes.append(doi + r'\par')
     for label, value in [(('Ethics Statement: ' if english_only else 'Etik Beyan: '), cov.get('ethics')),
-                         ('* ', cov.get('title_note')), ('', js['footer_text'])]:
+                         ('* ', cov.get('title_note'))]:
         if value:
             notes.append(escape(label) + _escape_with_breakable_urls(value) + r'\par')
+    if js['citation_position'] == 'footer':
+        notes.append(_citation_line(english_only))
+    if js['footer_text']:
+        notes.append(_aligned_note(js, _escape_with_breakable_urls(js['footer_text']) + r'\par'))
     if cov.get('editor'):
         notes.append(('Editor: ' if english_only else 'Editör / Editor: ') + escape(cov['editor']) + r'\par')
     if js['show_cc_logo']:
-        notes.append(_optional_graphic(js['cc_logo_stem'], r'height=0.5cm,width=0.3\textwidth,keepaspectratio'))
+        notes.append(_aligned_note(js, _optional_graphic(js['cc_logo_stem'], r'height=0.5cm,width=0.3\textwidth,keepaspectratio')))
     footer = []
     if any(a.get('corresponding') for a in data.get('authors', [])):
         footer.append(r'\textbf{' + ('Corresponding Author: ' if english_only else 'Sorumlu Yazar / Corresponding Author: ') + r'}\JGTTRcorrespondinginfo\par')
@@ -2086,6 +2147,9 @@ def _scholarly_first_page(data: dict, js: dict, english_only: bool, has_tr: bool
     for label, key in labels:
         if cov.get(key):
             dates.append(r'\textbf{' + escape(label) + ': }' + escape(str(cov[key])))
+        if key == 'received':
+            dates += [r'\textbf{' + ('Revised' if english_only else 'Revizyon / Revised') + ': }' + escape(value)
+                      for value in revision_dates(cov)]
     if dates:
         footer.append(r'\hfill '.join(dates) + r'\par')
     footer_text = '\n'.join(notes + footer)
@@ -2140,6 +2204,8 @@ def _bilingual_panel_first_page(data: dict, js: dict, english_only: bool,
     if has_authors:
         title += (r'\vspace{12pt}{\centering\fontsize{11}{13}\selectfont\bfseries #1\par}'
                   r'{\centering\fontsize{8.5}{10}\selectfont\itshape\JGTTRaffiliations\par}')
+    if js['citation_position'] == 'below_authors':
+        title += r'\vspace{6pt}{\fontsize{8.5}{10.5}\selectfont ' + _citation_line(english_only) + '}'
     title += r'\vspace{7pt}\noindent\rule{\textwidth}{0.8pt}\par\vspace{8pt}'
 
     def panel(language: str) -> str:
@@ -2148,13 +2214,18 @@ def _bilingual_panel_first_page(data: dict, js: dict, english_only: bool,
         info_label = 'MAKALE BİLGİSİ' if tr else 'ARTICLE INFO'
         summary_label = 'ÖZ' if tr else js['english_abstract_heading'].upper()
         keyword_label = 'Anahtar Kelimeler' if tr else 'Keywords'
-        dates = [('Geliş', 'received'), ('Kabul', 'accepted')] if tr else [('Received', 'received'), ('Accepted', 'accepted')]
+        revisions = revision_dates(cov)
+        dates = [('Geliş' if tr else 'Received', cov.get('received'))]
+        dates += [(('Revizyon' if tr else 'Revised') + (f' {number}' if len(revisions) > 1 else ''), value)
+                  for number, value in enumerate(revisions, 1)]
+        dates += [('Kabul' if tr else 'Accepted', cov.get('accepted')), ('Yayın' if tr else 'Published', cov.get('published'))]
         info = r'\textbf{' + escape(info_label) + r'}\par\vspace{5pt}' + '\n'
         if cov.get('article_type'):
-            info += r'\textbf{\JGTTRarticletype}\par\vspace{4pt}' + '\n'
-        for label, field in dates:
-            if cov.get(field):
-                info += escape(label) + ': ' + escape(str(cov[field])) + r'\par' + '\n'
+            # Each panel shows its own language half of "Türkçe -- English".
+            info += r'\textbf{\JGTTRarticletype' + ('tr' if tr else 'en') + r'}\par\vspace{4pt}' + '\n'
+        for label, value in dates:
+            if value:
+                info += escape(label) + ': ' + escape(str(value)) + r'\par' + '\n'
         if data.get('abstract', {}).get(key + '_kw'):
             info += r'\vspace{5pt}\textbf{' + escape(keyword_label) + r':}\par\JGTTR' + language + r'keywords\par'
         summary = (r'\textbf{' + escape(summary_label) + r'}\par\vspace{6pt}'
@@ -2177,10 +2248,12 @@ def _bilingual_panel_first_page(data: dict, js: dict, english_only: bool,
                       + r'}\JGTTRethicsstatement\par')
     if cov.get('title_note'):
         footer.append(r'* ' + escape(cov['title_note']) + r'\par')
+    if js['citation_position'] == 'footer':
+        footer.append(_citation_line(english_only))
     if js['footer_text']:
-        footer.append(_escape_with_breakable_urls(js['footer_text']) + r'\par')
+        footer.append(_aligned_note(js, _escape_with_breakable_urls(js['footer_text']) + r'\par'))
     if js['show_cc_logo']:
-        footer.append(_optional_graphic(js['cc_logo_stem'], r'height=0.5cm,width=0.25\textwidth,keepaspectratio'))
+        footer.append(_aligned_note(js, _optional_graphic(js['cc_logo_stem'], r'height=0.5cm,width=0.25\textwidth,keepaspectratio')))
     notes = '\n'.join(footer)
     return ('% Template: bilingual_panel; footer: ' + js['footer_layout'] + '\n' + r'''
 \newsavebox{\JGTTRfooterbox}
@@ -2273,6 +2346,11 @@ def _first_page_layout(data: dict, js: dict, english_only: bool, has_tr: bool,
     editor = str(cov.get('editor', '') or '').strip()
     if layout == 'classic':
         abstract = _build_abstract_block(english_only, has_tr, has_en, editor)
+        for label, received in (('Revizyon', r'Baş. tarihi: \JGTTRreceived}\par\inforule%' + '\n'),
+                                ('Revised', r'Received: \JGTTRreceived}\par\inforule%' + '\n')):
+            rows = ''.join(r'      {\fontsize{7.5}{9}\selectfont ' + label + ': ' + escape(value) + r'}\par\inforule%' + '\n'
+                           for value in revision_dates(cov))
+            abstract = abstract.replace(received, received + rows)
         abstract = abstract.replace(r'\scshape Abstract}', r'\scshape ' + escape(js['english_abstract_heading']) + '}')
         abs_size, abs_leading = profile['abstract']
         info_size, info_leading = profile['info']
@@ -2285,6 +2363,8 @@ def _first_page_layout(data: dict, js: dict, english_only: bool, has_tr: bool,
         if not english_only:
             date_labels = [('Başvuru / Received', 'received'), ('Kabul / Accepted', 'accepted'), ('Yayın / Published', 'published')]
         dates = [escape(label) + ': ' + '\\JGTTR' + key for label, key in date_labels if cov.get(key)]
+        revised = [('Revised: ' if english_only else 'Revizyon / Revised: ') + escape(value) for value in revision_dates(cov)]
+        dates[1 if cov.get('received') else 0:1 if cov.get('received') else 0] = revised
         if editor:
             dates.append(('Editor: ' if english_only else 'Editör / Editor: ') + escape(editor))
         abstract = (r'{\fontsize{7.5}{9}\selectfont ' + r'\quad '.join(dates) + r'\par}\vspace{4pt}') if dates else ''
@@ -2304,26 +2384,31 @@ def _first_page_layout(data: dict, js: dict, english_only: bool, has_tr: bool,
         abstract += (r'\hfill' if columns else r'\par\vspace{5pt}').join(rendered)
 
     footer_parts = []
+    citation_position = js['citation_position']
     if has_authors:
         footer_parts.append(r'\JGTTRaffiliations\par')
         footer_parts.append(r'\textit{' + _build_corresponding_label(english_only, _latex_marker(js['corresponding_marker']))
                             + r': \JGTTRcorrespondinginfo}\par')
-    if footer_layout != 'minimal':
-        footer_parts.append(r'\textbf{' + ('Suggested Citation: ' if english_only else 'Önerilen Atıf / Suggested Citation: ')
-                            + r'}\JGTTRapacitation\par')
+    if citation_position == 'footer' or (citation_position == 'auto' and footer_layout != 'minimal'):
+        footer_parts.append(_citation_line(english_only))
     if str(cov.get('ethics', '') or '').strip():
         footer_parts.append(r'\textbf{' + ('Ethics Statement: ' if english_only else 'Etik Beyan / Ethics Statement: ')
                             + r'}\JGTTRethicsstatement\par')
     if str(cov.get('title_note', '') or '').strip():
         footer_parts.append(r'\textit{' + escape(cov['title_note']) + r'}\par')
     if js['footer_text']:
-        footer_parts.append(_escape_with_breakable_urls(js['footer_text']) + r'\par')
+        footer_parts.append(_aligned_note(js, _escape_with_breakable_urls(js['footer_text']) + r'\par'))
     if js['doi_position'] == 'bottom' and doi:
         footer_parts.append(doi)
     license_logo = _optional_graphic(js['cc_logo_stem'], r'height=0.55cm,width=0.35\textwidth,keepaspectratio')
     if js.get('show_cc_logo', True):
-        footer_parts.append(license_logo)
+        footer_parts.append(_aligned_note(js, license_logo))
     footer = '\n'.join(footer_parts)
+    below_authors = ''
+    if citation_position == 'below_authors':
+        info_size, info_leading = profile['info']
+        below_authors = (rf'{{\fontsize{{{info_size}}}{{{info_leading}}}\selectfont '
+                         + _citation_line(english_only, r'\centering ' if layout == 'centered' else '') + '}' + rf'\vspace{{{profile["gap"]}}}')
     footer_size, footer_leading = profile['footer']
     # A long ethics statement should use spare cover space before shrinking.
     # Short abstracts leave more room for affiliations and editorial notes.
@@ -2356,7 +2441,7 @@ def _first_page_layout(data: dict, js: dict, english_only: bool, has_tr: bool,
   \begin{minipage}{\textwidth}%
 ''' + header + '\n' + meta + '\n' + rf'\vspace{{{gap}}}'
             + r'{\fontsize{9}{11}\selectfont\itshape\JGTTRarticletype\par}' + rf'\vspace{{{gap}}}'
-            + titles + rf'\vspace{{{gap}}}' + authors + rf'\vspace{{{gap}}}' + abstract + '\n' + r'''
+            + titles + rf'\vspace{{{gap}}}' + authors + rf'\vspace{{{gap}}}' + below_authors + abstract + '\n' + r'''
   \end{minipage}%
   \end{adjustbox}\par%
   \vspace*{\fill}%
@@ -2434,10 +2519,13 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
     volume     = escape(cov.get('volume',     'x'))
     issue      = escape(cov.get('issue',      'x'))
     start_page = escape(cov.get('start_page', 'xxx'))
-    end_page   = escape(cov.get('end_page',   'xxx'))
+    # An empty end page is resolved by LaTeX from the article's final page.
+    end_page   = escape(page_value(cov.get('end_page'))) or r'\pageref*{LastPage}'
     doi        = escape(str(cov.get('doi', '') or '').removeprefix('https://doi.org/').removeprefix('doi:').strip())
     art_type_raw = cov.get('article_type', 'Araştırma Makalesi -- Research Article')
     art_type   = escape(_english_label(art_type_raw) if english_only else art_type_raw)
+    art_type_tr = escape(_turkish_label(art_type_raw))
+    art_type_en = escape(_english_label(art_type_raw))
     received   = escape(cov.get('received',  'xx.xx.xxxx'))
     accepted   = escape(cov.get('accepted',  'xx.xx.xxxx'))
     published  = escape(cov.get('published', 'xx.xx.xxxx'))
@@ -2445,19 +2533,7 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
     ethics = escape(ethics_raw)
 
     # ── Author short / head title ──
-    author_short = cov.get('author_short', '').strip()
-    if not author_short and authors:
-        names = [a['name'].split()[-1] for a in authors if a.get('name')]
-        if len(names) == 1:
-            author_short = names[0]
-        elif len(names) == 2:
-            author_short = names[0] + ' & ' + names[1]
-        elif names:
-            author_short = names[0] + r' et al.'
-    if not author_short:
-        author_short = ''
-    else:
-        author_short = escape(author_short)
+    author_short = escape(short_authors({**data, 'authors': authors}))
 
     head_title = escape(_title_without_footnote_marker(en_title_raw or tr_title_raw) if english_only else _title_without_footnote_marker(tr_title_raw or en_title_raw))
 
@@ -2748,6 +2824,8 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
 \newcommand{\JGTTRendpage}{""" + end_page + r"""}
 \newcommand{\JGTTRDOI}{""" + doi_line + r"""}
 \newcommand{\JGTTRarticletype}{""" + art_type + r"""}
+\newcommand{\JGTTRarticletypetr}{""" + art_type_tr + r"""}
+\newcommand{\JGTTRarticletypeen}{""" + art_type_en + r"""}
 \newcommand{\JGTTRreceived}{""" + received + r"""}
 \newcommand{\JGTTRaccepted}{""" + accepted + r"""}
 \newcommand{\JGTTRpublished}{""" + published + r"""}

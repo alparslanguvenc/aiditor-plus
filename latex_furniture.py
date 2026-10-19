@@ -9,7 +9,8 @@ def apply_running_latex(tex: str, data: dict, settings: dict, escape) -> str:
     values = article_values(data, settings)
 
     def text(value):
-        return ''.join(r'\thepage{}' if kind == 'page' else escape(part).replace('\n', r'\newline ') for kind, part in resolved_parts(value, values))
+        commands = {'page': r'\thepage{}', 'lastpage': r'\pageref*{LastPage}'}
+        return ''.join(commands.get(kind) or escape(part).replace('\n', r'\newline ') for kind, part in resolved_parts(value, values))
 
     def block(kind, variant):
         slots = running_slots(settings, data, kind, variant)

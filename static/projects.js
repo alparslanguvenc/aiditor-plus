@@ -3,7 +3,7 @@ const coverFields = {
   tr_title:'c-tr-title', en_title:'c-en-title', year:'c-year', volume:'c-volume', issue:'c-issue',
   start_page:'c-start', end_page:'c-end', doi:'c-doi', article_type:'c-article-type',
   received:'c-received', accepted:'c-accepted', published:'c-published',
-  author_short:'c-author-short', editor:'c-editor', ethics:'c-ethics', title_note:'c-title-note', first_page_fit:'c-first-page-fit',
+  author_short:'c-author-short', short_title:'c-short-title', revisions:'c-revisions', editor:'c-editor', ethics:'c-ethics', title_note:'c-title-note', first_page_fit:'c-first-page-fit',
 };
 function fileDataURL(file) {
   return new Promise((resolve, reject) => {
@@ -61,6 +61,7 @@ async function applySavedProject(project, prepared, filename) {
   data.figtables.forEach(item => delete item.import_image_index);
   await applyDocxImport({...data, warnings:[], stats:{}}, '', filename, false);
   for (const [key, id] of Object.entries(coverFields)) document.getElementById(id).value = data.cover[key] || '';
+  renderRevisionDates();
   document.getElementById('authors-list').replaceChildren();
   data.authors.forEach(author => addAuthor(author));
   refreshAuthorNums();

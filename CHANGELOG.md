@@ -1,5 +1,18 @@
 # Sürüm geçmişi
 
+## Yayımlanmamış
+
+Editör geri bildirimleri doğrultusunda makale ve dergi ayarlarına yeni seçenekler eklendi. Varsayılan değerler mevcut şablon görünümünü değiştirmez.
+
+- **Kısa başlık:** Kapak bilgilerine üst bilgilerde kullanılan *Kısa Başlık* alanı eklendi. Boşsa makale başlığı kullanılır.
+- **Otomatik sayfa aralığı:** Bitiş sayfası boş bırakıldığında son sayfa, mizanpajdan sonra hesaplanır (LaTeX'te `LastPage`, Word'de belge sonuna bağlı `PAGEREF` alanı). Künye, önerilen atıf ve `{sayfa_araligi}` üst bilgisi tek işlemde doğru sayfa aralığını gösterir.
+- **İki dilli makale türü:** İki dilli kutulu kapakta “Türkçe -- English” makale türünün Türkçesi Öz paneline, İngilizcesi Abstract paneline yazılır.
+- **Revizyon ve yayın tarihleri:** İsteğe bağlı, birden fazla revizyon tarihi girilebilir. İki dilli kutulu kapakta özetlerin solundaki alanda geliş, revizyon, kabul ve yayın tarihleri listelenir; diğer şablonlarda da revizyon tarihleri tarih satırlarına eklenir.
+- **Lisans metni hizası:** Sabit dipnot/lisans metni ve lisans görseli sol, orta veya sağa hizalanabilir.
+- **Önerilen atıf konumu:** Atıf; şablon varsayılanında, yazar bilgileriyle özetler arasında, ilk sayfa dipnotunda gösterilebilir ya da gizlenebilir.
+- **Word içe aktarma:** Makale başlıklarının dili tanınır; İngilizce başlık önce gelse bile Türkçe ve İngilizce başlıklar doğru alanlara yerleştirilir.
+- **Kısa yazar:** Alanın örnek metni yıl içermeyecek biçimde düzeltildi; daha önce yıl yazılmış kayıtlarda atıfta yıl tekrarlanmaz.
+
 ## 2.3.0 — 2026-10-02
 
 Kullanıcının sağladığı Word sayfa düzeni, herhangi bir gerçek dergiye ait logo, ISSN, URL, yazar veya makale metni taşınmadan “İki dilli kutulu kapak” adlı altıncı hazır şablona uyarlandı. İlk sayfada künye bandı, iki dilde başlık ve solda makale bilgileri / sağda gri özet panelleri bulunur. Devam sayfalarında tek/çift sayfa üst bilgileri ve altta sayfa numarası desteklenir. Word ve LaTeX çıktıları, hesabın dergi kimliğini ve yüklenen logosunu kullanır; seçim mevcut kimlik ayarlarını korur. Önizleme temsili, kimliksiz örnek sayfadır.

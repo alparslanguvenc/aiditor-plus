@@ -145,13 +145,16 @@ def capture(url, work, out):
         page.locator('#docx-file-input').set_input_files(str(work / 'ornek_makale.docx'))
         page.wait_for_function('!docxImporting && collectSections().length > 2', timeout=20000)
         page.wait_for_timeout(500); wait_saved(page)
-        cover = {'#c-year': '2026', '#c-volume': '3', '#c-issue': '2', '#c-start': '45', '#c-end': '62',
+        cover = {'#c-year': '2026', '#c-volume': '3', '#c-issue': '2', '#c-start': '45',
                  '#c-doi': '10.1234/osad.2026.012', '#c-article-type': 'Araştırma Makalesi / Research Article',
                  '#c-received': '12.03.2026', '#c-accepted': '04.07.2026', '#c-published': '30.09.2026',
                  '#c-author-short': 'Örnek & Smith', '#c-editor': 'Dr. Deniz Editör',
+                 '#c-short-title': 'Kırsal Turizmde Dijital Tanıtım',
                  '#c-ethics': 'Bu çalışma için Örnek Üniversitesi Etik Kurulundan izin alınmıştır (Karar no: 2026/04).'}
         for selector, value in cover.items():
             page.locator(selector).fill(value)
+        page.locator('#c-end').fill('')
+        page.locator('#add-revision').click(); page.keyboard.type('20.05.2026')
         authors = [dict(title='Doç. Dr.', name='Deniz Örnek', affiliation='Örnek Üniversitesi, Turizm Fakültesi, Ankara',
                         orcid='0000-0002-1825-0097', email='deniz@example.org', corresponding=True),
                    dict(title='Dr.', name='Alex Smith', affiliation='Example University, School of Tourism, London',
