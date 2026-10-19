@@ -8,6 +8,8 @@ AI-ditor Plus, akademik dergi editörlerinin mizanpaj işlerini kolaylaştırmak
 
 Geliştirici: **Alparslan Güvenç** · [MIT lisansı](LICENSE) · [Sürüm notları](CHANGELOG.md)
 
+📘 **[Kullanım Kılavuzu](docs/KULLANIM_KILAVUZU.md)** — kurulumdan Word/PDF çıktısına kadar her adımın ekran görüntülü anlatımı.
+
 ## İndirme
 
 - [macOS kurulumu](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Installer.dmg)
@@ -66,6 +68,8 @@ Atıf eşleştirmesi `(Yılmaz, 2020)`, `Yılmaz (2020a)`, `(Kaya & Demir, 2021)
 ![Özelleştirilebilir dergi tasarımları](docs/images/journal-settings.png)
 
 ## İlk kullanım
+
+Aşağıdaki adımların ekran görüntülü ve ayrıntılı anlatımı [Kullanım Kılavuzu](docs/KULLANIM_KILAVUZU.md)'ndadır.
 
 1. **Hesap oluştur** sekmesinden dergi adını, kullanıcı adını ve parolayı belirleyin.
 2. **Dergi ayarları** bölümündeki altı örnekten birini seçin. Seçimden sonra adı, logo, renk, tipografi ve dipnot alanlarını düzenleyin.
