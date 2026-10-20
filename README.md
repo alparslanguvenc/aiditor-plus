@@ -18,6 +18,22 @@ Geliştirici: **Alparslan Güvenç** · [MIT lisansı](LICENSE) · [Sürüm notl
 
 macOS 13 veya üzerinde DMG içindeki **AI-ditor Plus** uygulamasını **Applications** klasörüne sürükleyin. Windows'ta kurulum dosyasını çalıştırın. Uygulama kendi Python ortamını içerir; kaynak koddan çalıştırmıyorsanız Python kurulumu gerekmez. Windows masaüstü penceresi Microsoft Edge WebView2 kullanır. macOS uygulaması Apple noter onayına sahip değildir; ilk açılışta Sistem Ayarları → Gizlilik ve Güvenlik bölümünden izin vermenizi isteyebilir.
 
+## 2.4 ile gelenler
+
+Bu sürümdeki yenilikler, uygulamayı kullanan editörlerin geri bildirimleriyle şekillendi. Yeni seçeneklerin varsayılanları mevcut şablon görünümünü değiştirmez.
+
+- **Otomatik sayfa aralığı:** *Bitiş Sayfası* boş bırakıldığında makalenin son sayfası mizanpaj tamamlandıktan sonra hesaplanır. Künye, önerilen atıf ve üst bilgilerdeki sayfa aralığı tek işlemde doğru çıkar; mizanpajı iki kez oluşturmak gerekmez.
+- **Kısa başlık:** Üst bilgilerde kullanılacak kısa başlık artık kapak bilgilerinden girilebilir.
+- **Revizyon ve yayın tarihleri:** İsteğe bağlı olarak birden fazla revizyon tarihi eklenebilir. İki dilli kutulu kapakta özetlerin solundaki makale bilgisi alanında geliş, revizyon, kabul ve yayın tarihleri birlikte gösterilir.
+- **İki dilli makale türü:** “Araştırma Makalesi -- Research Article” gibi bir seçimde Türkçesi Öz panelinde, İngilizcesi Abstract panelinde yer alır.
+- **Önerilen atıf konumu:** Atıf; şablonun varsayılan yerinde, yazar bilgileriyle özetler arasında, ilk sayfanın altında gösterilebilir ya da gizlenebilir.
+- **Lisans metni hizası:** Sabit lisans metni ve lisans görseli ilk sayfanın altında sola, ortaya veya sağa hizalanabilir.
+- **Daha akıllı Word aktarımı:** Türkçe ve İngilizce makale başlıkları, Word dosyasındaki sıradan bağımsız olarak doğru alanlara yerleşir.
+
+![İki dilli kutulu kapak — 2.4 yenilikleriyle örnek ilk sayfa](docs/images/kilavuz/21-iki-dilli-kapak-ornegi.png)
+
+Ayrıntılar için [Kullanım Kılavuzu](docs/KULLANIM_KILAVUZU.md)'na ve [sürüm notlarına](CHANGELOG.md) bakın.
+
 ## 2.3 ile gelenler
 
 **Altıncı hazır şablon — İki dilli kutulu kapak:** A4 sayfada üst künye şeridi, ortalanmış Türkçe/İngilizce başlık ve yazar bilgileri, solda makale künyesi ve sağda gri özet paneli bulunan iki dilde bir ilk sayfa düzeni. Devam sayfalarında tek/çift sayfa üst bilgileri değişir; sayfa numarası altta yer alır. Hem düzenlenebilir Word hem Overleaf ZIP çıktısında kullanılabilir.

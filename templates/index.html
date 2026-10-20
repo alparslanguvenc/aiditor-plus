@@ -143,6 +143,9 @@ body::before {
   border:1.5px dashed #9fc6bf; background:#f9fdfc; border-radius:11px; color:var(--teal-dark);
   width:100%; padding:7px; font-size:.88rem; transition:all .2s; cursor:pointer;
 }
+.revision-list { display:flex; flex-wrap:wrap; gap:.5rem; }
+.revision-list:not(:empty) { margin-bottom:.35rem; }
+.revision-row { display:flex; align-items:center; gap:.3rem; width:11rem; }
 .add-btn:hover { border-color:var(--teal); color:var(--teal-dark); background:#eaf7f4; transform:translateY(-1px); }
 
 .btn-icon { padding:2px 7px; font-size:.78rem; border-radius:6px; line-height:1.6; }
@@ -323,7 +326,7 @@ textarea { resize:vertical; }
    <div class="col-12" id="bilingual-panel-layout-note" hidden><small>İki dilli kutulu kapak: Logo ve dergi adı üst künyede, Türkçe ve İngilizce özetler gri panellerde gösterilir. Tek/çift sayfa üst bilgileri ve alttaki sayfa numarası düzenlenebilir. Dergi adı, URL, ISSN ve logo hesabınızın mevcut alanlarından alınır.</small></div>
    <div class="col-12"><label class="check-label"><input type="checkbox" id="js-english-only" class="form-check-input"> Yalnızca İngilizce kapak ve etiketler kullan</label></div>
   </div></div>
-  <div class="settings-section"><span class="eyebrow">04 / DİPNOT VE LİSANS</span><h2>Sayfanın altındaki bilgiler</h2><div class="row g-3"><div class="col-md-5"><label for="js-footer-layout">Kapak dipnot düzeni</label><select id="js-footer-layout" class="form-select"><option value="full">Ayrıntılı · tüm bilgiler</option><option value="compact">Kısa · daha az boşluk</option><option value="minimal">Sade · temel bilgiler</option></select></div><div class="col-md-7"><label for="js-footer-text">Derginin sabit dipnot / lisans metni</label><textarea id="js-footer-text" class="form-control" rows="3" maxlength="2000" placeholder="Derginizin yayın ve lisans bilgisi…"></textarea></div></div><small>Makale başlık dipnotu ve etik beyanı, ilgili makalenin kapak alanında girilir.</small></div>
+  <div class="settings-section"><span class="eyebrow">04 / DİPNOT VE LİSANS</span><h2>Sayfanın altındaki bilgiler</h2><div class="row g-3"><div class="col-md-5"><label for="js-footer-layout">Kapak dipnot düzeni</label><select id="js-footer-layout" class="form-select"><option value="full">Ayrıntılı · tüm bilgiler</option><option value="compact">Kısa · daha az boşluk</option><option value="minimal">Sade · temel bilgiler</option></select></div><div class="col-md-7"><label for="js-footer-text">Derginin sabit dipnot / lisans metni</label><textarea id="js-footer-text" class="form-control" rows="3" maxlength="2000" placeholder="Derginizin yayın ve lisans bilgisi…"></textarea></div><div class="col-md-5"><label for="js-footer-text-align">Lisans metni ve görseli hizası</label><select id="js-footer-text-align" class="form-select" data-journal-setting="footer_text_align"><option value="left">Sol (mevcut düzen)</option><option value="center">Orta</option><option value="right">Sağ</option></select></div><div class="col-md-7"><label for="js-citation-position">Önerilen atıf konumu</label><select id="js-citation-position" class="form-select" data-journal-setting="citation_position" aria-describedby="citation-position-help"><option value="auto">Şablonun varsayılanı</option><option value="below_authors">Yazar bilgilerinin altında, özetlerden önce</option><option value="footer">İlk sayfanın altındaki dipnotta</option><option value="none">Gösterme</option></select><small id="citation-position-help">Şablonun varsayılanı: İki dilli kutulu kapakta atıf gösterilmez; diğer şablonlarda “Sade” dipnot düzeni dışında gösterilir.</small></div></div><small>Makale başlık dipnotu ve etik beyanı, ilgili makalenin kapak alanında girilir.</small></div>
 
 <div class="settings-section running-settings"><span class="eyebrow">05 / SAYFA ÜST VE ALT BİLGİLERİ</span><h2>Her sayfaya ait ayrıntılar</h2>
 <p>Bu ayarlar Word ve LaTeX çıktılarında kullanılır. Tek/çift seçimi, makalenin başlangıç sayfa numarasına göre uygulanır. Kapaktaki yazar, etik beyan ve lisans bilgileri ayrıca korunur.</p>
@@ -403,16 +406,21 @@ textarea { resize:vertical; }
       <label class="lbl">Türkçe Başlık</label>
       <input class="form-control" id="c-tr-title" placeholder="Makalenin Türkçe başlığı">
     </div>
-    <div class="mb-3">
+    <div class="mb-2">
       <label class="lbl">İngilizce Başlık (Title)</label>
       <input class="form-control" id="c-en-title" placeholder="Article title in English">
+    </div>
+    <div class="mb-3">
+      <label class="lbl" for="c-short-title">Kısa Başlık <small class="text-muted">(üst bilgide kullanılır)</small></label>
+      <input class="form-control form-control-sm" id="c-short-title" maxlength="120" placeholder="Boş bırakılırsa makale başlığı kullanılır">
     </div>
     <div class="row g-2 mb-2">
       <div class="col-4 col-md-2"><label class="lbl">Yıl</label><input class="form-control form-control-sm" id="c-year" value="2026"></div>
       <div class="col-4 col-md-2"><label class="lbl">Cilt</label><input class="form-control form-control-sm" id="c-volume" placeholder="x"></div>
       <div class="col-4 col-md-2"><label class="lbl">Sayı</label><input class="form-control form-control-sm" id="c-issue" placeholder="x"></div>
       <div class="col-6 col-md-3"><label class="lbl">Başlangıç Sayfası</label><input class="form-control form-control-sm" id="c-start" placeholder="xxx"></div>
-      <div class="col-6 col-md-3"><label class="lbl">Bitiş Sayfası</label><input class="form-control form-control-sm" id="c-end" placeholder="xxx"></div>
+      <div class="col-6 col-md-3"><label class="lbl" for="c-end">Bitiş Sayfası</label><input class="form-control form-control-sm" id="c-end" placeholder="otomatik" aria-describedby="c-end-help"></div>
+      <div class="col-12 text-muted" id="c-end-help" style="font-size:.73rem">Bitiş sayfasını boş bırakırsanız sayfa aralığı, mizanpaj sonucuna göre Word ve PDF çıktısında otomatik hesaplanır.</div>
     </div>
     <div class="row g-2 mb-2">
       <div class="col-md-6"><label class="lbl">DOI</label><input class="form-control form-control-sm" id="c-doi" placeholder="10.xxxxx/dergi.2026.001"></div>
@@ -434,8 +442,14 @@ textarea { resize:vertical; }
       <div class="col-md-4"><label class="lbl">Kabul Tarihi (Accepted)</label><input class="form-control form-control-sm" id="c-accepted" placeholder="gg.aa.yyyy"></div>
       <div class="col-md-4"><label class="lbl">Yayın Tarihi (Published)</label><input class="form-control form-control-sm" id="c-published" placeholder="gg.aa.yyyy"></div>
     </div>
+    <div class="mb-2">
+      <label class="lbl">Revizyon Tarihleri (Revised) <small class="text-muted">— isteğe bağlı, her revizyon için bir tarih</small></label>
+      <div id="revision-list" class="revision-list"></div>
+      <button type="button" class="add-btn mt-1" id="add-revision" onclick="addRevisionDate()"><i class="bi bi-plus-circle me-1"></i>Revizyon Tarihi Ekle</button>
+      <textarea id="c-revisions" hidden></textarea>
+    </div>
     <div class="row g-2 mb-2">
-      <div class="col-md-6"><label class="lbl">Kısa Yazar (üst bilgi, örn: Yılmaz &amp; Kaya, 2026)</label><input class="form-control form-control-sm" id="c-author-short" placeholder="Yılmaz &amp; Kaya, 2026"></div><div class="col-md-6"><label class="lbl" for="c-editor">Editör</label><input class="form-control form-control-sm" id="c-editor" placeholder="Editör adı (isteğe bağlı)"></div>
+      <div class="col-md-6"><label class="lbl" for="c-author-short">Kısa Yazar (üst bilgi ve atıf, örn: Yılmaz &amp; Kaya)</label><input class="form-control form-control-sm" id="c-author-short" placeholder="Yılmaz &amp; Kaya"></div><div class="col-md-6"><label class="lbl" for="c-editor">Editör</label><input class="form-control form-control-sm" id="c-editor" placeholder="Editör adı (isteğe bağlı)"></div>
     </div>
     <div class="mb-2">
       <label class="lbl">Etik Beyan / Ethics Statement</label>
@@ -1905,6 +1919,44 @@ function moveEl(id, dir) {
   announceSectionOrder(el);
 }
 
+// Revision dates are edited as a list and stored one per line in #c-revisions.
+function syncRevisionDates() {
+  document.getElementById('c-revisions').value = [...document.querySelectorAll('#revision-list input')]
+    .map(input => input.value.trim()).filter(Boolean).join('\n');
+}
+function addRevisionDate(value = '', focus = true) {
+  const list = document.getElementById('revision-list');
+  const row = document.createElement('div');
+  row.className = 'revision-row';
+  const input = document.createElement('input');
+  input.className = 'form-control form-control-sm';
+  input.placeholder = 'gg.aa.yyyy';
+  input.value = value;
+  input.setAttribute('aria-label', 'Revizyon tarihi');
+  input.addEventListener('input', syncRevisionDates);
+  const remove = document.createElement('button');
+  remove.type = 'button';
+  remove.className = 'btn btn-sm btn-outline-danger btn-icon';
+  remove.title = 'Revizyon tarihini sil';
+  remove.setAttribute('aria-label', remove.title);
+  remove.innerHTML = '<i class="bi bi-trash3" aria-hidden="true"></i>';
+  remove.addEventListener('click', () => { row.remove(); refreshRevisionLabels(); syncRevisionDates(); });
+  row.append(input, remove);
+  list.appendChild(row);
+  refreshRevisionLabels();
+  if (focus) input.focus();
+}
+function refreshRevisionLabels() {
+  document.querySelectorAll('#revision-list input').forEach((input, index) => {
+    input.setAttribute('aria-label', (index + 1) + '. revizyon tarihi');
+  });
+}
+function renderRevisionDates() {
+  document.getElementById('revision-list').replaceChildren();
+  document.getElementById('c-revisions').value.split(/[\n;]+/).map(v => v.trim()).filter(Boolean)
+    .forEach(value => addRevisionDate(value, false));
+}
+
 // ═══════════════════════════════════════════════════
 // GENERATE
 // ═══════════════════════════════════════════════════
@@ -1917,7 +1969,7 @@ function collectFormData() {
         volume:       document.getElementById('c-volume').value.trim() || 'x',
         issue:        document.getElementById('c-issue').value.trim() || 'x',
         start_page:   document.getElementById('c-start').value.trim() || 'xxx',
-        end_page:     document.getElementById('c-end').value.trim() || 'xxx',
+        end_page:     document.getElementById('c-end').value.trim(),
         doi:          document.getElementById('c-doi').value.trim(),
         article_type: document.getElementById('c-article-type').value.trim() ||
                       'Araştırma Makalesi -- Research Article',
@@ -1925,6 +1977,8 @@ function collectFormData() {
         accepted:     document.getElementById('c-accepted').value.trim() || 'xx.xx.xxxx',
         published:    document.getElementById('c-published').value.trim() || 'xx.xx.xxxx',
         author_short: document.getElementById('c-author-short').value.trim(),
+        short_title:  document.getElementById('c-short-title').value.trim(),
+        revisions:    document.getElementById('c-revisions').value.trim(),
         editor: document.getElementById('c-editor').value.trim(),
         ethics:       document.getElementById('c-ethics').value.trim(),
         title_note:   document.getElementById('c-title-note').value.trim(),

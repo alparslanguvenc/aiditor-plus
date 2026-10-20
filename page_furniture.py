@@ -44,32 +44,75 @@ def normalize_running(raw: dict) -> dict:
     return result
 
 
+# Control characters never pass user-field validation, so this marker can only
+# come from an automatically calculated last page.
+LAST_PAGE = '\x1fson_sayfa\x1f'
+
+
+def page_value(value) -> str:
+    value = str(value or '').strip()
+    return '' if value.lower() in {'', 'xxx'} else value
+
+
+def revision_dates(cov: dict) -> list[str]:
+    """Optional revision dates, one per line (semicolons are accepted too)."""
+    return [date.strip() for date in re.split(r'[\n;]+', str(cov.get('revisions', '') or '')) if date.strip()]
+
+
+def short_authors(data: dict) -> str:
+    cov = data.get('cover', {})
+    names = [a.get('name', '').split()[-1] for a in data.get('authors', []) if a.get('name', '').strip()]
+    authors = str(cov.get('author_short', '') or '').strip()
+    year = str(cov.get('year', '') or '').strip()
+    # Older forms suggested "Yılmaz & Kaya, 2026"; citations add the year themselves.
+    if year and re.search(r',?\s*\(?' + re.escape(year) + r'\)?$', authors):
+        authors = re.sub(r',?\s*\(?' + re.escape(year) + r'\)?$', '', authors).strip()
+    if authors or not names:
+        return authors
+    return ' & '.join(names) if len(names) <= 2 else names[0] + ' et al.'
+
+
+def page_range(cov: dict) -> str:
+    """Start–end pages; an empty end page is filled from the final layout."""
+    start, end = page_value(cov.get('start_page')), page_value(cov.get('end_page'))
+    if not start:
+        return end
+    return start + '–' + (end or LAST_PAGE)
+
+
 def article_values(data: dict, settings: dict) -> dict:
     cov = data.get('cover', {})
     english = settings.get('english_only', False)
     title = ((cov.get('en_title') or cov.get('tr_title')) if english else (cov.get('tr_title') or cov.get('en_title'))) or ''
-    names = [a.get('name', '').split()[-1] for a in data.get('authors', []) if a.get('name', '').strip()]
-    authors = cov.get('author_short') or (' & '.join(names) if len(names) <= 2 else names[0] + ' et al.')
+    short_title = str(cov.get('short_title', '') or '').strip()
     journal = (settings.get('journal_name_en') or settings.get('journal_name_tr')) if english else (settings.get('journal_name_tr') or settings.get('journal_name_en'))
     return {'dergi': journal or '', 'dergi_en': settings.get('journal_name_en', ''), 'baslik': title,
-            'kisa_baslik': title if len(title) <= 100 else title[:97].rstrip() + '…', 'yazarlar': authors,
+            'kisa_baslik': short_title or (title if len(title) <= 100 else title[:97].rstrip() + '…'),
+            'yazarlar': short_authors(data),
             'yil': cov.get('year', ''), 'cilt': cov.get('volume', ''), 'sayi': cov.get('issue', ''),
-            'sayfa_araligi': '–'.join(str(cov.get(key, '')).strip() for key in ('start_page', 'end_page') if str(cov.get(key, '')).strip()),
+            'sayfa_araligi': page_range(cov),
             'doi': cov.get('doi', ''), 'issn': settings.get('issn_online') or settings.get('issn_print', '')}
 
 
 def citation_text(data: dict, settings: dict) -> str:
     values = article_values(data, settings)
-    cov = data.get('cover', {})
     parts = [values['yazarlar'], '(' + values['yil'] + ').' if values['yil'] else '', values['baslik'] + '.' if values['baslik'] else '',
              settings.get('journal_name_en') or values['dergi']]
     issue = values['cilt'] + ('(' + values['sayi'] + ')' if values['sayi'] else '')
     if issue:
         parts.append(issue + ',')
-    pages = '–'.join(str(cov.get(key, '')) for key in ('start_page', 'end_page') if cov.get(key))
-    if pages:
-        parts.append(pages + '.')
+    if values['sayfa_araligi']:
+        parts.append(values['sayfa_araligi'] + '.')
     return ' '.join(part for part in parts if part)
+
+
+def text_parts(text: str):
+    """Split generated text around an automatically calculated last page."""
+    for index, part in enumerate(str(text).split(LAST_PAGE)):
+        if index:
+            yield 'lastpage', ''
+        if part:
+            yield 'text', part
 
 
 def running_slots(settings: dict, data: dict, kind: str, variant: str) -> tuple[str, str, str]:
@@ -96,14 +139,17 @@ def running_slots(settings: dict, data: dict, kind: str, variant: str) -> tuple[
 
 
 def resolved_parts(text: str, values: dict):
-    """Yield ('text', value) or ('page', '') without interpreting user content as code."""
+    """Yield ('text'|'page'|'lastpage', value) without interpreting user content as code."""
     position = 0
     for match in TOKEN_RE.finditer(text):
-        yield 'text', text[position:match.start()]
+        yield from text_parts(text[position:match.start()])
         token = match.group(1)
-        yield ('page', '') if token == 'sayfa' else ('text', values.get(token, match.group(0)))
+        if token == 'sayfa':
+            yield 'page', ''
+        else:
+            yield from text_parts(values.get(token, match.group(0)))
         position = match.end()
-    yield 'text', text[position:]
+    yield from text_parts(text[position:])
 
 
 def block_height_cm(settings: dict, data: dict, kind: str) -> float:
@@ -118,7 +164,7 @@ def block_height_cm(settings: dict, data: dict, kind: str) -> float:
         for index, slot in enumerate(slots):
             if settings.get('template_id') == 'scholarly':
                 chars = ((125, 1, 12)[index] if not slots[1] and slots[0] else (140 if only_center else 40)) * 8 / size
-            expanded = ''.join('99999' if kind_ == 'page' else part for kind_, part in resolved_parts(slot, values))
+            expanded = ''.join('99999' if kind_ in {'page', 'lastpage'} else part for kind_, part in resolved_parts(slot, values))
             count = sum(max(1, math.ceil(len(line) / chars)) for line in expanded.split('\n'))
             lines = max(lines, count)
     return max(.65, lines * size * 1.3 * 2.54 / 72 + .25)

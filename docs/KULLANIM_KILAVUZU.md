@@ -2,12 +2,13 @@
 
 <img src="../static/brand.svg" alt="AI-ditor Plus A+ logosu" width="88" height="88">
 
-**Sürüm 2.3.0 için hazırlanmıştır.** Bu kılavuz, AI-ditor Plus'ı ilk kez kullanacak bir dergi editörünün kurulumdan Word/PDF çıktısına kadar bütün adımları tek başına tamamlayabilmesi için yazılmıştır. Ekran görüntüleri doğrudan uygulamadan alınmıştır; içlerindeki dergi, yazar, logo ve makale bilgileri **tamamen kurgusaldır**.
+**Sürüm 2.4.0 için hazırlanmıştır.** Bu kılavuz, AI-ditor Plus'ı ilk kez kullanacak bir dergi editörünün kurulumdan Word/PDF çıktısına kadar bütün adımları tek başına tamamlayabilmesi için yazılmıştır. Ekran görüntüleri doğrudan uygulamadan alınmıştır; içlerindeki dergi, yazar, logo ve makale bilgileri **tamamen kurgusaldır**.
 
 ---
 
 ## İçindekiler
 
+- [2.4 sürümünde neler yeni?](#24-sürümünde-neler-yeni)
 1. [AI-ditor Plus nedir?](#1-ai-ditor-plus-nedir)
 2. [Kurulum](#2-kurulum)
 3. [Hesap oluşturma ve giriş](#3-hesap-oluşturma-ve-giriş)
@@ -18,6 +19,29 @@
 8. [Yedekleme ve başka bilgisayara taşıma](#8-yedekleme-ve-başka-bilgisayara-taşıma)
 9. [Sık sorulan sorular ve sorun giderme](#9-sık-sorulan-sorular-ve-sorun-giderme)
 10. [Yayın öncesi kontrol listesi](#10-yayın-öncesi-kontrol-listesi)
+
+---
+
+## 2.4 sürümünde neler yeni?
+
+Bu sürümdeki yenilikler, uygulamayı kullanan editörlerin geri bildirimleriyle şekillendi. Yeni seçeneklerin varsayılan değerleri mevcut şablon görünümünü değiştirmez; önceki sürümde hazırladığınız makaleler aynı şekilde çıktı vermeye devam eder.
+
+| Yenilik | Nerede? |
+| --- | --- |
+| **Otomatik sayfa aralığı:** Bitiş sayfası boş bırakılırsa son sayfa mizanpajdan sonra hesaplanır; künye, atıf ve üst bilgiler tek işlemde doğru aralığı gösterir. | [6.3 Kapak sayfası bilgileri](#63-kapak-sayfası-bilgileri-1) |
+| **Kısa başlık** alanı: Üst bilgilerdeki `{kisa_baslik}` artık kapaktan girilen kısa başlığı kullanır. | [6.3](#63-kapak-sayfası-bilgileri-1), [5.5](#55-sayfa-üst-ve-alt-bilgileri-05) |
+| **Revizyon tarihleri:** Birden fazla revizyon tarihi eklenebilir; iki dilli kutulu kapakta geliş, revizyon, kabul ve yayın tarihleri özetlerin solunda listelenir. | [6.3](#63-kapak-sayfası-bilgileri-1) |
+| **İki dilli makale türü:** “Araştırma Makalesi -- Research Article” seçildiğinde Türkçesi Öz, İngilizcesi Abstract panelinde görünür. | [6.3](#63-kapak-sayfası-bilgileri-1) |
+| **Önerilen atıf konumu:** Atıf şablon varsayılanında, yazar bilgilerinin altında, ilk sayfa dipnotunda gösterilebilir ya da gizlenebilir. | [5.4 Dipnot ve lisans](#54-dipnot-ve-lisans-04) |
+| **Lisans metni hizası:** Lisans metni ve görseli sola, ortaya veya sağa hizalanabilir. | [5.4](#54-dipnot-ve-lisans-04) |
+| **Word aktarımında başlık dili:** Türkçe ve İngilizce başlıklar, Word dosyasındaki sıradan bağımsız olarak doğru alanlara yerleşir. | [6.2 Word içe aktarma](#62-word-makalesini-içe-aktarma) |
+| **Kısa yazar:** Alana yanlışlıkla yıl yazılsa bile atıfta yıl tekrarlanmaz. | [6.3](#63-kapak-sayfası-bilgileri-1) |
+
+Aşağıdaki örnek ilk sayfa, iki dilli kutulu kapakta bu yeniliklerin birlikte kullanımını gösterir: makale türü her panelde kendi dilinde, revizyon ve yayın tarihleri sol panelde, önerilen atıf yazar bilgileriyle özetler arasında, lisans metni ve görseli sağda; sayfa aralığı (45–46) otomatik hesaplanmıştır.
+
+![2.4 yenilikleriyle iki dilli kutulu kapak örneği](images/kilavuz/21-iki-dilli-kapak-ornegi.png)
+
+> **Önceki sürümden geçiyorsanız:** Yeni sürümü kurmanız yeterlidir; hesaplarınız, dergi ayarlarınız ve makaleleriniz korunur. Önceki sürümde Bitiş Sayfası alanına elle yazdığınız değerler aynen kullanılır; otomatik hesaplama için alanı boşaltın.
 
 ---
 
@@ -157,7 +181,7 @@ Derginizin ilk sayfa görünümüne en yakın şablona tıklayın. Seçili şabl
 | **Ortalanmış kapak** | Ortalanmış logo, dergi adı ve makale başlığı; tam genişlikte özetler. |
 | **Yalın araştırma** | Kompakt üst künye, soldan hizalı başlıklar ve sade dipnot alanı. |
 | **Sosyal bilimler** | Gri dergi künyesi, ortalanmış başlık, ayrı sayfada İngilizce özet, tek/çift sayfa üst bilgileri. |
-| **İki dilli kutulu kapak** | Künye şeridi, yan yana makale bilgisi ve gri özet panelleri, tek/çift sayfada değişen üst bilgi. |
+| **İki dilli kutulu kapak** | Künye şeridi, yan yana makale bilgisi ve gri özet panelleri, tek/çift sayfada değişen üst bilgi. Makale bilgisi panelinde makale türü, geliş/revizyon/kabul/yayın tarihleri ve anahtar kelimeler yer alır. Önerilen atıfı göstermek için [5.4](#54-dipnot-ve-lisans-04)'teki *Önerilen atıf konumu* ayarını kullanın. |
 
 Şablon seçmek dergi adınızı ve yüklediğiniz logoları **silmez**; yalnızca yerleşim, renk ve tipografi ayarlarını değiştirir. Şablonlar arasında istediğiniz zaman geçiş yapabilirsiniz.
 
@@ -202,6 +226,15 @@ Sağdaki **Canlı tasarım taslağı**, logonuzun, renginizin ve dergi adınız�
 
 - **Kapak dipnot düzeni:** *Ayrıntılı · tüm bilgiler*, *Kısa · daha az boşluk* veya *Sade · temel bilgiler*. İlk sayfanın altındaki yazar bilgileri, önerilen atıf, etik beyan ve DOI bloğunun yoğunluğunu belirler.
 - **Derginin sabit dipnot / lisans metni:** Her makalenin ilk sayfasının altında görünecek sabit ifade (ör. *Bu makale CC BY 4.0 lisansı ile yayımlanmaktadır.*).
+- **Lisans metni ve görseli hizası:** Sabit dipnot/lisans metninin ve lisans görselinin ilk sayfanın altında *Sol* (mevcut düzen), *Orta* veya *Sağ* tarafta yer almasını sağlar. Word ve PDF çıktısına birlikte uygulanır.
+- **Önerilen atıf konumu:** Makalenin önerilen atıfının (ör. *Örnek & Smith (2026). Başlık. Dergi, 3(2), 45–62.*) ilk sayfadaki yerini belirler:
+
+  | Seçenek | Sonuç |
+  | --- | --- |
+  | **Şablonun varsayılanı** | Şablonun özgün davranışı korunur. İki dilli kutulu kapakta atıf yer almaz; diğer şablonlarda “Sade” dipnot düzeni seçili değilse gösterilir. |
+  | **Yazar bilgilerinin altında, özetlerden önce** | Atıf, yazar ve kurum bilgilerinin hemen altında yer alır. İki dilli kutulu kapak için önerilen seçenektir. |
+  | **İlk sayfanın altındaki dipnotta** | Atıf, sayfa altındaki kapak notlarına eklenir. |
+  | **Gösterme** | Atıf ilk sayfada gösterilmez. |
 
 Makaleye özel başlık dipnotu ve etik beyan buraya değil, ilgili makalenin kapak bilgilerine yazılır ([6.3](#63-kapak-sayfası-bilgileri-1)).
 
@@ -229,11 +262,11 @@ Bu bölüm, makalenin bütün sayfalarında yer alan üst bilgi (header) ve alt 
 | Dergi adı | `{dergi}` | Türkçe dergi adı |
 | İngilizce dergi adı | `{dergi_en}` | İngilizce dergi adı |
 | Makale başlığı | `{baslik}` | Makalenin başlığı |
-| Kısa başlık | `{kisa_baslik}` | Makale başlığı (100 karakterden uzunsa kısaltılır) |
+| Kısa başlık | `{kisa_baslik}` | Kapaktaki *Kısa Başlık* alanı; boşsa makale başlığı (100 karakterden uzunsa kısaltılır) |
 | Kısa yazar bilgisi | `{yazarlar}` | Kapaktaki *Kısa Yazar* alanı; boşsa yazar soyadlarından oluşturulur |
 | Yıl / Cilt / Sayı | `{yil}` `{cilt}` `{sayi}` | Makalenin künye bilgileri |
 | Sayfa numarası | `{sayfa}` | Bulunulan sayfanın numarası |
-| Makalenin sayfa aralığı | `{sayfa_araligi}` | Ör. 45–62 |
+| Makalenin sayfa aralığı | `{sayfa_araligi}` | Ör. 45–62; bitiş sayfası boşsa otomatik hesaplanır |
 | DOI / ISSN | `{doi}` `{issn}` | Makale DOI'si / dergi ISSN'i |
 
 Etiketleri serbest metinle birleştirebilirsiniz; ör. `{dergi} – {yil}, Cilt {cilt}` veya `Sayfa {sayfa}`. Her kutu en fazla 180 karakter ve 3 satır alır. Bölümün altındaki **İlk sayfa / Çift sayfa / Tek sayfa** taslakları seçimlerinizi anında gösterir.
@@ -283,7 +316,7 @@ Makaleyi elle yazmak yerine yazarın gönderdiği Word dosyasını içe aktarmak
 2. `.docx` dosyasını **Word makalesini buraya bırakın** alanına sürükleyin ya da **Dosya Seç** düğmesine tıklayın.
 3. Aktarım bitince alanın altında bir özet görünür, ör. *ornek_makale.docx içe aktarıldı – 4 bölüm · 1 tablo · 0 görsel · 3 kaynak.*
 
-Uygulama başlıkları, Türkçe/İngilizce özetleri ve anahtar kelimeleri, bölüm başlıklarını ve paragrafları, tabloları (birleşik hücreler dâhil), gövdedeki görselleri ve kaynakçayı kaynak belgedeki sırasıyla forma yerleştirir.
+Uygulama başlıkları, Türkçe/İngilizce özetleri ve anahtar kelimeleri, bölüm başlıklarını ve paragrafları, tabloları (birleşik hücreler dâhil), gövdedeki görselleri ve kaynakçayı kaynak belgedeki sırasıyla forma yerleştirir. Başlıkların dili otomatik tanınır: Word dosyasında İngilizce başlık önce gelse bile Türkçe başlık *Türkçe Başlık*, İngilizce başlık *İngilizce Başlık* alanına yerleştirilir. Yalnızca İngilizce başlık varsa Türkçe başlık alanı boş bırakılır.
 
 **Aktarılmayan bilgiler:** Yazar, tarih, DOI, cilt/sayı gibi künye bilgileri Word dosyalarında standart bir yerde bulunmadığı için güvenilir biçimde çıkarılamaz. Bu alanlar boş kalır veya mevcut değerleri korunur; bunları sonraki adımlarda elle girersiniz. Resim olarak çizilmiş tablolar, Word şekilleri ve metin kutuları da her belgede aktarılamayabilir.
 
@@ -298,12 +331,15 @@ Uygulama başlıkları, Türkçe/İngilizce özetleri ve anahtar kelimeleri, bö
 | Alan | Açıklama |
 | --- | --- |
 | **Türkçe Başlık / İngilizce Başlık** | Word'den aktarılır; gerekirse düzeltin. |
+| **Kısa Başlık** | Üst bilgilerdeki `{kisa_baslik}` alanında kullanılır (ör. *Kırsal Turizmde Dijital Tanıtım*). Boş bırakılırsa makale başlığı kullanılır. |
 | **Yıl, Cilt, Sayı** | Künyede ve üst bilgilerde kullanılır. |
-| **Başlangıç / Bitiş Sayfası** | Sayfa numaraları bu değerden başlar; tek/çift üst bilgiler de buna göre belirlenir. |
+| **Başlangıç Sayfası** | Sayfa numaraları bu değerden başlar; tek/çift üst bilgiler de buna göre belirlenir. |
+| **Bitiş Sayfası** | **Boş bırakmanız önerilir.** Boşsa son sayfa, mizanpaj tamamlandıktan sonra Word ve PDF çıktısında otomatik hesaplanır; sayfa aralığı (ör. 45–62) künyede, atıfta ve üst bilgilerde kendiliğinden doğru görünür. Elle yazdığınız bitiş sayfası her zaman önceliklidir. |
 | **DOI** | Yalnızca `10.xxxx/...` kısmını yazın; çıktıda `https://doi.org/` bağlantısı oluşturulur. |
-| **Makale Türü** | Listeden seçin veya kendiniz yazın (ör. *Araştırma Makalesi / Research Article*). |
+| **Makale Türü** | Listeden seçin veya `Türkçe -- English` biçiminde yazın (ör. *Araştırma Makalesi -- Research Article*). İki dilli kutulu kapakta Türkçe kısmı Öz panelinde, İngilizce kısmı Abstract panelinde gösterilir. |
 | **Geliş / Kabul / Yayın Tarihi** | `gg.aa.yyyy` biçiminde. |
-| **Kısa Yazar** | Üst bilgide ve önerilen atıfta kullanılan kısa yazar bilgisi (ör. *Örnek & Smith*). Önerilen atıfta yıl ayrıca eklendiği için buraya yalnızca soyadlarını yazın. Boş bırakılırsa yazar adlarından otomatik oluşturulur. |
+| **Revizyon Tarihleri** | İsteğe bağlı. **Revizyon Tarihi Ekle** ile her revizyon için ayrı bir tarih girin; çöp kutusu simgesi tarihi siler. Tarihler geliş ve kabul tarihleri arasında listelenir; iki dilli kutulu kapakta özetlerin solundaki makale bilgisi alanında *Revizyon 1, Revizyon 2…* olarak görünür. |
+| **Kısa Yazar** | Üst bilgide ve önerilen atıfta kullanılan kısa yazar bilgisi (ör. *Örnek & Smith*). Yıl atıfa ayrıca eklendiği için buraya yalnızca soyadlarını yazın; yanlışlıkla yıl yazılırsa tekrarlanmaz. Boş bırakılırsa yazar adlarından otomatik oluşturulur. |
 | **Editör** | Makaleden sorumlu editör; ilk sayfada gösterilir. |
 | **Etik Beyan** | Etik kurul izni vb. Boş bırakılırsa çıktıya eklenmez; uygulama bu alanı kendiliğinden doldurmaz. |
 | **Başlık Dipnotu** | Doldurulursa başlık yıldızla (\*) işaretlenir ve açıklama ilk sayfada etik beyanın hemen altında gösterilir (ör. tezden üretilmiştir, bildiri olarak sunulmuştur). |
@@ -393,6 +429,8 @@ Panelde atıf bağlantılarının özeti de görünür (ör. *3 metin içi atıf
 Word belgesini açıp doğrudan düzenleyebilirsiniz. Dergi kapağı, logo, makale bilgileri, tablolar, görseller ve üst/alt bilgiler dergi ayarlarınıza göre oluşturulur.
 
 > **Bilmeniz gerekenler:** Yazı tipi bilgisayarınızda yüklü değilse veya farklı bir Word sürümü kullanıyorsanız satır ve sayfa sonları değişebilir. Word içindeki bağlantıları açmak için ayarınıza bağlı olarak **⌘/Ctrl + tıklama** gerekebilir. Word çıktısı formdaki bilgilerden üretilir; Overleaf'te sonradan düzenlediğiniz `.tex` dosyasını Word'e dönüştürmez.
+>
+> **Otomatik sayfa aralığı:** Bitiş sayfası boş bırakıldığında Word, belgeyi açarken *“Bu belge, başka dosyalara başvurabilecek alanlar içeriyor. Belgedeki alanları güncelleştirmek istiyor musunuz?”* diye sorabilir. **Evet** deyin; son sayfa numarası güncellenir. Belgede değişiklik yaptıktan sonra numarayı yenilemek için tümünü seçip **F9** (Mac'te **Fn + F9**) tuşuna basabilirsiniz.
 
 ### 7.2 PDF için LaTeX projesi (Overleaf)
 
@@ -404,6 +442,8 @@ Word belgesini açıp doğrudan düzenleyebilirsiniz. Dergi kapağı, logo, maka
 3. [overleaf.com](https://www.overleaf.com) adresinde hesabınıza girin ve **New Project → Upload Project** yolunu izleyerek ZIP dosyasını yükleyin.
 4. Sol üstteki **Menu → Compiler** ayarını **XeLaTeX** yapın.
 5. **Recompile** düğmesine tıklayın. PDF sağ tarafta oluşur; **Download PDF** ile indirebilirsiniz.
+
+Bitiş sayfasını boş bıraktıysanız son sayfa numarası LaTeX'in ikinci derleme geçişinde yerleşir; Overleaf bunu kendiliğinden yapar. İlk anda sayfa aralığında “??” görürseniz **Recompile** düğmesine bir kez daha tıklayın.
 
 ZIP içinde `main.tex`, derginizin logosu, makalenin görselleri ve kısa bir kullanım açıklaması bulunur. Overleaf'te küçük metin düzeltmelerini doğrudan `main.tex` üzerinde yapabilirsiniz; ancak bu değişiklikler AI-ditor Plus'taki makale kaydına geri aktarılmaz. Büyük değişiklikleri uygulamada yapıp çıktıyı yeniden almanız önerilir.
 
@@ -467,6 +507,9 @@ Atıf eşleştirmesi APA yazar–yıl biçimini destekler. Aynı yazar ve yıla 
 **Word'deki tek/çift sayfa üst bilgileri yanlış görünüyor.**
 LibreOffice çift sayıdan başlayan belgelerde tek/çift düzenini farklı yorumlayabilir. Microsoft Word'de veya LaTeX PDF'inde kontrol edin.
 
+**Sayfa aralığında son sayfa yerine “…” veya “??” görünüyor.**
+Bitiş sayfası boş bırakıldığında son sayfa otomatik hesaplanır. Word'de alanları güncelleyin (tümünü seçip **F9** / Mac'te **Fn + F9**). Overleaf'te **Recompile** düğmesine bir kez daha tıklayın; LaTeX son sayfayı ikinci derlemede yerleştirir.
+
 **Overleaf'te derleme hata veriyor.**
 **Menu → Compiler** ayarının **XeLaTeX** olduğundan emin olun. ZIP'i açmadan, olduğu gibi **Upload Project** ile yükleyin.
 
@@ -487,7 +530,8 @@ Hayır. Uygulama yalnızca bilgisayarınızın yerel adresinde çalışır. Bulu
 
 - [ ] Türkçe ve İngilizce başlıklar, özetler ve anahtar kelimeler doğru.
 - [ ] Yazar adları, ünvanları, kurumları, ORCID'ler ve sorumlu yazar doğru.
-- [ ] Yıl, cilt, sayı, sayfa aralığı ve DOI doğru; DOI bağlantısı açılıyor.
+- [ ] Yıl, cilt, sayı, sayfa aralığı ve DOI doğru; DOI bağlantısı açılıyor. Bitiş sayfası otomatikse son sayfa numarası Word'de alanlar güncellendikten sonra doğru görünüyor.
+- [ ] Kısa başlık üst bilgilere sığıyor; revizyon tarihleri eksiksiz.
 - [ ] Geliş, kabul ve yayın tarihleri girildi.
 - [ ] Etik beyan, katkı oranı ve çıkar çatışması beyanları eksiksiz (uygulama bunları kendiliğinden doldurmaz).
 - [ ] Bölüm sırası ve başlık düzeyleri doğru.
