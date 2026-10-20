@@ -1,6 +1,6 @@
 # Sürüm geçmişi
 
-## 2.4.0 — 2026-10-19
+## 2.4.0 — 2026-10-20
 
 Editör geri bildirimleri doğrultusunda makale ve dergi ayarlarına yeni seçenekler eklendi. Varsayılan değerler mevcut şablon görünümünü değiştirmez.
 
