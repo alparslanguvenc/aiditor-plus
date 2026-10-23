@@ -1,4 +1,9 @@
 """AI-ditor Plus: a local, account-isolated academic journal workspace."""
+import startup_diagnostics
+
+# Before any import that can fail: packaged apps have no console to show errors.
+startup_diagnostics.install()
+
 import argparse
 import base64
 import binascii
@@ -26,7 +31,7 @@ from page_furniture import TOKENS, RUNNING_DEFAULTS
 from docx_export import generate_docx_from_form, DOCX_MIME
 from formatter import generate_latex_from_form, extract_form_data_from_docx, _normalize_table_model
 
-APP_VERSION = '2.4.0'
+APP_VERSION = '2.4.1'
 
 
 def resource_path(relative_path):
@@ -644,8 +649,16 @@ if __name__ == '__main__':
     print(f'AI-ditor Plus {APP_VERSION}: {url}', flush=True)
     if desktop_mode:
         from desktop import run_desktop
-        run_desktop(server)
-    else:
+        try:
+            run_desktop(server)
+        except Exception:
+            # The service still works without the native window; open it in the browser instead.
+            startup_diagnostics.log_exception('Masaüstü penceresi açılamadı; tarayıcıya geçiliyor.')
+            desktop_mode = False
+            server = create_local_server(args.port if args.port is not None else 0)
+            url = f'http://127.0.0.1:{server.server_port}'
+            print(f'AI-ditor Plus {APP_VERSION}: {url}', flush=True)
+    if not desktop_mode:
         if not args.no_browser:
             threading.Timer(0.5, webbrowser.open, args=[url]).start()
         try:

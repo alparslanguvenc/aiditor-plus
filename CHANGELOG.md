@@ -1,5 +1,14 @@
 # Sürüm geçmişi
 
+## 2.4.1 — 2026-10-23
+
+macOS'ta indirilen uygulamanın açılmadığı bildirimleri üzerine kurulum ve başlatma süreci iyileştirildi.
+
+- **Intel Mac desteği:** macOS paketi yalnızca Apple Silicon (arm64) için derleniyordu ve Intel işlemcili Mac'lerde açılmıyordu. Intel için ayrı `AIditorPlus_Installer_Intel.dmg` eklendi; Apple Silicon paketi aynı adla (`AIditorPlus_Installer.dmg`) sürer. Derleme, her paketin beklenen işlemci mimarisinde üretildiğini doğrular.
+- **Sessiz kapanma yerine açıklayıcı hata:** Paketlenmiş uygulama başlatma hatalarını bir uyarıyla bildirir ve ayrıntıları `~/Library/Logs/AI-ditor Plus/aiditor-plus.log` (Windows'ta `%LOCALAPPDATA%\AI-ditor Plus\aiditor-plus.log`) dosyasına yazar. Masaüstü penceresi oluşturulamazsa uygulama varsayılan tarayıcıda açılır.
+- **İlk açılış rehberi:** Uygulama Apple noter onayına sahip olmadığından macOS ilk açılışı engeller. Kurulum diskine, README'ye ve kullanım kılavuzuna macOS 13–14 ve 15+ için adım adım izin verme talimatları eklendi.
+- Hesaplar, dergi ayarları ve makaleler etkilenmez.
+
 ## 2.4.0 — 2026-10-20
 
 Editör geri bildirimleri doğrultusunda makale ve dergi ayarlarına yeni seçenekler eklendi. Varsayılan değerler mevcut şablon görünümünü değiştirmez.

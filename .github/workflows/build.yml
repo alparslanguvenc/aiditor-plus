@@ -44,10 +44,25 @@ jobs:
           name: browser-qa
           path: .qa/
   build-mac:
-    name: macOS installer
+    name: macOS installer (${{ matrix.label }})
     needs: [test, browser]
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
-    runs-on: macos-latest
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Python wheels are per-architecture, so each Mac type gets its own native build.
+          - label: Apple Silicon
+            runner: macos-latest
+            arch: arm64
+            dmg: AIditorPlus_Installer.dmg
+            artifact: AIditorPlus-macOS-AppleSilicon
+          - label: Intel
+            runner: macos-15-intel
+            arch: x86_64
+            dmg: AIditorPlus_Installer_Intel.dmg
+            artifact: AIditorPlus-macOS-Intel
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -55,10 +70,13 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r requirements-desktop.txt pyinstaller
       - run: bash build_mac.sh
+        env:
+          AIDITOR_DMG_NAME: ${{ matrix.dmg }}
+          AIDITOR_EXPECTED_ARCH: ${{ matrix.arch }}
       - uses: actions/upload-artifact@v4
         with:
-          name: AIditorPlus-macOS
-          path: dist/AIditorPlus_Installer.dmg
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.dmg }}
   build-windows:
     name: Windows installer
     needs: [test, browser]
@@ -102,6 +120,10 @@ jobs:
           body: |
             Akademik dergi editörlerinin işlerini kolaylaştırmak için kâr amacı güdülmeden geliştirilen, MIT lisanslı açık kaynak uygulama.
 
+            2.4.1: macOS kurulum düzeltmesi. Intel işlemcili Mac'ler için ayrı kurulum dosyası (AIditorPlus_Installer_Intel.dmg) eklendi; Apple Silicon (M1–M4) için AIditorPlus_Installer.dmg kullanılmaya devam eder. Uygulama artık başlatma hatalarını bir uyarıyla bildirir ve ayrıntıları ~/Library/Logs/AI-ditor Plus/aiditor-plus.log dosyasına yazar; masaüstü penceresi açılamazsa uygulama tarayıcıda açılır. Kurulum diskinde ilk açılış adımlarını anlatan “İlk Açılış – Okuyun” dosyası bulunur.
+
+            macOS ilk açılış: Uygulama Apple noter onaylı olmadığından macOS ilk açılışı engeller. macOS 15 ve sonrasında Sistem Ayarları → Gizlilik ve Güvenlik → “Yine de Aç” yolunu, macOS 13–14'te uygulamaya Control+tıklayıp “Aç” seçeneğini kullanın. Bu işlem yalnızca bir kez gerekir.
+
             2.4.0: Editör geri bildirimleriyle gelen yenilikler. Kapak bilgilerinde kısa başlık alanı ve isteğe bağlı birden fazla revizyon tarihi. Bitiş sayfası boş bırakıldığında sayfa aralığı Word ve PDF çıktısında mizanpaja göre otomatik hesaplanır. İki dilli kutulu kapakta makale türünün Türkçesi Öz, İngilizcesi Abstract panelinde; geliş, revizyon, kabul ve yayın tarihleri özetlerin solunda gösterilir. Dergi ayarlarında lisans metni ve görseli için sol/orta/sağ hizalama ile önerilen atıf için konum seçimi (yazar bilgilerinin altında, ilk sayfa dipnotunda veya gizli). Word içe aktarmada Türkçe ve İngilizce başlıklar dile göre doğru alanlara yerleşir. Varsayılan ayarlar mevcut şablon görünümünü değiştirmez.
 
             2.3.0: Yeni “İki dilli kutulu kapak” şablonunda künye şeridi, Türkçe ve İngilizce özet panelleri ve tek/çift sayfa üst bilgileri bulunur. Dergi adı, ISSN, web adresi ve logo hesabınızdan alınır; örnek şablonda gerçek dergi kimliği bulunmaz. Word ve LaTeX çıktısı desteklenir.
@@ -112,5 +134,5 @@ jobs:
 
             Hesaplar bu bilgisayardaki kuruluma aittir. Bulut hesabı veya cihazlar arası otomatik eşitleme yoktur.
 
-            macOS 13 veya üzeri: DMG dosyasını açıp uygulamayı Applications klasörüne sürükleyin. İlk açılışta macOS Gizlilik ve Güvenlik bölümünden uygulamaya izin vermeniz gerekebilir. Windows: Setup.exe dosyasını çalıştırın; WebView2 gerektirir. ZIP çıktısı Overleaf üzerinde XeLaTeX ile derlenir.
+            macOS 13 veya üzeri: Apple Silicon (M1–M4) için AIditorPlus_Installer.dmg, Intel Mac için AIditorPlus_Installer_Intel.dmg dosyasını açıp uygulamayı Applications klasörüne sürükleyin; ilk açılış adımları yukarıdadır. Windows: Setup.exe dosyasını çalıştırın; WebView2 gerektirir. ZIP çıktısı Overleaf üzerinde XeLaTeX ile derlenir.
           files: release/*

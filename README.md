@@ -12,11 +12,18 @@ Geliştirici: **Alparslan Güvenç** · [MIT lisansı](LICENSE) · [Sürüm notl
 
 ## İndirme
 
-- [macOS kurulumu](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Installer.dmg)
+- [macOS kurulumu — Apple Silicon (M1–M4)](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Installer.dmg)
+- [macOS kurulumu — Intel işlemcili Mac](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Installer_Intel.dmg)
 - [Windows kurulumu](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Setup.exe)
 - [Tüm sürümler ve dosya doğrulama özetleri](https://github.com/alparslanguvenc/aiditor-plus/releases)
 
-macOS 13 veya üzerinde DMG içindeki **AI-ditor Plus** uygulamasını **Applications** klasörüne sürükleyin. Windows'ta kurulum dosyasını çalıştırın. Uygulama kendi Python ortamını içerir; kaynak koddan çalıştırmıyorsanız Python kurulumu gerekmez. Windows masaüstü penceresi Microsoft Edge WebView2 kullanır. macOS uygulaması Apple noter onayına sahip değildir; ilk açılışta Sistem Ayarları → Gizlilik ve Güvenlik bölümünden izin vermenizi isteyebilir.
+macOS 13 veya üzerinde Mac'inize uygun DMG'yi açıp (Elma menüsü → Bu Mac Hakkında: “Apple M…” ise Apple Silicon, “Intel” ise Intel dosyası) **AI-ditor Plus** uygulamasını **Applications** klasörüne sürükleyin. Windows'ta kurulum dosyasını çalıştırın. Uygulama kendi Python ortamını içerir; kaynak koddan çalıştırmıyorsanız Python kurulumu gerekmez. Windows masaüstü penceresi Microsoft Edge WebView2 kullanır.
+
+**macOS'ta ilk açılış:** Uygulama Apple noter onayına sahip olmadığından macOS ilk açılışı engeller. macOS 15 ve sonrasında **Sistem Ayarları → Gizlilik ve Güvenlik → Yine de Aç**, macOS 13–14'te uygulamaya **Control+tıklayıp → Aç** yolunu izleyin; bu yalnızca bir kez gerekir. Ayrıntılı adımlar kurulum diskindeki *İlk Açılış – Okuyun* dosyasında ve [kullanım kılavuzunda](docs/KULLANIM_KILAVUZU.md#2-kurulum) yer alır. Uygulama yine açılmazsa hatayı bir uyarıyla bildirir ve ayrıntıları `~/Library/Logs/AI-ditor Plus/aiditor-plus.log` dosyasına yazar.
+
+## 2.4.1 düzeltmesi
+
+macOS kurulumu iyileştirildi: Intel işlemcili Mac'ler için ayrı kurulum dosyası eklendi, başlatma hataları artık sessizce kapanmak yerine bir uyarı ve kayıt dosyasıyla bildiriliyor, masaüstü penceresi açılamazsa uygulama tarayıcıda açılıyor ve kurulum diskine ilk açılış rehberi eklendi.
 
 ## 2.4 ile gelenler
 
