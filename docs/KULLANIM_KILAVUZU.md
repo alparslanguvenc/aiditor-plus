@@ -2,7 +2,7 @@
 
 <img src="../static/brand.svg" alt="AI-ditor Plus A+ logosu" width="88" height="88">
 
-**Sürüm 2.4.0 için hazırlanmıştır.** Bu kılavuz, AI-ditor Plus'ı ilk kez kullanacak bir dergi editörünün kurulumdan Word/PDF çıktısına kadar bütün adımları tek başına tamamlayabilmesi için yazılmıştır. Ekran görüntüleri doğrudan uygulamadan alınmıştır; içlerindeki dergi, yazar, logo ve makale bilgileri **tamamen kurgusaldır**.
+**Sürüm 2.4.1 için hazırlanmıştır.** Bu kılavuz, AI-ditor Plus'ı ilk kez kullanacak bir dergi editörünün kurulumdan Word/PDF çıktısına kadar bütün adımları tek başına tamamlayabilmesi için yazılmıştır. Ekran görüntüleri doğrudan uygulamadan alınmıştır; içlerindeki dergi, yazar, logo ve makale bilgileri **tamamen kurgusaldır**.
 
 ---
 
@@ -89,11 +89,20 @@ Adım 1–3 yalnızca bir kez yapılır. Her yeni makalede 4. adımdan devam ede
 
 ### macOS (13 veya üzeri)
 
-1. [macOS kurulum dosyasını (DMG)](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Installer.dmg) indirin.
-2. DMG'yi açın ve **AI-ditor Plus** simgesini **Applications** klasörüne sürükleyin.
+1. Mac'inizin işlemcisini öğrenin: **Elma menüsü → Bu Mac Hakkında** penceresindeki *Yonga* veya *İşlemci* satırına bakın.
+   - **Apple M1, M2, M3, M4…** yazıyorsa: [Apple Silicon kurulum dosyası (DMG)](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Installer.dmg)
+   - **Intel** yazıyorsa: [Intel kurulum dosyası (DMG)](https://github.com/alparslanguvenc/aiditor-plus/releases/latest/download/AIditorPlus_Installer_Intel.dmg)
+2. DMG'yi açın ve **AI-ditor Plus** simgesini **Applications** klasörüne sürükleyin. Diskteki *İlk Açılış – Okuyun* dosyası aşağıdaki adımları da içerir.
 3. Uygulamayı Applications klasöründen açın.
+4. **İlk açılışta izin verin (yalnızca bir kez):** AI-ditor Plus ücretsiz ve açık kaynaktır; Apple'ın ücretli noter onayına sahip olmadığı için macOS ilk açılışı engeller ve *“Apple, AI-ditor Plus'ın kötü amaçlı yazılım içermediğini doğrulayamadı”* benzeri bir uyarı gösterir. Uyarıda **Bitti** deyin, ardından:
+   - **macOS 15 (Sequoia) ve sonrası:** **Sistem Ayarları → Gizlilik ve Güvenlik** bölümünün altındaki *“AI-ditor Plus engellendi”* satırında **Yine de Aç**'a tıklayın, parolanızı girin ve açılan uyarıda yeniden **Yine de Aç** deyin.
+   - **macOS 13 (Ventura) ve 14 (Sonoma):** Applications klasöründe uygulamaya **Control tuşuyla tıklayın** (veya sağ tıklayın), **Aç**'ı seçin ve uyarıda yeniden **Aç** deyin.
 
-> **İlk açılışta uyarı alırsanız:** Uygulama Apple noter onayına sahip değildir. **Sistem Ayarları → Gizlilik ve Güvenlik** bölümüne gidip AI-ditor Plus için **Yine de Aç** düğmesine tıklayın. Bu işlem yalnızca bir kez gerekir.
+   Bu adımlar işe yaramazsa Terminal'de şu komutu çalıştırıp uygulamayı yeniden açın:
+
+   ```sh
+   xattr -dr com.apple.quarantine "/Applications/AI-ditor Plus.app"
+   ```
 
 ### Windows
 
@@ -487,7 +496,13 @@ Hesaplar, dergi ayarları ve makaleler **yalnızca bu bilgisayarda**, uygulaman�
 ## 9. Sık sorulan sorular ve sorun giderme
 
 **macOS uygulamanın açılmasına izin vermiyor.**
-Uygulama Apple noter onayına sahip değildir. **Sistem Ayarları → Gizlilik ve Güvenlik** bölümünden **Yine de Aç** seçeneğini kullanın.
+Uygulama Apple noter onayına sahip değildir; ilk açılışta bir kez izin vermeniz gerekir. Adımlar için [2. Kurulum](#2-kurulum) bölümündeki 4. maddeye bakın.
+
+**macOS “Bu uygulama bu Mac'te desteklenmiyor” diyor.**
+Mac'inizin işlemcisine uygun olmayan kurulum dosyasını indirmiş olabilirsiniz. Intel işlemcili Mac'lerde *AIditorPlus_Installer_Intel.dmg*, Apple M serisi Mac'lerde *AIditorPlus_Installer.dmg* dosyasını kullanın.
+
+**Uygulama simgesi bir an görünüp kayboluyor veya hata uyarısı veriyor.**
+2.4.1 ve sonrasında uygulama, başlatma sırasında karşılaştığı hatayı bir uyarıyla bildirir ve ayrıntıları bir kayıt dosyasına yazar: macOS'ta `~/Library/Logs/AI-ditor Plus/aiditor-plus.log` (Finder → Git → Klasöre Git… menüsüne yapıştırarak açabilirsiniz), Windows'ta `%LOCALAPPDATA%\AI-ditor Plus\aiditor-plus.log`. Masaüstü penceresi açılamazsa uygulama kendiliğinden varsayılan tarayıcınızda açılır. Sorun sürerse bu dosyayı ve işletim sistemi sürümünüzü [GitHub üzerinden](https://github.com/alparslanguvenc/aiditor-plus/issues) iletin.
 
 **Parolamı unuttum.**
 Parola sıfırlama özelliği yoktur. Yeni bir hesap açın; daha önce aldığınız dergi ayarı ve makale JSON yedeklerini içe aktarın.

@@ -5,6 +5,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import socket
 import subprocess
 import sys
@@ -23,6 +24,9 @@ sys.path.insert(0, str(ROOT / 'tests'))
 sys.path.insert(0, str(ROOT))
 from test_formatter_templates import sample_article
 from journal_templates import TEMPLATES
+import startup_diagnostics
+
+APP_VERSION = re.search(r"APP_VERSION = '([^']+)'", (ROOT / 'app.py').read_text(encoding='utf-8')).group(1)
 
 
 def main():
@@ -44,7 +48,7 @@ def main():
                 deadline = time.monotonic() + 60
                 while time.monotonic() < deadline:
                     try:
-                        if json.loads(request('/health')).get('version') == '2.4.0':
+                        if json.loads(request('/health')).get('version') == APP_VERSION:
                             break
                     except (OSError, ValueError):
                         if proc.poll() is not None:
@@ -52,6 +56,9 @@ def main():
                         time.sleep(.2)
                 else:
                     raise RuntimeError('Packaged service did not start')
+                # Start-up diagnostics must leave a log the user can share.
+                if not startup_diagnostics.log_path().is_file():
+                    raise RuntimeError('Packaged start-up log was not written: ' + str(startup_diagnostics.log_path()))
                 user = json.loads(request('/api/auth/register', json.dumps({'username': 'package_check', 'password': 'temporary-test-password', 'display_name': 'Package QA'}).encode(), 'POST', {'Content-Type': 'application/json', 'X-Aiditor-Request': '1'}))['user']
                 headers = {'X-Aiditor-Account': user['id'], 'X-Aiditor-Request': '1', 'Content-Type': 'application/json'}
                 pdf = PdfWriter(); pdf.add_blank_page(width=60, height=40); buffer = io.BytesIO(); pdf.write(buffer)

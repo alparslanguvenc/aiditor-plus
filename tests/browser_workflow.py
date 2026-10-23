@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 QA = ROOT / '.qa'
 QA.mkdir(exist_ok=True)
 PASSWORD = 'local-test-only-2026'
+APP_VERSION = re.search(r"APP_VERSION = '([^']+)'", (ROOT / 'app.py').read_text(encoding='utf-8')).group(1)
 
 
 class Server:
@@ -46,7 +47,7 @@ class Server:
                 try:
                     with urllib.request.urlopen(self.url+'/health',timeout=1) as response:
                         health=json.load(response)
-                    if health.get('app')=='AI-ditor Plus' and health.get('version')=='2.4.0':return self.url
+                    if health.get('app')=='AI-ditor Plus' and health.get('version')==APP_VERSION:return self.url
                 except (OSError,ValueError):pass
             self.log.seek(0)
             content=self.log.read()

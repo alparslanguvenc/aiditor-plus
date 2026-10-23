@@ -1,0 +1,44 @@
+AI-ditor Plus — macOS'ta ilk açılış
+===================================
+
+1. DOĞRU KURULUM DOSYASINI SEÇİN
+   Elma menüsü > Bu Mac Hakkında > "Yonga" veya "İşlemci" satırına bakın.
+   - "Apple M1, M2, M3, M4…" yazıyorsa: AIditorPlus_Installer.dmg
+   - "Intel" yazıyorsa:                  AIditorPlus_Installer_Intel.dmg
+   Yanlış dosya kurulursa macOS "Bu uygulama bu Mac'te desteklenmiyor" der.
+
+2. UYGULAMAYI KURUN
+   Bu penceredeki "AI-ditor Plus" simgesini yanındaki "Applications" klasörüne
+   sürükleyin. Uygulamayı bu disk görüntüsünün içinden değil, Uygulamalar
+   (Applications) klasöründen açın.
+
+3. İLK AÇILIŞTA İZİN VERİN (yalnızca bir kez)
+   AI-ditor Plus ücretsiz ve açık kaynaktır; Apple'ın ücretli geliştirici
+   noter onayına sahip değildir. Bu nedenle macOS ilk açılışta uygulamayı
+   engeller ve "Apple, AI-ditor Plus'ın kötü amaçlı yazılım içermediğini
+   doğrulayamadı" benzeri bir uyarı gösterir. Uyarıda "Bitti" deyin, sonra:
+
+   macOS 15 (Sequoia) ve sonrası:
+     a. Sistem Ayarları > Gizlilik ve Güvenlik bölümünü açın.
+     b. Sayfanın altındaki "AI-ditor Plus engellendi" satırında
+        "Yine de Aç" düğmesine tıklayın ve parolanızı girin.
+     c. Açılan uyarıda yeniden "Yine de Aç" deyin.
+
+   macOS 13 (Ventura) ve 14 (Sonoma):
+     Uygulamalar klasöründe AI-ditor Plus'a Control tuşuna basarak tıklayın
+     (veya sağ tıklayın), "Aç"ı seçin ve uyarıda yeniden "Aç" deyin.
+     Bu seçenek görünmezse yukarıdaki Sistem Ayarları yolunu izleyin.
+
+   Bu adımlar çalışmazsa Terminal'de aşağıdaki komutu çalıştırıp uygulamayı
+   yeniden açın:
+     xattr -dr com.apple.quarantine "/Applications/AI-ditor Plus.app"
+
+4. YİNE DE AÇILMIYORSA
+   Uygulama bir başlatma hatasıyla karşılaşırsa bunu bir uyarıyla bildirir ve
+   ayrıntıları şu dosyaya yazar:
+     ~/Library/Logs/AI-ditor Plus/aiditor-plus.log
+   (Finder > Git > Klasöre Git… menüsüne bu yolu yapıştırarak açabilirsiniz.)
+   Bu dosyayı, kullandığınız macOS sürümüyle birlikte geliştiriciye iletin:
+   https://github.com/alparslanguvenc/aiditor-plus/issues
+
+Gereksinim: macOS 13 (Ventura) veya üzeri.
