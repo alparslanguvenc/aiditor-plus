@@ -79,7 +79,8 @@ class ScholarlyTemplateTests(unittest.TestCase):
         data=sample_article();data['abstract']['en_abs']=''
         doc=Document(io.BytesIO(generate_docx_from_form(data,{},settings(doi_position='bottom'))))
         self.assertIn(data['cover']['doi'],doc.sections[0].first_page_footer._element.xml)
-        self.assertNotIn(data['cover']['doi'],doc.element.xml)
+        # In the body the DOI appears only as the end of the APA citation, not as a separate DOI line.
+        self.assertEqual([p.text.startswith('Atıf / Citation:') for p in doc.paragraphs if data['cover']['doi'] in p.text],[True])
         self.assertEqual(len(doc.sections),2)
         self.assertIsNone(doc.sections[1]._sectPr.find(qn('w:pgNumType')))
         self.assertNotIn('Extended Summary',[p.text for p in doc.paragraphs])

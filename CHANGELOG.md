@@ -1,5 +1,11 @@
 # Sürüm geçmişi
 
+## 2.4.2 — 2026-11-06
+
+- **Zotero/Mendeley/EndNote atıfları:** Word içe aktarma, paragraf metnini python-docx'in `Paragraph.text` özelliğiyle okuduğu için basit alanların (`w:fldSimple`) ve satır içi içerik denetimlerinin (`w:sdt`) içindeki metni atlıyordu. Bu yapılarla eklenen metin içi atıflar içe aktarımda kayboluyor, bu nedenle Word ve LaTeX çıktısında da görünmüyor ve kaynakçaya bağlanmıyordu. Paragraf ve tablo hücresi metni artık alan sonuçlarını, içerik denetimlerini, köprüleri ve izlenen eklemeleri de kapsayacak şekilde okunuyor; silinmiş metin, alan kodları, metin kutuları ve boş içerik denetimlerinin yer tutucuları dışarıda kalıyor.
+- **Önerilen atıfta DOI:** Makalenin DOI'si önerilen atıfın sonuna `https://doi.org/…` bağlantısı olarak eklenir (Word ve LaTeX). Üst bilgi künyesine DOI eklenmez.
+- **Atıfta dergi adı:** Önerilen atıf ve üst bilgi künyesi artık varsayılan olarak derginin Türkçe adını kullanır; önceki davranış (İngilizce ad) **Atıfta dergi adı** ayarıyla seçilebilir. “Yalnızca İngilizce” modunda İngilizce ad kullanılır.
+
 ## 2.4.1 — 2026-10-23
 
 macOS'ta indirilen uygulamanın açılmadığı bildirimleri üzerine kurulum ve başlatma süreci iyileştirildi.

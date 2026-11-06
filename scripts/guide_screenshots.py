@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 from docx import Document
 from PIL import Image, ImageChops, ImageDraw, ImageFont
@@ -232,8 +233,9 @@ def cover_example(engine, work, out):
     page.close(); pdf.close()
 
 
-def optimise(out, max_width):
-    for path in sorted(out.glob('*.png')):
+def optimise(out, max_width, since=0.0):
+    # Only images written by this run; re-quantizing older ones would degrade them.
+    for path in sorted(p for p in out.glob('*.png') if p.stat().st_mtime >= since):
         image = Image.open(path).convert('RGB')
         # Remove the empty band below short pages.
         background = Image.new('RGB', image.size, image.getpixel((image.width - 1, image.height - 1)))
@@ -252,6 +254,7 @@ def main():
     parser.add_argument('--pdf-engine', help='XeLaTeX or Tectonic executable for the compiled cover example')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
+    started = time.time()
     with tempfile.TemporaryDirectory(prefix='aiditor-guide-') as data:
         work = Path(data)
         sample_files(work)
@@ -262,7 +265,7 @@ def main():
             server.stop()
         if args.pdf_engine:
             cover_example(args.pdf_engine, work, args.output)
-    optimise(args.output, args.max_width)
+    optimise(args.output, args.max_width, started)
     print('Kılavuz görselleri:', args.output)
 
 
