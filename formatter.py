@@ -227,8 +227,48 @@ _KEYWORD_LABEL_RE = re.compile(
 )
 
 
+# Text inside these elements is not part of the paragraph's own visible prose.
+_HIDDEN_TEXT_CONTAINERS = {
+    qn('w:txbxContent'), qn('w:del'), qn('w:moveFrom'), qn('w:pPr'), qn('w:rPr'), qn('w:sdtPr'),
+    '{http://schemas.openxmlformats.org/markup-compatibility/2006}Fallback',
+}
+
+
+def _paragraph_text(paragraph) -> str:
+    """Visible paragraph text, including citation fields and content controls.
+
+    Reference managers wrap in-text citations in Word fields (Zotero, EndNote:
+    ``w:fldSimple`` or complex fields) or content controls (Mendeley, some
+    Zotero/Word versions: ``w:sdt``). python-docx's ``Paragraph.text`` skips
+    those wrappers, which silently removed the citations on import.
+    """
+    parts = []
+
+    def walk(node):
+        for child in node:
+            tag = child.tag
+            if tag in _HIDDEN_TEXT_CONTAINERS:
+                continue
+            if tag == qn('w:sdt') and child.find(qn('w:sdtPr') + '/' + qn('w:showingPlcHdr')) is not None:
+                continue  # an empty content control still shows "Click here to enter text"
+            if tag == qn('w:t'):
+                parts.append(child.text or '')
+            elif tag in (qn('w:tab'), qn('w:ptab')):
+                parts.append('\t')
+            elif tag in (qn('w:br'), qn('w:cr')):
+                if child.get(qn('w:type')) in (None, 'textWrapping'):
+                    parts.append('\n')
+            elif tag == qn('w:noBreakHyphen'):
+                parts.append('-')
+            else:
+                walk(child)
+
+    walk(paragraph._p)
+    return ''.join(parts)
+
+
 def _para_text(para) -> str:
-    return para.text.strip()
+    return _paragraph_text(para).strip()
 
 
 def _style_ppr_chain(paragraph: Paragraph):
@@ -731,7 +771,7 @@ def _docx_table_model(table: Table) -> dict:
 
             cell = _Cell(tc, table)
             bold, italic, underline, alignment, bgcolor, textcolor = _table_cell_format(cell)
-            paragraphs = [paragraph.text.strip() for paragraph in cell.paragraphs if paragraph.text.strip()]
+            paragraphs = [text for paragraph in cell.paragraphs if (text := _para_text(paragraph))]
             cell_data = {
                 'text': '\n'.join(paragraphs),
                 'colspan': max(1, colspan),
@@ -828,7 +868,7 @@ def _docx_blocks(document: Document) -> tuple[list[dict], list[dict]]:
         if element in seen_paragraphs:
             return
         seen_paragraphs.add(element)
-        text = paragraph.text.strip()
+        text = _para_text(paragraph)
         if text:
             blocks.append({
                 'kind': 'paragraph',
@@ -857,9 +897,9 @@ def _docx_blocks(document: Document) -> tuple[list[dict], list[dict]]:
             seen_text = set()
             for nested_p in nested:
                 p = Paragraph(nested_p, paragraph._parent)
-                if p.text not in seen_text:
+                if _paragraph_text(p) not in seen_text:
                     append_paragraph(p)
-                    seen_text.add(p.text)
+                    seen_text.add(_paragraph_text(p))
 
     def iter_block_elements(parent):
         """Yield paragraphs/tables inside body content controls in order."""
@@ -873,7 +913,7 @@ def _docx_blocks(document: Document) -> tuple[list[dict], list[dict]]:
         if isinstance(child, CT_P):
             paragraph = Paragraph(child, document)
             append_paragraph(paragraph)
-            text = paragraph.text.strip()
+            text = _para_text(paragraph)
             if text:
                 numbered = _numbered_section_title(text)
                 lookup_text = numbered[0] if numbered else text
@@ -896,7 +936,7 @@ def _docx_blocks(document: Document) -> tuple[list[dict], list[dict]]:
                 for row in table.rows
                 for cell in row.cells
                 for paragraph in cell.paragraphs
-                if paragraph.text.strip()
+                if _para_text(paragraph)
             ]
             # Journal templates often put the complete title/abstract area in
             # a large borderless layout table. Any table carrying front-matter
@@ -904,12 +944,12 @@ def _docx_blocks(document: Document) -> tuple[list[dict], list[dict]]:
             abstract_languages = {
                 info[0]
                 for paragraph in table_paragraphs
-                if (info := _abstract_label_info(paragraph.text.strip()))
+                if (info := _abstract_label_info(_para_text(paragraph)))
             }
             keyword_languages = {
                 info[0]
                 for paragraph in table_paragraphs
-                if (info := _keyword_label_info(paragraph.text.strip()))
+                if (info := _keyword_label_info(_para_text(paragraph)))
             }
             has_front_matter_label = bool(abstract_languages or keyword_languages)
             strong_front_matter_layout = (
@@ -2556,12 +2596,16 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
 
     # ── APA citation ──
     citation_title = en_title if english_only else tr_title
-    citation_journal = jname_en or jname_tr
+    # The journal's own (Turkish) title unless the journal chose its English title.
+    citation_journal = ((jname_en or jname_tr) if english_only or js['citation_journal_name'] == 'english'
+                        else (jname_tr or jname_en))
     apa_citation = (
         author_short + r'\ (' + year + r'). ' + citation_title +
         r'. \textit{' + escape(citation_journal) + r'}, ' +
         r'\textit{' + volume + r'}(' + issue + r'), ' +
         start_page + r'--' + end_page + r'.'
+        # APA 7 ends a journal article reference with its DOI.
+        + (r' \href{https://doi.org/\JGTTRDOI}{https://doi.org/\JGTTRDOI}' if doi else '')
     )
 
     # ── Figure file → zip name mapping ──

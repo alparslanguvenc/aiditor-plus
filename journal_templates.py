@@ -60,7 +60,7 @@ _DEFAULTS = {
     'show_logo': True, 'show_cc_logo': True, 'link_citations': True,
     'english_abstract_heading': 'Abstract',
     # Optional placements; the defaults keep each template's original layout.
-    'footer_text_align': 'left', 'citation_position': 'auto',
+    'footer_text_align': 'left', 'citation_position': 'auto', 'citation_journal_name': 'primary',
 }
 _FONT_ALIASES = {
     'palatino linotype': 'texgyrepagella', 'palatino': 'texgyrepagella',
@@ -101,6 +101,7 @@ def normalize_settings(raw):
         'body_size': {'10', '11', '12'},
         'footer_text_align': {'left', 'center', 'right'},
         'citation_position': {'auto', 'below_authors', 'footer', 'none'},
+        'citation_journal_name': {'primary', 'english'},
     }.items():
         value = str(result[key]).strip().lower()
         if value not in choices:

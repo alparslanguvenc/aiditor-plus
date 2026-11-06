@@ -120,6 +120,8 @@ jobs:
           body: |
             Akademik dergi editörlerinin işlerini kolaylaştırmak için kâr amacı güdülmeden geliştirilen, MIT lisanslı açık kaynak uygulama.
 
+            2.4.2: Zotero, Mendeley ve EndNote ile eklenen metin içi atıflar artık Word içe aktarımında kaybolmuyor; metne aktarılıyor ve kaynakçaya bağlanıyor (eski sürümle aktarılan makaleleri yeniden içe aktarın). Önerilen atıfın sonuna makalenin DOI bağlantısı eklenir; atıfta derginin Türkçe (varsayılan) veya İngilizce adı seçilebilir.
+
             2.4.1: macOS kurulum düzeltmesi. Intel işlemcili Mac'ler için ayrı kurulum dosyası (AIditorPlus_Installer_Intel.dmg) eklendi; Apple Silicon (M1–M4) için AIditorPlus_Installer.dmg kullanılmaya devam eder. Uygulama artık başlatma hatalarını bir uyarıyla bildirir ve ayrıntıları ~/Library/Logs/AI-ditor Plus/aiditor-plus.log dosyasına yazar; masaüstü penceresi açılamazsa uygulama tarayıcıda açılır. Kurulum diskinde ilk açılış adımlarını anlatan “İlk Açılış – Okuyun” dosyası bulunur.
 
             macOS ilk açılış: Uygulama Apple noter onaylı olmadığından macOS ilk açılışı engeller. macOS 15 ve sonrasında Sistem Ayarları → Gizlilik ve Güvenlik → “Yine de Aç” yolunu, macOS 13–14'te uygulamaya Control+tıklayıp “Aç” seçeneğini kullanın. Bu işlem yalnızca bir kez gerekir.

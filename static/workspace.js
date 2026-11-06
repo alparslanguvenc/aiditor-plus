@@ -71,7 +71,7 @@ window.journalWorkspace = (() => {
     const values = {...window.runningDefaults, font_family:next.font_family || next.font || 'Palatino Linotype',body_size:10,accent_color:'#176B6A',
       logo_height_cm:2.3,corresponding_marker:'*',doi_position:'bottom',header_layout:next.template_id || 'classic',
       footer_layout:'full',first_page_fit:'auto',english_abstract_heading:'Abstract',
-      footer_text_align:'left',citation_position:'auto',...next};
+      footer_text_align:'left',citation_position:'auto',citation_journal_name:'primary',...next};
     const fontAliases = {texgyrepagella:'Palatino Linotype',texgyretermes:'Times New Roman',tgschola:'Century',texgyrebonum:'Century',latinmodern:'Latin Modern',carlito:'Calibri',texgyreheros:'Sans Serif'};
     values.font_family = fontAliases[values.font_family] || values.font_family;
     for (const [key,id] of Object.entries(fields)) byId(id).value = values[key] ?? '';

@@ -94,15 +94,31 @@ def article_values(data: dict, settings: dict) -> dict:
             'doi': cov.get('doi', ''), 'issn': settings.get('issn_online') or settings.get('issn_print', '')}
 
 
-def citation_text(data: dict, settings: dict) -> str:
+def doi_value(cov: dict) -> str:
+    doi = str(cov.get('doi', '') or '').strip()
+    return re.sub(r'^(?:https?://(?:dx\.)?doi\.org/|doi:\s*)', '', doi, flags=re.IGNORECASE)
+
+
+def citation_journal(settings: dict) -> str:
+    """Journal title for the suggested citation: the journal's own (Turkish) name by default."""
+    turkish, english = settings.get('journal_name_tr', ''), settings.get('journal_name_en', '')
+    if settings.get('english_only') or settings.get('citation_journal_name') == 'english':
+        return english or turkish
+    return turkish or english
+
+
+def citation_text(data: dict, settings: dict, include_doi: bool = True) -> str:
     values = article_values(data, settings)
     parts = [values['yazarlar'], '(' + values['yil'] + ').' if values['yil'] else '', values['baslik'] + '.' if values['baslik'] else '',
-             settings.get('journal_name_en') or values['dergi']]
+             citation_journal(settings)]
     issue = values['cilt'] + ('(' + values['sayi'] + ')' if values['sayi'] else '')
     if issue:
         parts.append(issue + ',')
     if values['sayfa_araligi']:
         parts.append(values['sayfa_araligi'] + '.')
+    doi = doi_value(data.get('cover', {}))
+    if include_doi and doi:
+        parts.append('https://doi.org/' + doi)
     return ' '.join(part for part in parts if part)
 
 
@@ -133,7 +149,7 @@ def running_slots(settings: dict, data: dict, kind: str, variant: str) -> tuple[
     if mode == 'none':
         return ('', '', '')
     if mode == 'standard':
-        return ('', citation_text(data, settings) if kind == 'header' else '{sayfa}', '')
+        return ('', citation_text(data, settings, include_doi=False) if kind == 'header' else '{sayfa}', '')
     suffix = '_even' if mode == 'odd_even' and variant == 'even' else ''
     return tuple(settings[f'{kind}{suffix}_{slot}'] for slot in ('left', 'center', 'right'))
 

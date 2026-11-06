@@ -2,7 +2,7 @@
 
 <img src="../static/brand.svg" alt="AI-ditor Plus A+ logosu" width="88" height="88">
 
-**Sürüm 2.4.1 için hazırlanmıştır.** Bu kılavuz, AI-ditor Plus'ı ilk kez kullanacak bir dergi editörünün kurulumdan Word/PDF çıktısına kadar bütün adımları tek başına tamamlayabilmesi için yazılmıştır. Ekran görüntüleri doğrudan uygulamadan alınmıştır; içlerindeki dergi, yazar, logo ve makale bilgileri **tamamen kurgusaldır**.
+**Sürüm 2.4.2 için hazırlanmıştır.** Bu kılavuz, AI-ditor Plus'ı ilk kez kullanacak bir dergi editörünün kurulumdan Word/PDF çıktısına kadar bütün adımları tek başına tamamlayabilmesi için yazılmıştır. Ekran görüntüleri doğrudan uygulamadan alınmıştır; içlerindeki dergi, yazar, logo ve makale bilgileri **tamamen kurgusaldır**.
 
 ---
 
@@ -36,6 +36,8 @@ Bu sürümdeki yenilikler, uygulamayı kullanan editörlerin geri bildirimleriyl
 | **Lisans metni hizası:** Lisans metni ve görseli sola, ortaya veya sağa hizalanabilir. | [5.4](#54-dipnot-ve-lisans-04) |
 | **Word aktarımında başlık dili:** Türkçe ve İngilizce başlıklar, Word dosyasındaki sıradan bağımsız olarak doğru alanlara yerleşir. | [6.2 Word içe aktarma](#62-word-makalesini-içe-aktarma) |
 | **Kısa yazar:** Alana yanlışlıkla yıl yazılsa bile atıfta yıl tekrarlanmaz. | [6.3](#63-kapak-sayfası-bilgileri-1) |
+| **2.4.2 — Zotero/Mendeley/EndNote atıfları:** Word'e alan veya içerik denetimi olarak eklenmiş metin içi atıflar artık içe aktarılıyor ve kaynakçaya bağlanıyor. | [5.6](#56-atıf-bağlantıları-06-ve-kaydetme) |
+| **2.4.2 — Önerilen atıf:** Atıfın sonuna DOI eklenir; atıfta derginin Türkçe veya İngilizce adı seçilebilir (varsayılan: Türkçe). | [5.4](#54-dipnot-ve-lisans-04) |
 
 Aşağıdaki örnek ilk sayfa, iki dilli kutulu kapakta bu yeniliklerin birlikte kullanımını gösterir: makale türü her panelde kendi dilinde, revizyon ve yayın tarihleri sol panelde, önerilen atıf yazar bilgileriyle özetler arasında, lisans metni ve görseli sağda; sayfa aralığı (45–46) otomatik hesaplanmıştır.
 
@@ -236,7 +238,7 @@ Sağdaki **Canlı tasarım taslağı**, logonuzun, renginizin ve dergi adınız�
 - **Kapak dipnot düzeni:** *Ayrıntılı · tüm bilgiler*, *Kısa · daha az boşluk* veya *Sade · temel bilgiler*. İlk sayfanın altındaki yazar bilgileri, önerilen atıf, etik beyan ve DOI bloğunun yoğunluğunu belirler.
 - **Derginin sabit dipnot / lisans metni:** Her makalenin ilk sayfasının altında görünecek sabit ifade (ör. *Bu makale CC BY 4.0 lisansı ile yayımlanmaktadır.*).
 - **Lisans metni ve görseli hizası:** Sabit dipnot/lisans metninin ve lisans görselinin ilk sayfanın altında *Sol* (mevcut düzen), *Orta* veya *Sağ* tarafta yer almasını sağlar. Word ve PDF çıktısına birlikte uygulanır.
-- **Önerilen atıf konumu:** Makalenin önerilen atıfının (ör. *Örnek & Smith (2026). Başlık. Dergi, 3(2), 45–62.*) ilk sayfadaki yerini belirler:
+- **Önerilen atıf konumu:** Makalenin önerilen atıfının (ör. *Örnek & Smith (2026). Başlık. Dergi, 3(2), 45–62. https://doi.org/10.xxxx/...*) ilk sayfadaki yerini belirler. Makalenin DOI'si girildiyse atıfın sonuna bağlantı olarak eklenir:
 
   | Seçenek | Sonuç |
   | --- | --- |
@@ -244,6 +246,8 @@ Sağdaki **Canlı tasarım taslağı**, logonuzun, renginizin ve dergi adınız�
   | **Yazar bilgilerinin altında, özetlerden önce** | Atıf, yazar ve kurum bilgilerinin hemen altında yer alır. İki dilli kutulu kapak için önerilen seçenektir. |
   | **İlk sayfanın altındaki dipnotta** | Atıf, sayfa altındaki kapak notlarına eklenir. |
   | **Gösterme** | Atıf ilk sayfada gösterilmez. |
+
+- **Atıfta dergi adı:** Önerilen atıfta ve üst bilgi künyesinde derginin *Türkçe adı* (varsayılan) veya *İngilizce adı* kullanılır. *Yalnızca İngilizce kapak ve etiketler* seçeneği açıksa İngilizce ad kullanılır.
 
 Makaleye özel başlık dipnotu ve etik beyan buraya değil, ilgili makalenin kapak bilgilerine yazılır ([6.3](#63-kapak-sayfası-bilgileri-1)).
 
@@ -287,6 +291,8 @@ Etiketleri serbest metinle birleştirebilirsiniz; ör. `{dergi} – {yil}, Cilt 
 ![Atıf bağlantıları ve kayıt çubuğu](images/kilavuz/09-atif-ve-kayit.png)
 
 **Metin içi atıfları kaynakçadaki ilgili kayda bağla** seçeneği açıkken `(Yılmaz, 2020)`, `Kaya ve Demir (2021)`, `Smith et al. (2022)` gibi APA yazar–yıl atıfları Word ve PDF içinde tıklanabilir hâle gelir ve okuru kaynakçadaki kayda götürür. Kaynakçada DOI veya web adresi varsa oradan yayına ulaşılır. Belirsiz eşleşmeler bağlantısız bırakılır; uygulama kaynakların doğruluğunu denetlemez ve kaynak metnini değiştirmez.
+
+**Zotero, Mendeley ve EndNote ile hazırlanmış makaleler:** Bu programlar metin içi atıfları Word'e alan veya içerik denetimi olarak ekler. AI-ditor Plus 2.4.2 ve sonrasında bu atıflar Word içe aktarımında metne olduğu gibi aktarılır ve kaynakçaya bağlanır; atıfları önceden düz metne çevirmeniz gerekmez. Kaynakçanın APA biçiminde ve her kaynağın ayrı satırda olması yeterlidir.
 
 Sayfanın en altındaki kayıt çubuğu ayarların durumunu gösterir (*Dergi ayarları kaydedildi · saat*). Ayarlar zaten otomatik kaydedilir; **Ayarları kaydet** düğmesi, bir kayıt hatasından sonra yeniden denemek ya da kaydı elle onaylamak içindir.
 
@@ -517,7 +523,7 @@ Bu beklenen bir durumdur. Bu bilgiler Word dosyalarında standart bir yerde bulu
 Kapak bilgilerinde **İlk sayfa yerleşimi** ayarını *Sıkı* veya *Çok sıkı* yapın. Dergi ayarlarında **Kapak dipnot düzeni** için *Kısa* veya *Sade* seçeneği de ilk sayfada yer açar.
 
 **Bazı atıflar kaynakçaya bağlanmadı.**
-Atıf eşleştirmesi APA yazar–yıl biçimini destekler. Aynı yazar ve yıla ait birden fazla kayıt, numaralı atıf stilleri ve standart dışı kaynak biçimleri otomatik eşleştirilemeyebilir. Her kaynağın kaynakçada ayrı satırda olduğundan emin olun. Bağlanmayan atıflar metinde olduğu gibi kalır; içerik kaybı olmaz.
+Zotero, Mendeley veya EndNote ile hazırlanmış bir makaleyi 2.4.2'den eski bir sürümle aktardıysanız atıfların bir kısmı metne hiç aktarılmamış olabilir; uygulamayı güncelleyip Word dosyasını yeniden içe aktarın. Atıf eşleştirmesi APA yazar–yıl biçimini destekler. Aynı yazar ve yıla ait birden fazla kayıt, numaralı atıf stilleri ve standart dışı kaynak biçimleri otomatik eşleştirilemeyebilir. Her kaynağın kaynakçada ayrı satırda olduğundan emin olun. Bağlanmayan atıflar metinde olduğu gibi kalır; içerik kaybı olmaz.
 
 **Word'deki tek/çift sayfa üst bilgileri yanlış görünüyor.**
 LibreOffice çift sayıdan başlayan belgelerde tek/çift düzenini farklı yorumlayabilir. Microsoft Word'de veya LaTeX PDF'inde kontrol edin.
