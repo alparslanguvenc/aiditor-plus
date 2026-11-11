@@ -92,7 +92,7 @@ class SuggestedCitationTests(unittest.TestCase):
     def test_turkish_journal_name_and_doi_by_default(self):
         settings = normalize_settings({**PANEL, **NAMES})
         text = citation_text(sample_article(), settings)
-        self.assertIn('Örnek Sosyal Araştırmalar Dergisi 4(2), 89–104.', text)
+        self.assertIn('Örnek Sosyal Araştırmalar Dergisi, 4(2), 89–104.', text)
         self.assertTrue(text.endswith(' https://doi.org/10.1234/example.2026.4'))
         tex = generate_latex_from_form(sample_article(), {}, {**PANEL, **NAMES})
         citation = tex[tex.index(r'\newcommand{\JGTTRapacitation}'):].split('\n', 1)[0]
@@ -101,7 +101,7 @@ class SuggestedCitationTests(unittest.TestCase):
 
     def test_english_journal_name_can_be_chosen(self):
         settings = normalize_settings({**NAMES, 'citation_journal_name': 'english'})
-        self.assertIn('Journal of Sample Social Research 4(2)', citation_text(sample_article(), settings))
+        self.assertIn('Journal of Sample Social Research, 4(2)', citation_text(sample_article(), settings))
         english_only = normalize_settings({**NAMES, 'english_only': True})
         self.assertIn('Journal of Sample Social Research', citation_text(sample_article(), english_only))
         tex = generate_latex_from_form(sample_article(), {}, {**NAMES, 'citation_journal_name': 'english'})
