@@ -21,6 +21,12 @@ macOS 13 veya üzerinde Mac'inize uygun DMG'yi açıp (Elma menüsü → Bu Mac 
 
 **macOS'ta ilk açılış:** Uygulama Apple noter onayına sahip olmadığından macOS ilk açılışı engeller. macOS 15 ve sonrasında **Sistem Ayarları → Gizlilik ve Güvenlik → Yine de Aç**, macOS 13–14'te uygulamaya **Control+tıklayıp → Aç** yolunu izleyin; bu yalnızca bir kez gerekir. Ayrıntılı adımlar kurulum diskindeki *İlk Açılış – Okuyun* dosyasında ve [kullanım kılavuzunda](docs/KULLANIM_KILAVUZU.md#2-kurulum) yer alır. Uygulama yine açılmazsa hatayı bir uyarıyla bildirir ve ayrıntıları `~/Library/Logs/AI-ditor Plus/aiditor-plus.log` dosyasına yazar.
 
+## 2.4.3 düzeltmesi
+
+- **DOI Word'den alınır ve atıfta görünür:** Makale Word dosyasının baş kısmında veya üst/alt bilgisinde “DOI: 10…” ya da doi.org bağlantısı varsa DOI alanı içe aktarımda doldurulur ve önerilen atıfın sonuna eklenir. DOI girilmemişse çıktı panelinde uyarı gösterilir. Önerilen atıfta dergi adından sonra APA'daki virgül eklendi; boş cilt/sayı alanları atıfta “x” olarak görünmez.
+- **Satır sonunda kelime bölme:** **Dergi tasarımı ve ayarları → Yerleşim ve tipografi** bölümünden kapatılabilir; kelimeler PDF'te tireyle bölünmeden alt satıra geçer.
+- **Sorumlu yazar bilgisi:** **Dipnot ve lisans** bölümünden ilk sayfadaki sorumlu yazar satırı “yalnızca ad ve e-posta” olarak ayarlanabilir.
+
 ## 2.4.2 düzeltmesi
 
 - **Zotero, Mendeley ve EndNote atıfları:** Bu programların Word'e alan veya içerik denetimi olarak eklediği metin içi atıflar içe aktarımda kayboluyordu. Artık metne olduğu gibi aktarılıyor ve Word/PDF çıktısında kaynakçaya bağlanıyor. Eski sürümle aktarılmış makaleler için Word dosyasını yeniden içe aktarın.

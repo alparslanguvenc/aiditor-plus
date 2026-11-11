@@ -50,8 +50,9 @@ LAST_PAGE = '\x1fson_sayfa\x1f'
 
 
 def page_value(value) -> str:
+    """Form value without the editor's x/xxx placeholders (pages, volume, issue)."""
     value = str(value or '').strip()
-    return '' if value.lower() in {'', 'xxx'} else value
+    return '' if value.lower() in {'', 'x', 'xx', 'xxx'} else value
 
 
 def revision_dates(cov: dict) -> list[str]:
@@ -89,7 +90,7 @@ def article_values(data: dict, settings: dict) -> dict:
     return {'dergi': journal or '', 'dergi_en': settings.get('journal_name_en', ''), 'baslik': title,
             'kisa_baslik': short_title or (title if len(title) <= 100 else title[:97].rstrip() + '…'),
             'yazarlar': short_authors(data),
-            'yil': cov.get('year', ''), 'cilt': cov.get('volume', ''), 'sayi': cov.get('issue', ''),
+            'yil': cov.get('year', ''), 'cilt': page_value(cov.get('volume')), 'sayi': page_value(cov.get('issue')),
             'sayfa_araligi': page_range(cov),
             'doi': cov.get('doi', ''), 'issn': settings.get('issn_online') or settings.get('issn_print', '')}
 
@@ -109,13 +110,11 @@ def citation_journal(settings: dict) -> str:
 
 def citation_text(data: dict, settings: dict, include_doi: bool = True) -> str:
     values = article_values(data, settings)
-    parts = [values['yazarlar'], '(' + values['yil'] + ').' if values['yil'] else '', values['baslik'] + '.' if values['baslik'] else '',
-             citation_journal(settings)]
+    # APA 7: Journal, Volume(Issue), pages. https://doi.org/...
     issue = values['cilt'] + ('(' + values['sayi'] + ')' if values['sayi'] else '')
-    if issue:
-        parts.append(issue + ',')
-    if values['sayfa_araligi']:
-        parts.append(values['sayfa_araligi'] + '.')
+    source = ', '.join(part for part in (citation_journal(settings), issue, values['sayfa_araligi']) if part)
+    parts = [values['yazarlar'], '(' + values['yil'] + ').' if values['yil'] else '', values['baslik'] + '.' if values['baslik'] else '',
+             source + '.' if source else '']
     doi = doi_value(data.get('cover', {}))
     if include_doi and doi:
         parts.append('https://doi.org/' + doi)

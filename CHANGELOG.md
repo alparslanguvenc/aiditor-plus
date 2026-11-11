@@ -1,5 +1,12 @@
 # Sürüm geçmişi
 
+## 2.4.3 — 2026-11-11
+
+- **DOI içe aktarma:** Word içe aktarma artık makalenin baş kısmında (ilk bölüm başlığından önce) veya ilk sayfa üst/alt bilgisinde “DOI:” etiketiyle ya da doi.org bağlantısıyla yazılmış DOI'yi DOI alanına aktarır. Metin ve kaynakçadaki DOI'ler alınmaz; elle girilmiş DOI korunur. DOI alanı boşsa çıktı panelinde önerilen atıfta DOI olmadığı bildirilir.
+- **Önerilen atıf biçimi:** APA 7'ye uygun olarak dergi adından sonra virgül eklendi (Word). Boş bırakılan cilt/sayı alanlarının “x” yer tutucuları atıfta ve üst bilgi etiketlerinde görünmez (Word ve LaTeX).
+- **Satır sonunda kelime bölme (yeni ayar):** Kapalı seçildiğinde PDF (LaTeX) çıktısında kelimeler tireyle bölünmez. Varsayılan açık; mevcut görünüm değişmez.
+- **Sorumlu yazar bilgisi (yeni ayar):** İlk sayfadaki sorumlu yazar satırı “yalnızca ad ve e-posta” olarak ayarlanabilir; kurum bilgisi (LaTeX) ve ORCID (Sosyal bilimler şablonu, Word) gösterilmez. Varsayılan tüm bilgiler.
+
 ## 2.4.2 — 2026-11-06
 
 - **Zotero/Mendeley/EndNote atıfları:** Word içe aktarma, paragraf metnini python-docx'in `Paragraph.text` özelliğiyle okuduğu için basit alanların (`w:fldSimple`) ve satır içi içerik denetimlerinin (`w:sdt`) içindeki metni atlıyordu. Bu yapılarla eklenen metin içi atıflar içe aktarımda kayboluyor, bu nedenle Word ve LaTeX çıktısında da görünmüyor ve kaynakçaya bağlanmıyordu. Paragraf ve tablo hücresi metni artık alan sonuçlarını, içerik denetimlerini, köprüleri ve izlenen eklemeleri de kapsayacak şekilde okunuyor; silinmiş metin, alan kodları, metin kutuları ve boş içerik denetimlerinin yer tutucuları dışarıda kalıyor.

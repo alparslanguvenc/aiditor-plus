@@ -120,6 +120,8 @@ jobs:
           body: |
             Akademik dergi editörlerinin işlerini kolaylaştırmak için kâr amacı güdülmeden geliştirilen, MIT lisanslı açık kaynak uygulama.
 
+            2.4.3: Makale Word dosyasındaki DOI (“DOI: 10…” veya doi.org bağlantısı) içe aktarımda DOI alanına yazılır ve önerilen atıfa eklenir; DOI yoksa uyarı gösterilir. Önerilen atıfta dergi adından sonra virgül eklendi, boş cilt/sayı “x” olarak görünmez. Yeni ayarlar: PDF'te satır sonunda kelime bölmeyi kapatma ve sorumlu yazar satırında yalnızca ad ve e-posta gösterme.
+
             2.4.2: Zotero, Mendeley ve EndNote ile eklenen metin içi atıflar artık Word içe aktarımında kaybolmuyor; metne aktarılıyor ve kaynakçaya bağlanıyor (eski sürümle aktarılan makaleleri yeniden içe aktarın). Önerilen atıfın sonuna makalenin DOI bağlantısı eklenir; atıfta derginin Türkçe (varsayılan) veya İngilizce adı seçilebilir.
 
             2.4.1: macOS kurulum düzeltmesi. Intel işlemcili Mac'ler için ayrı kurulum dosyası (AIditorPlus_Installer_Intel.dmg) eklendi; Apple Silicon (M1–M4) için AIditorPlus_Installer.dmg kullanılmaya devam eder. Uygulama artık başlatma hatalarını bir uyarıyla bildirir ve ayrıntıları ~/Library/Logs/AI-ditor Plus/aiditor-plus.log dosyasına yazar; masaüstü penceresi açılamazsa uygulama tarayıcıda açılır. Kurulum diskinde ilk açılış adımlarını anlatan “İlk Açılış – Okuyun” dosyası bulunur.

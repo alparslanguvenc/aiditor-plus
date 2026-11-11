@@ -1045,6 +1045,33 @@ def _route_titles_by_language(first: str, second: str) -> tuple[str, str]:
     return first, second
 
 
+_DOI_RE = re.compile(r'(?:\bdoi\s*[:：]?\s*|https?://(?:dx\.)?doi\.org/)(10\.\d{4,9}/[^\s"<>]+)', re.IGNORECASE)
+
+
+def _front_matter_doi(document: Document, blocks: list[dict], paragraph_indices: list[int]) -> str:
+    """The article's own DOI from its front matter or page header/footer.
+
+    Only labelled DOIs ("DOI: 10…" or a doi.org link) before the first body
+    heading count, so DOIs of cited works in the text or references are ignored.
+    """
+    texts = []
+    for index in paragraph_indices:
+        text = blocks[index]['text']
+        key = text.lower().strip().rstrip(':').strip()
+        if _is_heading(blocks[index]['paragraph']) or key in SECTION_MAP or _numbered_section_title(text):
+            break
+        texts.append(text)
+    if document.sections:
+        section = document.sections[0]
+        for part in (section.first_page_header, section.header, section.first_page_footer, section.footer):
+            texts.extend(_para_text(paragraph) for paragraph in part.paragraphs)
+    for text in texts:
+        match = _DOI_RE.search(text)
+        if match:
+            return match.group(1).rstrip('.,;:)]')
+    return ''
+
+
 def extract_form_data_from_docx(file_bytes: bytes) -> tuple[dict, list[dict]]:
     """Extract a reviewable form payload and body images from a DOCX file."""
     document = Document(io.BytesIO(file_bytes))
@@ -1368,7 +1395,12 @@ def extract_form_data_from_docx(file_bytes: bytes) -> tuple[dict, list[dict]]:
         result['warnings'].append('Word çizimleri, grafikler veya metin kutuları bulundu. Görsel olmayan Word şekilleri otomatik resme dönüştürülemez; şekilleri Word’den PNG/JPG olarak kaydedip şekil alanından ekleyin ve konumlarını kontrol edin.')
     if not result['sections']:
         result['warnings'].append('Word dosyasında güvenilir biçimde belirlenebilen makale bölümü bulunamadı.')
-    result['warnings'].append('Yazar, tarih, DOI ve sayı bilgileri Word dosyasından güvenilir biçimde çıkarılamadığı için mevcut alanlar korundu.')
+    doi = _front_matter_doi(document, blocks, paragraph_indices)
+    if doi:
+        result['cover']['doi'] = doi
+        result['warnings'].append(f'Makalenin DOI\'si Word dosyasından alındı ({doi}); Kapak Sayfası Bilgileri → DOI alanında kontrol edin.')
+    result['warnings'].append('Yazar, tarih ve sayı bilgileri' + ('' if doi else ' ile DOI')
+                              + ' Word dosyasından güvenilir biçimde çıkarılamadığı için mevcut alanlar korundu.')
     result['stats'] = {
         'sections': len(result['sections']),
         'tables': table_number,
@@ -1473,13 +1505,13 @@ def _format_affiliations(authors: list, english_only: bool = False) -> str:
     return (r'\\' + '\n  ').join(lines)
 
 
-def _format_corresponding(authors: list, english_only: bool = False) -> str:
+def _format_corresponding(authors: list, english_only: bool = False, include_affiliation: bool = True) -> str:
     email_label = 'E-mail: ' if english_only else 'E-posta: '
     for a in authors:
         if a.get('corresponding'):
             name  = escape(a.get('name', ''))
             email = a.get('email', '')
-            aff   = escape(a.get('affiliation', ''))
+            aff   = escape(a.get('affiliation', '')) if include_affiliation else ''
             ep    = r'. ' + email_label + r'\href{' + _url_target('mailto:' + email) + r'}{' + escape(email) + r'}' if email else ''
             return name + (', ' + aff if aff else '') + ep
     if authors:
@@ -2592,19 +2624,20 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
     # ── Author blocks ──
     author_block = _format_author_block(authors, corr_marker) if authors else ''
     affiliations = _format_affiliations(authors, english_only) if authors else ''
-    corresponding = _format_corresponding(authors, english_only) if authors else ''
+    corresponding = _format_corresponding(authors, english_only, js['corresponding_detail'] == 'full') if authors else ''
 
     # ── APA citation ──
     citation_title = en_title if english_only else tr_title
     # The journal's own (Turkish) title unless the journal chose its English title.
     citation_journal = ((jname_en or jname_tr) if english_only or js['citation_journal_name'] == 'english'
                         else (jname_tr or jname_en))
+    # APA 7: Journal, Volume(Issue), pages. https://doi.org/... (placeholders are left out)
+    volume_raw, issue_raw, start_raw = (page_value(cov.get(key)) for key in ('volume', 'issue', 'start_page'))
+    issue_part = (r'\textit{' + escape(volume_raw) + '}' if volume_raw else '') + ('(' + escape(issue_raw) + ')' if issue_raw else '')
+    source = ', '.join(part for part in (r'\textit{' + escape(citation_journal) + '}', issue_part,
+                                         escape(start_raw) + '--' + end_page if start_raw else '') if part)
     apa_citation = (
-        author_short + r'\ (' + year + r'). ' + citation_title +
-        r'. \textit{' + escape(citation_journal) + r'}, ' +
-        r'\textit{' + volume + r'}(' + issue + r'), ' +
-        start_page + r'--' + end_page + r'.'
-        # APA 7 ends a journal article reference with its DOI.
+        author_short + r'\ (' + year + r'). ' + citation_title + '. ' + source + '.'
         + (r' \href{https://doi.org/\JGTTRDOI}{https://doi.org/\JGTTRDOI}' if doi else '')
     )
 
@@ -2815,8 +2848,9 @@ def generate_latex_from_form(data: dict, figure_file_bytes: dict,
 % ── Satır kırma / Line breaking ──
 % Uzun kelimeler ve URL'lerin sayfa kenarına taşmasını önler
 \setlength{\emergencystretch}{3em}
-\tolerance=800
-\hyphenpenalty=50
+\tolerance=""" + ('800' if js['hyphenation'] == 'on' else '2000') + r"""
+% Kelime bölme / Hyphenation: """ + js['hyphenation'] + r""" (an explicit hyphen in a word may still end a line)
+\hyphenpenalty=""" + ('50' if js['hyphenation'] == 'on' else '10000') + r"""
 \exhyphenpenalty=50
 
 % ── Section headings ──

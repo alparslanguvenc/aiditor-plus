@@ -61,6 +61,7 @@ _DEFAULTS = {
     'english_abstract_heading': 'Abstract',
     # Optional placements; the defaults keep each template's original layout.
     'footer_text_align': 'left', 'citation_position': 'auto', 'citation_journal_name': 'primary',
+    'hyphenation': 'on', 'corresponding_detail': 'full',
 }
 _FONT_ALIASES = {
     'palatino linotype': 'texgyrepagella', 'palatino': 'texgyrepagella',
@@ -102,6 +103,7 @@ def normalize_settings(raw):
         'footer_text_align': {'left', 'center', 'right'},
         'citation_position': {'auto', 'below_authors', 'footer', 'none'},
         'citation_journal_name': {'primary', 'english'},
+        'hyphenation': {'on', 'off'}, 'corresponding_detail': {'full', 'name_email'},
     }.items():
         value = str(result[key]).strip().lower()
         if value not in choices:

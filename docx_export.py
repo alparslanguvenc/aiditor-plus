@@ -467,7 +467,8 @@ def _scholarly_cover(doc, data, settings, assets):
     contacts = []
     for author in authors:
         if author.get('corresponding'):
-            contacts.append(' · '.join(str(author.get(k, '')).strip() for k in ('name', 'email', 'orcid') if str(author.get(k, '')).strip()))
+            fields = ('name', 'email', 'orcid') if settings['corresponding_detail'] == 'full' else ('name', 'email')
+            contacts.append(' · '.join(str(author.get(k, '')).strip() for k in fields if str(author.get(k, '')).strip()))
     p = None
     if contacts:
         p = _paragraph(footer, size=8, after=0)

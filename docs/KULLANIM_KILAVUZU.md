@@ -2,7 +2,7 @@
 
 <img src="../static/brand.svg" alt="AI-ditor Plus A+ logosu" width="88" height="88">
 
-**Sürüm 2.4.2 için hazırlanmıştır.** Bu kılavuz, AI-ditor Plus'ı ilk kez kullanacak bir dergi editörünün kurulumdan Word/PDF çıktısına kadar bütün adımları tek başına tamamlayabilmesi için yazılmıştır. Ekran görüntüleri doğrudan uygulamadan alınmıştır; içlerindeki dergi, yazar, logo ve makale bilgileri **tamamen kurgusaldır**.
+**Sürüm 2.4.3 için hazırlanmıştır.** Bu kılavuz, AI-ditor Plus'ı ilk kez kullanacak bir dergi editörünün kurulumdan Word/PDF çıktısına kadar bütün adımları tek başına tamamlayabilmesi için yazılmıştır. Ekran görüntüleri doğrudan uygulamadan alınmıştır; içlerindeki dergi, yazar, logo ve makale bilgileri **tamamen kurgusaldır**.
 
 ---
 
@@ -37,6 +37,8 @@ Bu sürümdeki yenilikler, uygulamayı kullanan editörlerin geri bildirimleriyl
 | **Word aktarımında başlık dili:** Türkçe ve İngilizce başlıklar, Word dosyasındaki sıradan bağımsız olarak doğru alanlara yerleşir. | [6.2 Word içe aktarma](#62-word-makalesini-içe-aktarma) |
 | **Kısa yazar:** Alana yanlışlıkla yıl yazılsa bile atıfta yıl tekrarlanmaz. | [6.3](#63-kapak-sayfası-bilgileri-1) |
 | **2.4.2 — Zotero/Mendeley/EndNote atıfları:** Word'e alan veya içerik denetimi olarak eklenmiş metin içi atıflar artık içe aktarılıyor ve kaynakçaya bağlanıyor. | [5.6](#56-atıf-bağlantıları-06-ve-kaydetme) |
+| **2.4.3 — DOI Word'den alınır:** Makale Word dosyasının baş kısmında veya üst/alt bilgisinde “DOI: 10…” ya da doi.org bağlantısı varsa DOI alanı içe aktarımda doldurulur. | [6.2](#62-word-makalesini-içe-aktarma) |
+| **2.4.3 — Kelime bölme ve sorumlu yazar:** PDF çıktısında satır sonunda kelime bölme kapatılabilir; sorumlu yazar satırında yalnızca ad ve e-posta gösterilebilir. | [5.3](#53-yerleşim-ve-tipografi-03), [5.4](#54-dipnot-ve-lisans-04) |
 | **2.4.2 — Önerilen atıf:** Atıfın sonuna DOI eklenir; atıfta derginin Türkçe veya İngilizce adı seçilebilir (varsayılan: Türkçe). | [5.4](#54-dipnot-ve-lisans-04) |
 
 Aşağıdaki örnek ilk sayfa, iki dilli kutulu kapakta bu yeniliklerin birlikte kullanımını gösterir: makale türü her panelde kendi dilinde, revizyon ve yayın tarihleri sol panelde, önerilen atıf yazar bilgileriyle özetler arasında, lisans metni ve görseli sağda; sayfa aralığı (45–46) otomatik hesaplanmıştır.
@@ -228,6 +230,7 @@ Sağdaki **Canlı tasarım taslağı**, logonuzun, renginizin ve dergi adınız�
 - **Logo yüksekliği (cm):** 0,5–3,5 cm arası.
 - **Sorumlu yazar işareti:** \*, †, ‡, §, ¶, #, ★ veya ✉.
 - **DOI konumu:** İlk sayfanın altında veya üst bilgi alanında.
+- **Satır sonunda kelime bölme:** *Açık* (varsayılan) seçiliyken satıra sığmayan kelimeler PDF çıktısında tireyle bölünür. *Kapalı* seçildiğinde kelime bölünmeden bir alt satıra geçer; zaten tire içeren birleşik kelimeler tireden sonra bölünebilir. Word çıktısı kelimeleri kendiliğinden bölmediği için bu ayar yalnızca PDF (LaTeX) çıktısını etkiler.
 - **İngilizce özet başlığı:** “Abstract”, “Extended Summary” ya da kendi ifadeniz.
 - **Yalnızca İngilizce kapak ve etiketler kullan:** Derginiz yalnızca İngilizce yayın yapıyorsa işaretleyin; kapaktaki etiketler ve bölüm adları İngilizce oluşturulur.
 
@@ -247,6 +250,7 @@ Sağdaki **Canlı tasarım taslağı**, logonuzun, renginizin ve dergi adınız�
   | **İlk sayfanın altındaki dipnotta** | Atıf, sayfa altındaki kapak notlarına eklenir. |
   | **Gösterme** | Atıf ilk sayfada gösterilmez. |
 
+- **Sorumlu yazar bilgisi:** İlk sayfadaki sorumlu yazar satırında *ad, kurum ve e-posta* (varsayılan) veya *yalnızca ad ve e-posta* gösterilir.
 - **Atıfta dergi adı:** Önerilen atıfta ve üst bilgi künyesinde derginin *Türkçe adı* (varsayılan) veya *İngilizce adı* kullanılır. *Yalnızca İngilizce kapak ve etiketler* seçeneği açıksa İngilizce ad kullanılır.
 
 Makaleye özel başlık dipnotu ve etik beyan buraya değil, ilgili makalenin kapak bilgilerine yazılır ([6.3](#63-kapak-sayfası-bilgileri-1)).
@@ -333,7 +337,9 @@ Makaleyi elle yazmak yerine yazarın gönderdiği Word dosyasını içe aktarmak
 
 Uygulama başlıkları, Türkçe/İngilizce özetleri ve anahtar kelimeleri, bölüm başlıklarını ve paragrafları, tabloları (birleşik hücreler dâhil), gövdedeki görselleri ve kaynakçayı kaynak belgedeki sırasıyla forma yerleştirir. Başlıkların dili otomatik tanınır: Word dosyasında İngilizce başlık önce gelse bile Türkçe başlık *Türkçe Başlık*, İngilizce başlık *İngilizce Başlık* alanına yerleştirilir. Yalnızca İngilizce başlık varsa Türkçe başlık alanı boş bırakılır.
 
-**Aktarılmayan bilgiler:** Yazar, tarih, DOI, cilt/sayı gibi künye bilgileri Word dosyalarında standart bir yerde bulunmadığı için güvenilir biçimde çıkarılamaz. Bu alanlar boş kalır veya mevcut değerleri korunur; bunları sonraki adımlarda elle girersiniz. Resim olarak çizilmiş tablolar, Word şekilleri ve metin kutuları da her belgede aktarılamayabilir.
+**DOI:** Word dosyasının baş kısmında (başlıktan ilk bölüm başlığına kadar) veya sayfa üst/alt bilgisinde “DOI: 10.xxxx/…” ya da `https://doi.org/…` biçiminde yazılmış bir DOI varsa **DOI** alanına otomatik yazılır ve içe aktarma özetinde gösterilir. Metin içinde veya kaynakçada geçen başka yayınların DOI'leri dikkate alınmaz. DOI alanını daha önce elle doldurduysanız sizin girdiğiniz değer korunur.
+
+**Aktarılmayan bilgiler:** Yazar, tarih, cilt/sayı gibi künye bilgileri Word dosyalarında standart bir yerde bulunmadığı için güvenilir biçimde çıkarılamaz. Bu alanlar boş kalır veya mevcut değerleri korunur; bunları sonraki adımlarda elle girersiniz. Resim olarak çizilmiş tablolar, Word şekilleri ve metin kutuları da her belgede aktarılamayabilir.
 
 > **İpucu:** Word dosyasında bölüm başlıkları için Word'ün *Başlık 1/2/3* stillerini, makale başlığı için *Konu Başlığı* stilini kullanmak aktarımın doğruluğunu artırır. Özet bölümlerinin “Öz/Özet” ve “Abstract” başlıklarıyla, anahtar kelime satırlarının “Anahtar Kelimeler:” ve “Keywords:” ifadeleriyle başlaması da aktarımı kolaylaştırır.
 
@@ -350,7 +356,7 @@ Uygulama başlıkları, Türkçe/İngilizce özetleri ve anahtar kelimeleri, bö
 | **Yıl, Cilt, Sayı** | Künyede ve üst bilgilerde kullanılır. |
 | **Başlangıç Sayfası** | Sayfa numaraları bu değerden başlar; tek/çift üst bilgiler de buna göre belirlenir. |
 | **Bitiş Sayfası** | **Boş bırakmanız önerilir.** Boşsa son sayfa, mizanpaj tamamlandıktan sonra Word ve PDF çıktısında otomatik hesaplanır; sayfa aralığı (ör. 45–62) künyede, atıfta ve üst bilgilerde kendiliğinden doğru görünür. Elle yazdığınız bitiş sayfası her zaman önceliklidir. |
-| **DOI** | Yalnızca `10.xxxx/...` kısmını yazın; çıktıda `https://doi.org/` bağlantısı oluşturulur. |
+| **DOI** | Yalnızca `10.xxxx/...` kısmını yazın; çıktıda `https://doi.org/` bağlantısı oluşturulur ve önerilen atıfın sonuna eklenir. Word dosyasında etiketli bir DOI varsa içe aktarımda kendiliğinden doldurulur. Alan boşsa önerilen atıfta DOI yer almaz; çıktı panelinde bu konuda uyarı gösterilir. |
 | **Makale Türü** | Listeden seçin veya `Türkçe -- English` biçiminde yazın (ör. *Araştırma Makalesi -- Research Article*). İki dilli kutulu kapakta Türkçe kısmı Öz panelinde, İngilizce kısmı Abstract panelinde gösterilir. |
 | **Geliş / Kabul / Yayın Tarihi** | `gg.aa.yyyy` biçiminde. |
 | **Revizyon Tarihleri** | İsteğe bağlı. **Revizyon Tarihi Ekle** ile her revizyon için ayrı bir tarih girin; çöp kutusu simgesi tarihi siler. Tarihler geliş ve kabul tarihleri arasında listelenir; iki dilli kutulu kapakta özetlerin solundaki makale bilgisi alanında *Revizyon 1, Revizyon 2…* olarak görünür. |
@@ -517,7 +523,7 @@ Parola sıfırlama özelliği yoktur. Yeni bir hesap açın; daha önce aldığ�
 Word'deki başlıkların *Başlık 1/2/3* stilleriyle biçimlendirildiğinden emin olun. Metin kutuları, Word şekilleri ve resim olarak eklenmiş tablolar aktarılamayabilir; bunları **Şekil Ekle** veya **Word'den Tablo Yapıştır** ile ekleyin. Eksik bölümü **Bölüm Ekle** ile açıp Word'den metni yapıştırabilirsiniz.
 
 **Yazar, DOI ve tarih bilgileri aktarılmadı.**
-Bu beklenen bir durumdur. Bu bilgiler Word dosyalarında standart bir yerde bulunmadığından elle girilmelidir ([6.3](#63-kapak-sayfası-bilgileri-1), [6.4](#64-yazarlar-2)).
+Yazar ve tarih bilgileri Word dosyalarında standart bir yerde bulunmadığından elle girilmelidir. DOI yalnızca makalenin baş kısmında veya üst/alt bilgisinde “DOI:” etiketiyle ya da doi.org bağlantısıyla yazılmışsa otomatik alınır; aksi hâlde Kapak bilgilerine elle girin ([6.3](#63-kapak-sayfası-bilgileri-1), [6.4](#64-yazarlar-2)).
 
 **İlk sayfa taşıyor, özet ikinci sayfaya kayıyor.**
 Kapak bilgilerinde **İlk sayfa yerleşimi** ayarını *Sıkı* veya *Çok sıkı* yapın. Dergi ayarlarında **Kapak dipnot düzeni** için *Kısa* veya *Sade* seçeneği de ilk sayfada yer açar.
